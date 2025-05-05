@@ -6,7 +6,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
     
-    let eventsList = [...events];
+    let eventsList = Array.isArray(events) ? [...events] : [];
 
     if (limit) {
       eventsList = eventsList.slice(0, limit);
