@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { events } from '@/data/events';
 
+type Props = {
+  params: {
+    slug: string;
+  };
+};
+
 export async function GET(
-  _request: NextRequest,
-  { params }: { params: { slug: string } }
+  request: NextRequest,
+  { params }: Props
 ): Promise<NextResponse> {
   try {
     const { slug } = params;
