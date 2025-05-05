@@ -30,7 +30,7 @@ export default function NotFound() {
           </h1>
           <p className="text-xl mb-8 max-w-md mx-auto"
             style={{ color: theme.colors.text.secondary }}>
-            Oops! The page you're looking for seems to have wandered off.
+            Oops! The page you&apos;re looking for seems to have wandered off.
           </p>
 
           {/* Return Home Button */}

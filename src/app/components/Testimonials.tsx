@@ -108,7 +108,7 @@ export default function Testimonials() {
                       fontFamily: currentLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary 
                     }}
                   >
-                    "{testimonial.quote[currentLanguage as keyof typeof testimonial.quote]}"
+                    &quot;{testimonial.quote[currentLanguage as keyof typeof testimonial.quote]}&quot;
                   </p>
                 </div>
               </SwiperSlide>

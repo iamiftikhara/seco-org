@@ -14,12 +14,14 @@ import LoadingSpinner from "@/app/components/LoadingSpinner";
 import styles from "../styles/EventContent.module.css";
 import SocialShare from "@/app/components/SocialShare";
 
+import type { EventItem } from '@/types/events';
+
 export default function EventDetail() {
   const params = useParams();
-  const [event, setEvent] = useState<any>(null);
+  const [event, setEvent] = useState<EventItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedLanguage] = useState<"en" | "ur">("en");
-  const [navigation, setNavigation] = useState<{prev: any; next: any}>({prev: null, next: null});
+  const [navigation, setNavigation] = useState<{prev: EventItem | null; next: EventItem | null}>({prev: null, next: null});
 
   // Update the useEffect to use the service
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function EventDetail() {
         const [eventResponse, navResponse] = await Promise.all([eventService.getEventBySlug(params.slug as string), eventService.getEventNavigation(params.slug as string)]);
 
         if (eventResponse.success) {
-          setEvent(eventResponse.data);
+          setEvent(eventResponse.data || null);
         }
         if (navResponse.success) {
           setNavigation({

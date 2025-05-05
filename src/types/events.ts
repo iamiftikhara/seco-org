@@ -39,7 +39,7 @@ type SocialShare = {
   ogType: string;
 };
 
-type EventItem = {
+export type EventItem = {
   id: string;
   title: LanguageText;
   slug: string;

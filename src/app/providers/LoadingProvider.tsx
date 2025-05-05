@@ -4,9 +4,14 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import PageLoader from '../components/PageLoader';
 
-const LoadingContext = createContext({
+type LoadingContextType = {
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
+};
+
+const LoadingContext = createContext<LoadingContextType>({
   isLoading: false,
-  setIsLoading: (_loading: boolean) => {}
+  setIsLoading: () => void 0
 });
 
 export function LoadingProvider({ children }: { children: React.ReactNode }) {
