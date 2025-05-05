@@ -10,7 +10,6 @@ import type {ServiceDetail} from "@/types/services";
 import {services} from "@/data/services";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import {FaUsers, FaChartLine, FaStar, FaGlobe} from "react-icons/fa";
 import PageLoader from "@/app/components/PageLoader";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import Link from "next/link";

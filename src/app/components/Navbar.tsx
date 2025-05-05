@@ -27,14 +27,14 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, section: string) => {
-    e.preventDefault();
-    const element = document.getElementById(section);
-    if (element) {
-      element.scrollIntoView({behavior: "smooth"});
-      setIsOpen(false);
-    }
-  };
+  // const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, section: string) => {
+  //   e.preventDefault();
+  //   const element = document.getElementById(section);
+  //   if (element) {
+  //     element.scrollIntoView({behavior: "smooth"});
+  //     setIsOpen(false);
+  //   }
+  // };
 
   return (
     <nav className="bg-[#4B0082] shadow-lg fixed w-full z-50">

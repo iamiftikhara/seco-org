@@ -15,6 +15,7 @@ export const eventService = {
         data: event || null
       };
     } catch (error) {
+      console.log("API error", error)
       return {
         success: false,
         error: 'Failed to fetch event'
@@ -25,7 +26,7 @@ export const eventService = {
   getEventNavigation: async (currentSlug: string) => {
     try {
       // Get base slug without language suffix
-      const baseSlug = currentSlug.replace(/-[a-z]{2}$/, '');
+      // const baseSlug = currentSlug.replace(/-[a-z]{2}$/, '');
       
       // Find events with the same language
       const currentEvent = events.eventsList.find(event => event.slug === currentSlug);
@@ -42,6 +43,7 @@ export const eventService = {
         }
       };
     } catch (error) {
+      console.log("API error", error)
       return {
         success: false,
         error: 'Failed to fetch navigation'

@@ -4,8 +4,6 @@ import {useEffect, useState} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import * as Icons from "react-icons/fa";
-import {ServiceDetail} from "@/types/services";
-import {serviceUtils} from "@/utils/services";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import LoadingSpinner from "@/app/components/LoadingSpinner";

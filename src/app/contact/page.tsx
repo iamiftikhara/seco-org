@@ -68,6 +68,7 @@ export default function Page() {
       });
       setTimeout(() => setStatus((prev) => ({...prev, success: false})), 5000);
     } catch (error) {
+      console.log("API error message", error)
       setStatus({loading: false, error: "Failed to send message. Please try again later.", success: false});
       setTimeout(() => setStatus((prev) => ({...prev, error: null})), 5000);
     }

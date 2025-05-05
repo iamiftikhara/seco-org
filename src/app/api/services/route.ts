@@ -7,7 +7,7 @@ export async function GET() {
     return NextResponse.json({ success: true, data: services });
   } catch (error) {
     return NextResponse.json(
-      { success: false, message: 'Failed to fetch services' },
+      { success: false, message: 'Failed to fetch services', Error: error},
       { status: 500 }
     );
   }
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     // Add validation here
     if (!newService.title || !newService.description) {
       return NextResponse.json(
-        { success: false, message: 'Missing required fields' },
+        { success: false, message: 'Missing required fields'},
         { status: 400 }
       );
     }

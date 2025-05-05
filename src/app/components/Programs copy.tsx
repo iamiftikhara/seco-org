@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 
 export default function Programs() {
-  const [programs, setPrograms] = useState([
+  const [programs] = useState([
     {
       title: 'Community Development',
       description: 'Supporting sustainable community initiatives',

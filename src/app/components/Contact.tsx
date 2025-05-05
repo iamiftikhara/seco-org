@@ -1,14 +1,14 @@
 "use client";
 
 import {useState} from "react";
-import emailjs from "@emailjs/browser";
+// import emailjs from "@emailjs/browser";
 import {contactData} from "@/data/contact";
 import {theme} from "@/config/theme";
 import * as Fa from "react-icons/fa";
 import * as Md from "react-icons/md";
 
 export default function Contact() {
-  const [currentLanguage, setCurrentLanguage] = useState("en");
+  const [currentLanguage] = useState("en");
   const initialFormData = {
     name: "",
     email: "",
@@ -60,6 +60,7 @@ export default function Contact() {
         setStatus((prev) => ({...prev, success: false}));
       }, 5000);
     } catch (error) {
+      console.error("Failed to send message:", error);
       setStatus({
         loading: false,
         error: "Failed to send message. Please try again later.",

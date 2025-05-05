@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import * as Icons from 'react-icons/fa';
-import { ServiceDetail } from '@/types/services';
 import { theme } from '@/config/theme';
 import { services } from '@/data/services';
 

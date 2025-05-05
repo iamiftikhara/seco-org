@@ -8,7 +8,7 @@ import Footer from "@/app/components/Footer";
 import {theme} from "@/config/theme";
 import Link from "next/link";
 import {FaArrowLeft, FaArrowRight} from "react-icons/fa";
-import {events} from "@/data/events";
+// import {events} from "@/data/events";
 import {eventService} from "../utils/eventService";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import styles from "../styles/EventContent.module.css";
@@ -18,7 +18,7 @@ export default function EventDetail() {
   const params = useParams();
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState<"en" | "ur">("en");
+  const [selectedLanguage] = useState<"en" | "ur">("en");
   const [navigation, setNavigation] = useState<{prev: any; next: any}>({prev: null, next: null});
 
   // Update the useEffect to use the service
@@ -67,11 +67,11 @@ export default function EventDetail() {
   }
 
   // Update content images extraction to match new structure
-  const contentImages =
-    event?.content?.text?.match(/<img[^>]+src="([^">]+)"/g)?.map((img: string) => {
-      const src = img.match(/src="([^">]+)"/)?.[1];
-      return src;
-    }) || [];
+  // const contentImages =
+  //   event?.content?.text?.match(/<img[^>]+src="([^">]+)"/g)?.map((img: string) => {
+  //     const src = img.match(/src="([^">]+)"/)?.[1];
+  //     return src;
+  //   }) || [];
 
   return (
     <>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { theme } from '@/config/theme';
-import { galleryData, type GallerySection } from '@/data/gallery';
+import { galleryData } from '@/data/gallery';
 import Navbar  from '@/app/components/Navbar';
 import Footer  from '@/app/components/Footer';
 

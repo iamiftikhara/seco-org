@@ -3,7 +3,7 @@
 import {useState, useEffect} from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {Program, ProgramItem} from "@/types/programs";
+import {ProgramItem} from "@/types/programs";
 import {programs} from "@/data/programs";
 import {theme} from "@/config/theme";
 

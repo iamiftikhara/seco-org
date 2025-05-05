@@ -3,7 +3,7 @@
 import {useState, useEffect} from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {Program, ProgramItem} from "@/types/programs";
+import {ProgramItem} from "@/types/programs";
 import {programs} from "@/data/programs";
 import {theme} from "@/config/theme";
 import Navbar from "@/app/components/Navbar";
@@ -15,7 +15,7 @@ export default function Programs() {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
 
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory] = useState<string>("all");
 
   useEffect(() => {
     const filtered = programs.programsList.filter((program) => {
@@ -27,7 +27,7 @@ export default function Programs() {
   }, [currentLanguage, selectedCategory]);
 
   // Get unique categories for current language
-  const categories = Array.from(new Set(programs.programsList.filter((program) => program.language === currentLanguage).map((program) => program.category.text)));
+  // const categories = Array.from(new Set(programs.programsList.filter((program) => program.language === currentLanguage).map((program) => program.category.text)));
 
   return (
     <>

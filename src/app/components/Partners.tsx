@@ -6,7 +6,7 @@ import { partnersData } from '@/data/partners';
 import { theme } from '@/config/theme';
 
 export default function Partners() {
-  const [currentLanguage, setCurrentLanguage] = useState('en');
+  const [currentLanguage] = useState('en');
 
   return (
     <section className="py-16 bg-white">

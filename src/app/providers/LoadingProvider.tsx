@@ -6,7 +6,7 @@ import PageLoader from '../components/PageLoader';
 
 const LoadingContext = createContext({
   isLoading: false,
-  setIsLoading: (loading: boolean) => {}
+  setIsLoading: (_loading: boolean) => {}
 });
 
 export function LoadingProvider({ children }: { children: React.ReactNode }) {
