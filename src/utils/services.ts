@@ -1,7 +1,3 @@
-import { ServiceDetail, ServiceResponse, ServicesListResponse } from '@/types/services';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-
 export const serviceUtils = {
   getServiceBySlug: async (slug: string) => {
     try {
