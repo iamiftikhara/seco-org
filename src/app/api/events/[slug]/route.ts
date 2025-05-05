@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { events } from '@/data/events';
 
-interface RouteContext {
-  params: {
-    slug: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
 export async function GET(
-  request: NextRequest,
-  context: RouteContext
+  _request: NextRequest,
+  { params }: { params: { slug: string } }
 ): Promise<NextResponse> {
   try {
-    const { slug } = context.params;
+    const { slug } = params;
     const event = events.eventsList.find(e => e.slug === slug);
     
     if (!event) {
