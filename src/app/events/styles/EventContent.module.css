@@ -1,0 +1,48 @@
+.events-content-parent {
+  all: initial;
+  display: block;
+}
+
+.events-content-parent :global(h1),
+.events-content-parent :global(h2),
+.events-content-parent :global(h3),
+.events-content-parent :global(h4),
+.events-content-parent :global(h5),
+.events-content-parent :global(h6) {
+  margin: 1.5rem 0;
+  line-height: 1.2;
+  font-weight: bold;
+}
+
+.events-content-parent :global(p) {
+  margin: 1rem 0;
+  line-height: 1.6;
+}
+
+.events-content-parent :global(ul),
+.events-content-parent :global(ol) {
+  list-style-position: inside;
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.events-content-parent :global(ul) {
+  list-style-type: disc;
+}
+
+.events-content-parent :global(ol) {
+  list-style-type: decimal;
+}
+
+.events-content-parent :global(li) {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.events-content-parent :global(img) {
+  max-width: 100%;
+  height: auto;
+  margin: 2rem auto;
+  border-radius: 0.5rem;
+}
