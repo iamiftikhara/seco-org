@@ -1,5 +1,6 @@
 import { FaFacebook, FaTwitter, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 import { theme } from '@/config/theme';
+import Head from 'next/head';
 
 interface SocialShareProps {
   title: string;
@@ -31,41 +32,9 @@ export default function SocialShare({
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedDescription}&picture=${encodedImage}`,
     twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}&via=${twitterHandle}&hashtags=${encodedHashtags}`,
-    linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}&summary=${encodedDescription}&source=${twitterHandle}`,
-    whatsapp: `https://wa.me/?text=${encodedDescription}%0A%0A${encodedTitle}%0A${encodedUrl}${hashtags.length ? '%0A%0A' + hashtags.map(tag => `#${tag}`).join(' ') : ''}`
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    whatsapp: `https://wa.me/?text=${encodedTitle}%0A${encodedDescription}%0A${encodedUrl}`
   };
-
-  // Add Open Graph meta tags dynamically
-  if (typeof document !== 'undefined') {
-    const metaTags = [
-      { property: 'og:title', content: title },
-      { property: 'og:description', content: description },
-      { property: 'og:url', content: url },
-      { property: 'og:type', content: ogType },
-      { property: 'twitter:card', content: 'summary_large_image' },
-      { property: 'twitter:title', content: title },
-      { property: 'twitter:description', content: description },
-      { property: 'twitter:site', content: `@${twitterHandle}` },
-    ];
-
-    if (image) {
-      metaTags.push(
-        { property: 'og:image', content: image },
-        { property: 'twitter:image', content: image }
-      );
-    }
-
-    // Update or create meta tags
-    metaTags.forEach(({ property, content }) => {
-      let meta = document.querySelector(`meta[property="${property}"]`);
-      if (!meta) {
-        meta = document.createElement('meta');
-        meta.setAttribute('property', property);
-        document.head.appendChild(meta);
-      }
-      meta.setAttribute('content', content);
-    });
-  }
 
   const shareButtons = [
     { icon: FaFacebook, link: shareLinks.facebook, label: language === 'en' ? 'Share on Facebook' : 'فیس بک پر شیئر کریں' },
@@ -75,31 +44,51 @@ export default function SocialShare({
   ];
 
   return (
-    <div className="flex flex-col items-center space-y-4">
-      <h3 
-        className="text-lg font-semibold"
-        style={{
-          color: theme.colors.text.primary,
-          fontFamily: language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
-        }}
-      >
-        {language === 'en' ? 'Share This' : 'شیئر کریں'}
-      </h3>
-      <div className="flex space-x-4">
-        {shareButtons.map((button, index) => (
-          <a
-            key={index}
-            href={button.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full transition-transform hover:scale-110"
-            style={{ backgroundColor: theme.colors.primary }}
-            title={button.label}
-          >
-            <button.icon className="text-white text-xl" />
-          </a>
-        ))}
+    <>
+      <Head>
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={url} />
+        <meta property="og:type" content={ogType} />
+        {image && <meta property="og:image" content={image} />}
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:site" content={`@${twitterHandle}`} />
+        {image && <meta name="twitter:image" content={image} />}
+      </Head>
+
+      <div className="flex flex-col items-center space-y-4">
+        <h3 
+          className="text-lg font-semibold"
+          style={{
+            color: theme.colors.text.primary,
+            fontFamily: language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+          }}
+        >
+          {language === 'en' ? 'Share This' : 'شیئر کریں'}
+        </h3>
+        <div className="flex space-x-4">
+          {shareButtons.map((button, index) => (
+            <a
+              key={index}
+              href={button.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-full transition-transform hover:scale-110"
+              style={{ backgroundColor: theme.colors.primary }}
+              title={button.label}
+              onClick={(e) => {
+                e.preventDefault();
+                window.open(button.link, '_blank', 'width=600,height=400');
+              }}
+            >
+              <button.icon className="text-white text-xl" />
+            </a>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

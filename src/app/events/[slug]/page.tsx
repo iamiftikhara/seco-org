@@ -235,7 +235,16 @@ export default function EventDetail() {
 
           {/* Add Social Share Component */}
           <div className="mt-8">
-            <SocialShare title={event.socialShare.title.text} description={event.socialShare.description.text} url={typeof window !== "undefined" ? window.location.href : ""} image={event.featuredImage} language={event.language} hashtags={event.socialShare.hashtags} twitterHandle={event.socialShare.twitterHandle} ogType={event.socialShare.ogType} />
+            <SocialShare 
+              title={event.socialShare.title.text} 
+              description={event.socialShare.description.text} 
+              url={typeof window !== "undefined" ? window.location.href : ""} 
+              image={event.featuredImage} 
+              language={event.language} 
+              hashtags={event.socialShare.hashtags} 
+              twitterHandle={event.socialShare.twitterHandle} 
+              ogType={event.socialShare.ogType} 
+            />
           </div>
 
           {/* Navigation */}
