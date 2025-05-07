@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { services } from '@/data/services';
 
-export async function GET(
-  _request: Request,
-  { params }: { params: { slug: string } }
-) {
+export async function GET(request, { params }) {
   try {
     const service = Object.values(services).find(s => s.slug === params.slug);
     

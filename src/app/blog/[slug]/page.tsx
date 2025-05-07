@@ -101,7 +101,7 @@ const ContentBlock = ({
   }
 };
 
-export default function BlogPost({params}: {params: {slug: string}}) {
+export default function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const [post, setPost] = useState<BlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [navigation, setNavigation] = useState<{

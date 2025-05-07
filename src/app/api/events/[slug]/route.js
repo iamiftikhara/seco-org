@@ -1,10 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { events } from '@/data/events';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { slug: string } }
-) {
+export async function GET(request, { params }) {
   try {
     const { slug } = params;
     const event = events.eventsList.find(e => e.slug === slug);
