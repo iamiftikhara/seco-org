@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { events } from '@/data/events';
 
-type Props = {
-  params: {
-    slug: string;
-  };
-};
-
 export async function GET(
   request: NextRequest,
-  { params }: Props
-): Promise<NextResponse> {
+  { params }: { params: { slug: string } }
+) {
   try {
     const { slug } = params;
     const event = events.eventsList.find(e => e.slug === slug);
