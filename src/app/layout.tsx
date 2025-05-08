@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+// console.log('Generating root layout metadata');
+
 export const metadata: Metadata = {
   title: 'SECO - Supporting Communities',
   description: 'Supporting Communities Through Sustainable Development',
@@ -34,6 +36,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // console.log('Rendering RootLayout');
   return (
     <html lang="en">
       <body>

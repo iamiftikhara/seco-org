@@ -25,7 +25,7 @@ export const defaultMeta = {
     siteName: "SECO",
     images: [
       {
-        url: "/images/og-image.jpg",
+        url: "/images/og-image.jpglalal",
         width: 1200,
         height: 630,
         alt: "SECO"

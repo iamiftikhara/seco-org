@@ -3,14 +3,16 @@ import { generateMeta } from '@/meta/config';
 import { eventService } from '../utils/eventService';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  console.log('Generating event metadata for slug:', params.slug);
   try {
     const eventResponse = await eventService.getEventBySlug(params.slug as string);
-    console.log(eventResponse, "dddddddddddddddd")
+    console.log('Event data received:', eventResponse);
 
     const event = eventResponse.data;
-    console.log(event, "dddddddddddddddd")
+    console.log('Event metadata being generated:', event?.title?.text);
 
     if (!event) {
+      console.log('No event found, returning default metadata');
       return generateMeta({
         title: 'Event Not Found',
         description: 'The requested event could not be found.',
@@ -19,12 +21,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       });
     }
 
-    return {
+    const metadata = {
       title: `${event.title.text} | SECO`,
       description: event.shortDescription.text,
       openGraph: {
         type: (event.socialShare?.ogType || 'article') as 'website' | 'article' | 'book' | 'profile' | 'music.song' | 'music.album' | 'music.playlist' | 'music.radio_station' | 'video.movie' | 'video.episode' | 'video.tv_show' | 'video.other',
-        // type: event.socialShare?.ogType || 'article',
         siteName: 'SECO',
         title: event.title.text,
         description: event.shortDescription.text,
@@ -47,6 +48,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       },
       keywords: event.socialShare?.hashtags || []
     };
+    
+    console.log('Generated metadata:', metadata);
+    return metadata;
   } catch (error) {
     console.error('Error generating metadata:', error);
     return generateMeta({
@@ -57,4 +61,3 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     });
   }
 }
-// The generateMetadata function is already exported in its declaration
