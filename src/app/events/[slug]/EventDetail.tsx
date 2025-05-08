@@ -80,6 +80,7 @@ export default function EventDetailClient() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Event",
+    url: `/events/${event.slug}`,
     name: event.title.text,
     description: event.shortDescription.text,
     image: event.featuredImage,
@@ -104,7 +105,7 @@ export default function EventDetailClient() {
       "@type": "Offer",
       price: "0",
       priceCurrency: "PKR",
-      availability: "https://schema.org/InStock",
+      availability: event.status,
       validFrom: event.date
     }
   };
