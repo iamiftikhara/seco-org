@@ -13,6 +13,7 @@ import {eventService} from "../utils/eventService";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import styles from "../styles/EventContent.module.css";
 import SocialShare from "@/app/components/SocialShare";
+import Script from 'next/script';
 
 import type { EventItem } from '@/types/events';
 
@@ -75,8 +76,49 @@ export default function EventDetailClient() {
   //     return src;
   //   }) || [];
 
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title.text,
+    description: event.shortDescription.text,
+    image: event.featuredImage,
+    startDate: event.date,
+    endDate: event.date,
+    location: {
+      "@type": "Place",
+      name: event.location?.text || "SECO",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: event.location?.text || "Quetta, Balochistan, PK",
+        addressRegion: "Balochistan",
+        addressCountry: "PK"
+      }
+    },
+    organizer: {
+      "@type": "Organization",
+      name: "SECO",
+      url: "https://seco-org.vercel.app"
+    },
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "PKR",
+      availability: "https://schema.org/InStock",
+      validFrom: event.date
+    }
+  };
+
   return (
     <>
+    <Script
+        id="structured-data"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
       <Navbar />
       <div className="min-h-screen" style={{backgroundColor: theme.colors.background.primary}}>
         {/* Hero Section */}
