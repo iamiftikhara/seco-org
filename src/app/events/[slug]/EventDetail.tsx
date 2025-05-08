@@ -16,7 +16,7 @@ import SocialShare from "@/app/components/SocialShare";
 
 import type { EventItem } from '@/types/events';
 
-export default function EventDetail() {
+export default function EventDetailClient() {
   const params = useParams();
   const [event, setEvent] = useState<EventItem | null>(null);
   const [loading, setLoading] = useState(true);
