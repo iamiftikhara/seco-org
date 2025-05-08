@@ -1,13 +1,15 @@
 import { Metadata } from 'next';
 import { generateMeta } from '@/meta/config';
 import { eventService } from '../utils/eventService';
-// Import the client component
 import EventDetailClient from './EventDetail';
+import { ResolvingMetadata } from 'next';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: { params: { slug: string } },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
   try {
     const eventResponse = await eventService.getEventBySlug(params.slug as string);
-
     const event = eventResponse.data;
 
     if (!event) {
@@ -23,7 +25,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title: `${event.title.text} | SECO`,
       description: event.shortDescription.text,
       openGraph: {
-        type: 'website', // Changed from 'event' to 'website'
+        type: 'website',
         siteName: 'SECO',
         title: event.title.text,
         description: event.shortDescription.text,
@@ -59,7 +61,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-// Server component
 export default function EventPage() {
   return <EventDetailClient />;
 }
