@@ -13,8 +13,6 @@ import {eventService} from "../utils/eventService";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import styles from "../styles/EventContent.module.css";
 import SocialShare from "@/app/components/SocialShare";
-import Head from 'next/head';
-
 
 import type { EventItem } from '@/types/events';
 
