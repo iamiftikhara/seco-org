@@ -1,21 +1,18 @@
-import type { Metadata, ResolvingMetadata } from 'next';
+import { Metadata, ResolvingMetadata } from 'next';
 import { generateMeta } from '@/meta/config';
 import { blogData } from '@/data/blog';
-import BlogPost from './BlogPost';
 
 type Props = {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 };
 
 export async function generateMetadata(
   { params }: Props,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const { slug } = await params;
-
   try {
-    const post = blogData.posts.find((p) => p.slug === slug);
+    const post = blogData.posts.find((p) => p.slug === params.slug);
 
     if (!post) {
       return generateMeta({
@@ -30,11 +27,11 @@ export async function generateMetadata(
       title: `${post.title.text} | SECO`,
       description: post.excerpt.text,
       openGraph: {
-        type: 'article',
+        type: (post.socialShare?.ogType || 'article') as 'website' | 'article',
         siteName: 'SECO',
         title: post.title.text,
         description: post.excerpt.text,
-        url: `/blog/${post.slug}`,
+        url: `/blog/${params.slug}`,
         images: [
           {
             url: post.image,
@@ -42,10 +39,7 @@ export async function generateMetadata(
             height: 630,
             alt: post.title.text
           }
-        ],
-        authors: [post.author],
-        publishedTime: post.date,
-        section: post.category
+        ]
       },
       twitter: {
         card: 'summary_large_image',
@@ -54,9 +48,7 @@ export async function generateMetadata(
         creator: post.socialShare?.twitterHandle || '@SECO',
         images: [post.image]
       },
-      keywords: post.socialShare?.hashtags || [],
-      authors: [{ name: post.author }],
-      publisher: 'SECO',
+      keywords: post.socialShare?.hashtags || []
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
@@ -67,8 +59,4 @@ export async function generateMetadata(
       image: '/images/og-default.jpg'
     });
   }
-}
-
-export default function BlogPage({ params }: { params: { slug: string } }) {
-  return <BlogPost params={Promise.resolve(params)} />;
 }
