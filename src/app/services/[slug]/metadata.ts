@@ -1,7 +1,6 @@
 import { Metadata, ResolvingMetadata } from 'next';
 import { generateMeta } from '@/meta/config';
 import { services } from '@/data/services';
-import ServiceDetail from './ServiceDetail';
 
 type Props = {
   params: { slug: string };
@@ -12,9 +11,8 @@ export async function generateMetadata(
   { params }: Props,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const { slug } = await params;
   try {
-    const service = services.servicesList.find((s) => s.slug === slug);
+    const service = services.servicesList.find((s) => s.slug === params.slug);
 
     if (!service) {
       return generateMeta({
@@ -26,14 +24,14 @@ export async function generateMetadata(
     }
 
     return {
-      title: `${service.socialShare.title.text} | SECO`,
-      description: service.socialShare.description.text,
+      title: `${service.title.text} | SECO`,
+      description: service.shortDescription.text,
       openGraph: {
         type: (service.socialShare?.ogType || 'article') as 'website' | 'article' | 'book' | 'profile',
         siteName: 'SECO',
-        title: service.socialShare.title.text,
-        description: service.socialShare.description.text,
-        url: `/services/${service.slug}`,
+        title: service.title.text,
+        description: service.shortDescription.text,
+        url: `/services/${params.slug}`,
         images: [
           {
             url: service.heroImage,
@@ -45,8 +43,8 @@ export async function generateMetadata(
       },
       twitter: {
         card: 'summary_large_image',
-        title: service.socialShare.title.text,
-        description: service.socialShare.description.text,
+        title: service.title.text,
+        description: service.shortDescription.text,
         creator: service.socialShare?.twitterHandle || '@SECO',
         images: [service.heroImage]
       },
@@ -61,9 +59,4 @@ export async function generateMetadata(
       image: '/images/og-default.jpg'
     });
   }
-}
-
-
-export default function ServicePage() {
-  return <ServiceDetail />;
 }

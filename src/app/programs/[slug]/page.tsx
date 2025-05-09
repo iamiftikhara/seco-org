@@ -28,12 +28,12 @@ export async function generateMetadata(
     }
 
     return {
-      description: program.shortDescription.text,
+      description: program.socialShare.description.text,
       openGraph: {
         type: 'website',
         siteName: 'SECO',
-        title: program.title.text,
-        description: program.shortDescription.text,
+        title: program.socialShare.title.text,
+        description: program.socialShare.description.text,
         url: `/programs/${program.slug}`,
         images: [
           {
@@ -46,8 +46,8 @@ export async function generateMetadata(
       },
       twitter: {
         card: 'summary_large_image',
-        title: program.title.text,
-        description: program.shortDescription.text,
+        title: program.socialShare.title.text,
+        description: program.socialShare.description.text,
         creator: program.socialShare?.twitterHandle || '@SECO',
         images: [program.featuredImage],
       },
