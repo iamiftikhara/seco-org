@@ -15,7 +15,7 @@ export async function generateMetadata(
   const { slug } = await params;
 
   try {
-    const post = blogData.posts.find((p) => p.slug === slug);
+    const post = blogData.posts.find((p) => p.slug ===slug);
 
     if (!post) {
       return generateMeta({
@@ -69,6 +69,6 @@ export async function generateMetadata(
   }
 }
 
-export default function BlogPage({ params }: { params: { slug: string } }) {
-  return <BlogPost params={Promise.resolve(params)} />;
+export default function BlogPage({ params }: Props) {
+  return <BlogPost params={params} />;
 }
