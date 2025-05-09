@@ -12,7 +12,8 @@ import Footer from "@/app/components/Footer";
 import CountUp from "react-countup";
 import Link from "next/link";
 import SocialShare from "@/app/components/SocialShare";
-import Head from "next/head";
+import Script from 'next/script';
+
 
 export default function ProgramDetail() {
   const params = useParams();
@@ -53,7 +54,7 @@ export default function ProgramDetail() {
     return <div className="min-h-screen flex items-center justify-center">Program not found</div>;
   }
 
-  const jsonLd = {
+  const structuredData = {
     "@context": "https://schema.org",
     "@type": "Project",
     "name": program.title.text,
@@ -77,14 +78,14 @@ export default function ProgramDetail() {
 
   return (
     <>
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jsonLd)
-          }}
-        />
-      </Head>
+      <Script
+        id="structured-data"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
       <Navbar />
       <div
         className="min-h-screen bg-white"
