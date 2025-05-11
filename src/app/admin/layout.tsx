@@ -1,6 +1,9 @@
 'use client';
 
-import Link from 'next/link';
+import AdminNav from './components/AdminNav';
+import AdminHeader from './components/AdminHeader';
+import { theme } from '@/config/theme';
+import Image from 'next/image';
 
 export default function AdminLayout({
   children,
@@ -8,32 +11,42 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen" style={{ backgroundColor: theme.colors.background.primary }}>
       {/* Sidebar */}
-      <div className="w-64 bg-gray-800 text-white p-4">
-        <h1 className="text-2xl font-bold mb-8">SECO Admin</h1>
-        <nav className="space-y-2">
-          <Link href="/admin/dashboard" className="block py-2 px-4 hover:bg-gray-700 rounded">
-            Dashboard
-          </Link>
-          <Link href="/admin/content" className="block py-2 px-4 hover:bg-gray-700 rounded">
-            Content Management
-          </Link>
-          <Link href="/admin/settings" className="block py-2 px-4 hover:bg-gray-700 rounded">
-            Settings
-          </Link>
-        </nav>
+      <div className="w-64" style={{ backgroundColor: theme.colors.primary }}>
+        {/* Logo Section */}
+        <div className="h-16 flex items-center px-6 border-b" style={{ borderColor: `${theme.colors.text.light}20` }}>
+          <div className="flex items-center">
+            <Image 
+              src={theme.organization.logo.default} 
+              alt={theme.organization.logoTitle.title.text}
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+            <div className="flex flex-col ml-2">
+              <span className="text-xl font-bold" style={{ color: theme.colors.secondary }}>
+                {theme.organization.logoTitle.title.text}
+              </span>
+              <span className="text-sm" style={{ color: theme.colors.text.light }}>
+                Admin Panel
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Navigation */}
+        <AdminNav />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <header className="bg-white shadow p-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Admin Panel</h2>
-            <button className="text-gray-600 hover:text-gray-800">Logout</button>
-          </div>
-        </header>
-        <main className="p-6">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <AdminHeader />
+        {/* Main Content Area */}
+        <main 
+          className="flex-1 overflow-auto p-6"
+          style={{ backgroundColor: theme.colors.background.accent }}
+        >
           {children}
         </main>
       </div>
