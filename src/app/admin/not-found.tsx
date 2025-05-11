@@ -40,7 +40,7 @@ export default function AdminNotFound() {
               className="text-xl mb-8 max-w-md mx-auto"
               style={{ color: theme.colors.text.secondary }}
             >
-              The requested admin page "{pathname?.split('/').pop()?.replace(/-/g, ' ') || 'page'}" doesn't exist.
+              The requested admin page {pathname?.split('/').pop()?.replace(/-/g, ' ') || 'page'} doesn&apos;t exist.
             </p>
 
             {/* Return Button */}

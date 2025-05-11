@@ -60,6 +60,10 @@ export default function AdminHeader() {
           fontFamily : theme.fonts.en.primary,
           cursor: "pointer",
         }}
+        onClick={() => {
+          sessionStorage.removeItem('isAdminLoggedIn');
+          window.location.href = '/admin/login';
+        }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = theme.colors.primaryHover;
         }}
