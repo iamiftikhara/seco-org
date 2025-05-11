@@ -9,7 +9,6 @@ import {theme} from "@/config/theme";
 import Link from "next/link";
 import {FaArrowLeft, FaArrowRight} from "react-icons/fa";
 // import {events} from "@/data/events";
-import {eventService} from "../utils/eventService";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import styles from "../styles/EventContent.module.css";
 import SocialShare from "@/app/components/SocialShare";
@@ -24,19 +23,17 @@ export default function EventDetailClient() {
   const [selectedLanguage] = useState<"en" | "ur">("en");
   const [navigation, setNavigation] = useState<{prev: EventItem | null; next: EventItem | null}>({prev: null, next: null});
 
-  // Update the useEffect to use the service
   useEffect(() => {
     const fetchEventData = async () => {
       try {
-        const [eventResponse, navResponse] = await Promise.all([eventService.getEventBySlug(params.slug as string), eventService.getEventNavigation(params.slug as string)]);
+        const response = await fetch(`/api/events/${params.slug}`);
+        const data = await response.json();
 
-        if (eventResponse.success) {
-          setEvent(eventResponse.data || null);
-        }
-        if (navResponse.success) {
+        if (data.success) {
+          setEvent(data.data.event);
           setNavigation({
-            prev: navResponse.data?.prev || null,
-            next: navResponse.data?.next || null,
+            prev: data.data.navigation.prev,
+            next: data.data.navigation.next,
           });
         }
       } catch (error) {
