@@ -1,14 +1,31 @@
-import { Metadata } from 'next';
+import { Metadata, ResolvingMetadata } from 'next';
 import { generateMeta } from '@/meta/config';
-import { eventService } from '../utils/eventService';
+import { headers } from 'next/headers';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  console.log('Generating event metadata for slug:', params.slug);
+
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata(
+  { params }: Props,
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { slug } = await params;
   try {
-    const eventResponse = await eventService.getEventBySlug(params.slug as string);
-    console.log('Event data received:', eventResponse);
+    // Get the host from headers
+    const headersList = headers();
+    const host = (await headersList).get('host') || 'localhost:3000';
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
 
-    const event = eventResponse.data;
+    // Construct absolute URL
+    const url = `${protocol}://${host}/api/events/${slug}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+
+    const event = data.data.event;
     console.log('Event metadata being generated:', event?.title?.text);
 
     if (!event) {
@@ -29,7 +46,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         siteName: 'SECO',
         title: event.title.text,
         description: event.shortDescription.text,
-        url: `/events/${params.slug}`,
+        url: `/events/${slug}`,
         images: [
           {
             url: event.featuredImage,
