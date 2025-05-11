@@ -6,9 +6,8 @@ import Link from 'next/link';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { theme } from '@/config/theme';
-import { events } from '@/data/events';
 import LoadingSpinner from '@/app/components/LoadingSpinner';
-import type { Event } from '@/types/events';
+import { Event } from '@/types/events';
 
 const blinkingKeyframes = `
   @keyframes blink {
@@ -19,40 +18,36 @@ const blinkingKeyframes = `
 `;
 
 export default function AllEvents() {
-  const [eventsList, setEventsList] = useState<Event>(events);
+  const [eventsList, setEventsList] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'ur'>('en');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'upcoming' | 'past'>('all');
-  const [filteredEvents, setFilteredEvents] = useState<Event['eventsList'][0][]>([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-
 
   useEffect(() => {
     const fetchEvents = async () => {
+      setLoading(true);
       try {
-        const response = await fetch('/api/content/events');
-        const data = await response.json();
-        if (data) {
-          setEventsList(data);
+        const response = await fetch(`/api/events?language=${selectedLanguage}&status=${selectedStatus}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: { success: boolean; data: Event } = await response.json();
+        if (data.success) {
+          setEventsList(data.data);
+        } else {
+          throw new Error('API returned unsuccessful response');
         }
       } catch (error) {
         console.error('Error fetching events:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchEvents();
-  }, []);
+  }, [selectedLanguage, selectedStatus]);
 
-  useEffect(() => {
-    const filtered = eventsList.eventsList.filter(event => {
-      const matchesLanguage = event.language === selectedLanguage;
-      const matchesStatus = selectedStatus === 'all' ? true : event.status === selectedStatus;
-      return matchesLanguage && matchesStatus;
-    });
-    setFilteredEvents(filtered);
-  }, [selectedLanguage, selectedStatus, eventsList]);
-
-  if (loading) {
+  if (loading || !eventsList) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
         <div className="flex flex-col items-center">
@@ -152,7 +147,7 @@ export default function AllEvents() {
         {/* Events Grid */}
         <div className="max-w-7xl mx-auto px-4 pb-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredEvents.map((event) => (
+            {eventsList?.eventsList.map((event) => (
               <Link href={`/events/${event.slug}`} key={event.id}>
                 <div className="group relative overflow-hidden rounded-lg shadow-md h-[300px]">
                   {/* Event Status and Location Indicators */}
