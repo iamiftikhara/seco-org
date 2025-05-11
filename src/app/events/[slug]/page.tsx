@@ -1,6 +1,5 @@
 import type { Metadata, ResolvingMetadata } from 'next';
-import { generateMeta } from '@/meta/config';
-import { eventService } from '../utils/eventService';
+import { headers } from 'next/headers';
 import EventDetailClient from './EventDetail';
 
 type Props = {
@@ -8,28 +7,39 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function generateMetadata(
   { params }: Props,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { slug } = await params;
-  // console.log('slug', slug, _parent);
 
   try {
-    const eventResponse = await eventService.getEventBySlug(slug);
-    const event = eventResponse?.data;
+    // Get the host from headers
+    const headersList = headers();
+    const host = (await headersList).get('host') || 'localhost:3000';
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+
+    // Construct absolute URL
+    const url = `${protocol}://${host}/api/events/${slug}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    const event = data.data.event;
 
     if (!event) {
-      return generateMeta({
+      return {
         title: 'Event Not Found',
         description: 'The requested event could not be found.',
-        type: 'website',
-        image: '/images/og-default.jpg',
-      });
+        openGraph: {
+          title: 'Event Not Found',
+          description: 'The requested event could not be found.',
+          images: ['/images/og-default.jpg'],
+        },
+      };
     }
 
     return {
+      title: `${event.title.text} | SECO Events`,
       description: event.shortDescription.text,
       openGraph: {
         type: 'website',
@@ -57,12 +67,15 @@ export async function generateMetadata(
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
-    return generateMeta({
-      title: 'Error',
+    return {
+      title: 'Error | SECO Events',
       description: 'An error occurred while loading the event.',
-      type: 'website',
-      image: '/images/og-default.jpg',
-    });
+      openGraph: {
+        title: 'Error',
+        description: 'An error occurred while loading the event.',
+        images: ['/images/og-default.jpg'],
+      },
+    };
   }
 }
 
