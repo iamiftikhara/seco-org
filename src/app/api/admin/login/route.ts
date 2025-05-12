@@ -25,10 +25,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create session with updated fields and permissions
+    // Create session data
     const session = {
       userId: user.id,
       username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
       role: user.role,
       permissions: {
         users: {
@@ -38,56 +41,39 @@ export async function POST(request: NextRequest) {
           delete: user.permissions?.users?.delete || false
         }
       },
-      lastActivity: new Date(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
-      language: user.profile.language || 'en'
+      profile: {
+        avatar: user.profile?.avatar,
+        language: user.profile?.language || 'en',
+        preferences: user.profile?.preferences
+      },
+      lastActivity: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
     };
 
-    const cookieStore = cookies();
-    
-    // Set session cookies with enhanced security
-    cookieStore.set('isAdminLoggedIn', 'true', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: '/'
-    });
-
-    cookieStore.set('adminSession', JSON.stringify(session), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: '/'
-    });
-
-    // Return user data with profile information and detailed permissions
-    return NextResponse.json({
+    // Create the response first
+    const response = NextResponse.json({ 
       success: true,
-      user: {
-        id: user.id,
-        username: user.username,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        status: user.status,
-        profile: {
-          avatar: user.profile.avatar,
-          language: user.profile.language,
-          preferences: user.profile.preferences
-        },
-        permissions: {
-          users: {
-            read: user.permissions?.users?.read || false,
-            write: user.permissions?.users?.write || false,
-            update: user.permissions?.users?.update || false,
-            delete: user.permissions?.users?.delete || false
-          }
-        }
-      }
+      user: session
     });
+
+    // Then set cookies on the response object
+    response.cookies.set('isAdminLoggedIn', 'true', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24, // 24 hours
+      path: '/'
+    });
+
+    response.cookies.set('adminSession', JSON.stringify(session), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 60 * 60 * 24, // 24 hours
+      path: '/'
+    });
+
+    return response;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

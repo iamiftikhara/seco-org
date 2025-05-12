@@ -3,42 +3,14 @@
 import { usePathname } from 'next/navigation';
 import { theme } from '@/config/theme';
 import { useEffect, useState } from 'react';
-import { UserRole } from '@/types/user';
-
-interface AdminSessionData {
-  userId: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  permissions?: {
-    users: {
-      read: boolean;
-      write: boolean;
-      update: boolean;
-      delete: boolean;
-    };
-  };
-  lastActivity: string;
-  language?: string;
-}
+import Link from 'next/link';
+import { AdminSessionData, getAdminSession } from '@/app/admin/sharedData/adminSession';
 
 export default function AdminHeader() {
   const pathname = usePathname();
   const [user, setUser] = useState<AdminSessionData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    const adminSession = sessionStorage.getItem('adminSession');
-    if (adminSession) {
-      try {
-        const sessionData = JSON.parse(adminSession);
-        setUser(sessionData);
-      } catch (error) {
-        console.error('Error parsing admin session:', error);
-      }
-    }
-  }, []);
-
   // Generate breadcrumbs from pathname
   const breadcrumbs = pathname
     .split('/')
@@ -48,6 +20,34 @@ export default function AdminHeader() {
       href: '/' + array.slice(0, index + 1).join('/'),
       isLast: index === array.length - 1
     }));
+
+  const refreshSession = () => {
+    // Add 2-second delay before updating
+    setTimeout(() => {
+      const sessionData = getAdminSession();
+      setUser(sessionData);
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  // Check session on mount and listen for session changes
+  useEffect(() => {
+    // Initial check for existing session
+    refreshSession();
+
+    // Listen for session set event
+    const handleSessionSet = () => {
+      console.log('Session set event received');
+      refreshSession();
+    };
+
+    window.addEventListener('adminSessionSet', handleSessionSet);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('adminSessionSet', handleSessionSet);
+    };
+  }, []);
 
   return (
     <header 
@@ -86,41 +86,44 @@ export default function AdminHeader() {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        {user && (
+        {isLoading ? (
+          <div className="text-sm" style={{ color: theme.colors.text.secondary }}>
+            Loading...
+          </div>
+        ) : user ? (
           <div className="flex items-center">
             <div className="flex flex-col items-end mr-4">
-              <span 
-                className="text-sm font-medium"
-                style={{ color: theme.colors.text.primary }}
-              >
-                {user.firstName} {user.lastName}
-              </span>
-              <span 
-                className="text-xs"
-                style={{ 
-                  color: theme.colors.text.secondary,
-                  textTransform: 'capitalize'
-                }}
-              >
-                {user.role ? user.role.toLowerCase().replace('_', ' ') : ''}
-                {user.permissions?.users && (
-                  <span 
-                    className="ml-2 px-2 py-0.5 rounded-full text-xs"
-                    style={{ 
-                      backgroundColor: theme.colors.status.success + '20',
-                      color: theme.colors.status.success
-                    }}
-                  >
-                    {Object.entries(user.permissions.users)
-                      .filter(([_, value]) => value)
-                      .map(([key]) => key)
-                      .join(', ')}
-                  </span>
-                )}
-              </span>
+              <Link href="/admin/profile" style={{ textDecoration: 'none' }}>
+                <span 
+                  className="text-sm font-medium"
+                  style={{ color: theme.colors.text.primary }}
+                >
+                  {user.firstName} {user.lastName}
+                </span>
+              </Link>
+              <Link href="/admin/profile" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                <span 
+                  className="text-xs"
+                  style={{ 
+                    color: theme.colors.text.secondary,
+                    textTransform: 'capitalize'
+                  }}
+                >
+                  {user.role ? user.role.toLowerCase().replace('_', ' ') : ''}
+                </span>
+                <span 
+                  className="text-xs"
+                  style={{ 
+                    color: theme.colors.primary,
+                    marginLeft: '8px'
+                  }}
+                >
+                  View Profile
+                </span>
+              </Link>
             </div>
           </div>
-        )}
+        ) : null}
         <button 
           className="px-4 py-2 text-sm rounded transition-colors duration-200"
           style={{

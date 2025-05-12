@@ -32,15 +32,28 @@ export default function AdminLogin() {
       }
 
       // Store the complete user data in session
-      sessionStorage.setItem('adminSession', JSON.stringify({
-        userId: data.user.id,
+      const sessionData = {
+        userId: data.user.userId,
         username: data.user.username,
         firstName: data.user.firstName,
         lastName: data.user.lastName,
+        email: data.user.email,
         role: data.user.role,
-        lastActivity: new Date()
-      }));
+        permissions: data.user.permissions,
+        profile: data.user.profile,
+        lastActivity: new Date().toISOString()
+      };
 
+      // Set session data
+      sessionStorage.setItem('adminSession', JSON.stringify(sessionData));
+      sessionStorage.setItem('isAdminLoggedIn', 'true');
+
+      // Dispatch event that session is set
+      window.dispatchEvent(new Event('adminSessionSet'));
+
+      // Wait for 3 seconds before redirecting
+      // await new Promise(resolve => setTimeout(resolve, 3000));
+      
       router.push('/admin/dashboard');
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Login failed');
