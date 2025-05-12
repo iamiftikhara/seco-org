@@ -8,17 +8,44 @@ export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple check - replace with actual authentication
-    if (username === 'admin' && password === 'admin123') {
-      // Set a simple session flag
-      sessionStorage.setItem('isAdminLoggedIn', 'true');
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Store the complete user data in session
+      sessionStorage.setItem('adminSession', JSON.stringify({
+        userId: data.user.id,
+        username: data.user.username,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        role: data.user.role,
+        lastActivity: new Date()
+      }));
+
       router.push('/admin/dashboard');
-    } else {
-      setError('Invalid credentials');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -96,21 +123,19 @@ export default function AdminLogin() {
             />
           </div>
 
+          
           <button
             type="submit"
             className="w-full py-2 rounded transition-colors duration-200"
             style={{
               backgroundColor: theme.colors.primary,
-              color: theme.colors.text.light
+              color: theme.colors.text.light,
+              opacity: isLoading ? 0.7 : 1,
+              cursor: isLoading ? 'not-allowed' : 'pointer'
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = theme.colors.primaryHover;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = theme.colors.primary;
-            }}
+            disabled={isLoading}
           >
-            Login
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>
