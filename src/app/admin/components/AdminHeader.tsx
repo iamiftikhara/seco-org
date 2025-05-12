@@ -122,30 +122,30 @@ export default function AdminHeader() {
                 </span>
               </Link>
             </div>
+            <button 
+              className="px-4 py-2 text-sm rounded transition-colors duration-200"
+              style={{
+                backgroundColor: theme.colors.primary,
+                color: "white",
+                fontFamily : theme.fonts.en.primary,
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                sessionStorage.removeItem('isAdminLoggedIn');
+                sessionStorage.removeItem('adminSession');
+                window.location.href = '/admin/login';
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme.colors.primaryHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = theme.colors.primary;
+              }}
+            >
+              Logout
+            </button>
           </div>
         ) : null}
-        <button 
-          className="px-4 py-2 text-sm rounded transition-colors duration-200"
-          style={{
-            backgroundColor: theme.colors.primary,
-            color: "white",
-            fontFamily : theme.fonts.en.primary,
-            cursor: "pointer",
-          }}
-          onClick={() => {
-            sessionStorage.removeItem('isAdminLoggedIn');
-            sessionStorage.removeItem('adminSession');
-            window.location.href = '/admin/login';
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = theme.colors.primaryHover;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = theme.colors.primary;
-          }}
-        >
-          Logout
-        </button>
       </div>
     </header>
   );
