@@ -5,7 +5,7 @@ import AdminHeader from './components/AdminHeader';
 import { theme } from '@/config/theme';
 import Image from 'next/image';
 
-export default function AdminLayout({
+export default function AdminLayoutUI({
   children,
 }: {
   children: React.ReactNode;

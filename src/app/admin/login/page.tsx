@@ -23,6 +23,7 @@ export default function AdminLogin() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
+        credentials: 'include', // Important for handling cookies
       });
 
       const data = await response.json();
@@ -31,7 +32,7 @@ export default function AdminLogin() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store the complete user data in session
+      // Store the user data in session storage
       const sessionData = {
         userId: data.user.userId,
         username: data.user.username,
@@ -40,23 +41,25 @@ export default function AdminLogin() {
         email: data.user.email,
         role: data.user.role,
         permissions: data.user.permissions,
-        profile: data.user.profile,
-        lastActivity: new Date().toISOString()
+        lastActivity: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
       };
 
-      // Set session data
+      // Store session data and trigger event
       sessionStorage.setItem('adminSession', JSON.stringify(sessionData));
       sessionStorage.setItem('isAdminLoggedIn', 'true');
-
-      // Dispatch event that session is set
-      window.dispatchEvent(new Event('adminSessionSet'));
-
-      // Wait for 3 seconds before redirecting
-      // await new Promise(resolve => setTimeout(resolve, 3000));
       
-      router.push('/admin/dashboard');
+      // Dispatch event after ensuring data is stored
+      setTimeout(() => {
+        window.dispatchEvent(new Event('adminSessionSet'));
+        router.push('/admin/dashboard');
+      }, 100);
+      
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Login failed');
+      // Clear any existing session data on error
+      sessionStorage.removeItem('adminSession');
+      sessionStorage.removeItem('isAdminLoggedIn');
     } finally {
       setIsLoading(false);
     }

@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserRole } from '@/types/user';
+import { UserRole, UserStatus } from '@/types/user';
+import { theme } from '@/config/theme';
 
-interface AdminSessionData {
+interface UserProfile {
   userId: string;
   username: string;
   firstName: string;
   lastName: string;
+  email: string;
   role: UserRole;
   permissions?: {
     users: {
@@ -18,60 +20,211 @@ interface AdminSessionData {
       delete: boolean;
     };
   };
+  profile: {
+    avatar?: string;
+    preferences: {
+      theme: string;
+      twoFactorEnabled: boolean;
+      emailFrequency: string;
+    };
+  };
+  status: UserStatus;
   lastActivity: string;
-  language?: string;
 }
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<AdminSessionData | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const adminSession = sessionStorage.getItem('adminSession');
-    if (!adminSession) {
-      console.log("No admin session found, redirecting to login.");
-      router.replace('/admin/login');
-      return;
-    }
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
     try {
-      const sessionData = JSON.parse(adminSession);
-      console.log("Admin session data (Profile Page):", sessionData);
-      setUser(sessionData);
-    } catch (error) {
-      console.error("Error parsing admin session:", error);
-      router.replace('/admin/login');
+      const response = await fetch('/api/admin/profile', {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.replace('/admin/login');
+          return;
+        }
+        throw new Error('Failed to fetch profile');
+      }
+
+      const data = await response.json();
+      setUser(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setIsLoading(false);
     }
-  }, [router]);
+  };
 
   const handleEditProfile = () => {
-    // (For now, just log a message. In a real scenario, you'd open a modal or navigate to an edit page.)
+    // TODO: Implement edit profile functionality
     console.log("Edit profile clicked for user:", user);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-lg" style={{ color: theme.colors.text.secondary }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-lg text-red-500">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
-    return <div>Loading…</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-lg" style={{ color: theme.colors.text.secondary }}>
+          No user data found
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>User Profile</h1>
-      <div style={{ border: '1px solid #ccc', borderRadius: '4px', padding: '1rem' }}>
-        <p><strong>User ID:</strong> {user.userId}</p>
-        <p><strong>Username:</strong> {user.username}</p>
-        <p><strong>Name:</strong> {user.firstName} {user.lastName}</p>
-        <p><strong>Role:</strong> {user.role ? user.role.toLowerCase().replace('_', ' ') : ''}</p>
-        {user.permissions?.users && (
-          <p><strong>Permissions (users):</strong> {Object.entries(user.permissions.users).filter(([_, v]) => v).map(([k]) => k).join(', ')}</p>
-        )}
-        <p><strong>Last Activity:</strong> {user.lastActivity}</p>
-        {user.language && <p><strong>Language:</strong> {user.language}</p>}
+    <div className="p-8 max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2" style={{ color: theme.colors.text.primary }}>
+          Profile
+        </h1>
+        <p className="text-sm" style={{ color: theme.colors.text.secondary }}>
+          Manage your account settings and preferences
+        </p>
       </div>
-      <button
-        onClick={handleEditProfile}
-        style={{ marginTop: '1rem', padding: '0.5rem 1rem', backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-      >
-        Edit Profile
-      </button>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Personal Information */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: theme.colors.text.primary }}>
+            Personal Information
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Full Name</label>
+              <p className="mt-1">{user.firstName} {user.lastName}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Email</label>
+              <p className="mt-1">{user.email}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Username</label>
+              <p className="mt-1">{user.username}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Settings */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: theme.colors.text.primary }}>
+            Account Settings
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Role</label>
+              <p className="mt-1 capitalize">{user.role.toLowerCase().replace('_', ' ')}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Account Status</label>
+              <p className="mt-1 capitalize">{user.status.toLowerCase()}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Last Activity</label>
+              <p className="mt-1">{new Date(user.lastActivity).toLocaleString()}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Preferences */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: theme.colors.text.primary }}>
+            Preferences
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Theme</label>
+              <p className="mt-1 capitalize">{user.profile.preferences.theme}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Two-Factor Authentication</label>
+              <p className="mt-1">{user.profile.preferences.twoFactorEnabled ? 'Enabled' : 'Disabled'}</p>
+            </div>
+            <div>
+              <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Email Frequency</label>
+              <p className="mt-1 capitalize">{user.profile.preferences.emailFrequency}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Permissions */}
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h2 className="text-xl font-semibold mb-4" style={{ color: theme.colors.text.primary }}>
+            Permissions
+          </h2>
+          <div className="space-y-4">
+            {user.permissions?.users && (
+              <div>
+                <label className="text-sm font-medium" style={{ color: theme.colors.text.secondary }}>User Management</label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {Object.entries(user.permissions.users).map(([permission, enabled]) => (
+                    enabled && (
+                      <span
+                        key={permission}
+                        className="px-2 py-1 text-xs rounded-full"
+                        style={{ 
+                          backgroundColor: theme.colors.background.highlight,
+                          color: theme.colors.text.primary
+                        }}
+                      >
+                        {permission}
+                      </span>
+                    )
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 flex justify-end">
+        <button
+          onClick={handleEditProfile}
+          className="px-4 py-2 rounded transition-colors duration-200"
+          style={{
+            backgroundColor: theme.colors.primary,
+            color: 'white',
+            cursor: 'pointer'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = theme.colors.primaryHover;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = theme.colors.primary;
+          }}
+        >
+          Edit Profile
+        </button>
+      </div>
     </div>
   );
 } 

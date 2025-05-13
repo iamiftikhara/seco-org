@@ -1,13 +1,15 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { theme } from '@/config/theme';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AdminSessionData, getAdminSession } from '@/app/admin/sharedData/adminSession';
+import { handleLogout } from '../utils/auth';
 
 export default function AdminHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const [user, setUser] = useState<AdminSessionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -48,6 +50,15 @@ export default function AdminHeader() {
       window.removeEventListener('adminSessionSet', handleSessionSet);
     };
   }, []);
+
+  const onLogoutClick = async () => {
+    const success = await handleLogout();
+    if (success) {
+      sessionStorage.clear()
+      window.dispatchEvent(new Event('adminSessionSet'));
+      router.push('/admin/login');
+    }
+  };
 
   return (
     <header 
@@ -130,11 +141,7 @@ export default function AdminHeader() {
                 fontFamily : theme.fonts.en.primary,
                 cursor: "pointer",
               }}
-              onClick={() => {
-                sessionStorage.removeItem('isAdminLoggedIn');
-                sessionStorage.removeItem('adminSession');
-                window.location.href = '/admin/login';
-              }}
+              onClick={onLogoutClick}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = theme.colors.primaryHover;
               }}

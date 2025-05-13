@@ -53,6 +53,30 @@ export async function findAdminUserByUsername(username: string): Promise<AdminUs
   return adminUsers.find(user => user.username === username);
 }
 
+// Special version for middleware that excludes sensitive data
+export async function findAdminUserByIdForMiddleware(id: string): Promise<Omit<AdminUser, 'password'> | undefined> {
+  const user = adminUsers.find(user => user.id === id);
+  if (!user) return undefined;
+
+  // Create a safe user object without sensitive data
+  const safeUser = {
+    id: user.id,
+    username: user.username,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    profile: user.profile,
+    permissions: user.permissions,
+    content: user.content,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  };
+
+  return safeUser;
+}
+
 export async function findAdminUserById(id: string): Promise<AdminUser | undefined> {
   return adminUsers.find(user => user.id === id);
 }
@@ -80,14 +104,14 @@ export async function deleteAdminUser(id: string): Promise<boolean> {
 }
 
 
-export async function validateAdminCredentials(username: string, password: string): Promise<AdminUser | null> {
+export async function validateAdminCredentials(username: string, password: string): Promise<{ user: AdminUser | null; error?: string; status?: UserStatus }> {
   try {
     const user = await findAdminUserByUsername(username);
     console.log('Found user:', !!user);
     
     if (!user) {
       console.log('User not found:', username);
-      return null;
+      return { user: null, error: 'no-user' };
     }
 
     console.log('Stored password hash:', user.password);
@@ -96,12 +120,22 @@ export async function validateAdminCredentials(username: string, password: strin
     
     if (!isValidPassword) {
       console.log('Invalid password for user:', username);
-      return null;
+      return { user: null, error: 'incorrect-pass' };
     }
 
-    return user;
+    // Check if user status is active
+    if (user.status !== UserStatus.ACTIVE) {
+      console.log('User account is not active:', user.status);
+      return { 
+        user: null, 
+        error: 'status', 
+        status: user.status // Return the actual UserStatus enum value
+      };
+    }
+
+    return { user };
   } catch (error) {
     console.error('Error validating credentials:', error);
-    return null;
+    return { user: null, error: 'internal' };
   }
 }
