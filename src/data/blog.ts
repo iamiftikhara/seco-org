@@ -1,50 +1,6 @@
-export interface TextContent {
-  text: string;
-  language: 'en' | 'ur';
-}
+import { BlogData, BlogPost, TextContent, Section, BlogSection, ContentSection, SocialShare } from '@/types/blog';
 
-export interface BlogSection {
-  type: 'content-block';
-  text: {
-    content: TextContent;
-  };
-  image?: {
-    src: string;
-    alt: string;
-    position: 'left' | 'right' | 'full' | 'above' | 'below';
-  };
-}
-
-export interface ContentSection {
-  type: 'quote';
-  content: TextContent;
-}
-
-export type Section = BlogSection | ContentSection;
-
-interface SocialShare {
-  title: TextContent;
-  description: TextContent;
-  hashtags: string[];
-  twitterHandle: string;
-  ogType: string;
-}
-
-export interface BlogPost {
-  id: string;
-  title: TextContent;
-  excerpt: TextContent;
-  content: Section[];
-  author: string;
-  date: string;
-  image: string;
-  category: string;
-  showOnHome: boolean;
-  slug: string;
-  socialShare: SocialShare;
-}
-
-export const blogData = {
+export const blogData: BlogData = {
   pageTitle: { text: "Insights & Stories", language: "en" },
   pageDescription: { 
     text: "Explore our collection of stories, updates, and insights about our community initiatives and the impact we're making together.",

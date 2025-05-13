@@ -29,7 +29,6 @@ export async function generateToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): P
 }
 
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
-  console.log(token, "verify token")
   if (!JWT_SECRET) {
     console.error('JWT_SECRET is not defined');
     return null;

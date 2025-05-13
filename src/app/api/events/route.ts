@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
-    const language = searchParams.get('language') || 'en';
+    const language = searchParams.get('language') || 'all';
     const status = searchParams.get('status') || 'all';
     
     let eventsList = events.eventsList;
