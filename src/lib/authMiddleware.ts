@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from './jwt';
 import { findAdminUserById } from './users';
-import { UserStatus } from '@/types/user';
+import { UserStatus, ModulePermissions, UserProfile, UserRole } from '@/types/user';
 
 type Handler = (req: NextRequest) => Promise<NextResponse>;
 
@@ -14,9 +14,9 @@ declare module 'next/server' {
       firstName: string;
       lastName: string;
       email: string;
-      role: string;
-      permissions: any;
-      profile: any;
+      role: UserRole;
+      permissions: ModulePermissions;
+      profile: UserProfile;
       status: UserStatus;
     };
   }

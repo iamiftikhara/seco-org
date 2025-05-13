@@ -40,7 +40,7 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
     const { payload } = await jose.jwtVerify(token, secret);
     
     // Type guard to ensure decoded has the required properties
-    const isValidPayload = (payload: any): payload is JWTPayload => {
+    const isValidPayload = (payload: jose.JWTPayload): payload is JWTPayload => {
       return typeof payload === 'object' && payload !== null &&
              typeof payload.userId === 'string' &&
              typeof payload.username === 'string' &&

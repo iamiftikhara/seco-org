@@ -14,7 +14,7 @@ export const adminUsers: AdminUser[] = [
     lastName: "User",
     email: theme.organization.contact.email,
     role: UserRole.SUPER_ADMIN,  // Changed from string to enum
-    status: UserStatus.INACTIVE,   // Changed from string to enum
+    status: UserStatus.ACTIVE,   // Changed from string to enum
     content: [
       {
         type: 'content-block',

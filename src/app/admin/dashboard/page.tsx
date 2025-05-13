@@ -4,6 +4,13 @@ import { theme } from '@/config/theme';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+interface Event {
+  id: string;
+  title: string;
+  language: 'en' | 'ur';
+  date: string;
+}
+
 interface EventCounts {
   total: number;
   english: number;
@@ -30,13 +37,13 @@ export default function AdminDashboard() {
       try {
         // Fetch events data
         const eventsResponse = await fetch('/api/events');
-        const eventsData = await eventsResponse.json();
+        const eventsData: Event[] = await eventsResponse.json();
         
         // Count events by language
         const counts = {
           total: eventsData.length,
-          english: eventsData.filter((event: any) => event.language === 'en').length,
-          urdu: eventsData.filter((event: any) => event.language === 'ur').length
+          english: eventsData.filter((event) => event.language === 'en').length,
+          urdu: eventsData.filter((event) => event.language === 'ur').length
         };
         setEventCounts(counts);
 
