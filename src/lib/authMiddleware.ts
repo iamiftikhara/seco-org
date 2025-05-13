@@ -3,11 +3,29 @@ import { verifyToken } from './jwt';
 import { findAdminUserById } from './users';
 import { UserStatus } from '@/types/user';
 
+type Handler = (req: NextRequest) => Promise<NextResponse>;
+
+// Extend NextRequest to include user
+declare module 'next/server' {
+  interface NextRequest {
+    user?: {
+      id: string;
+      username: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      role: string;
+      permissions: any;
+      profile: any;
+      status: UserStatus;
+    };
+  }
+}
+
 /**
- * Middleware to validate admin authentication
- * Use as a wrapper around your API route handlers
+ * Middleware to validate admin authentication and attach user to request
  */
-export async function withAdminAuth(handler: (req: NextRequest) => Promise<NextResponse>) {
+export function withAdminAuth(handler: Handler): Handler {
   return async function(req: NextRequest) {
     try {
       // Skip auth for login route
@@ -43,18 +61,30 @@ export async function withAdminAuth(handler: (req: NextRequest) => Promise<NextR
       }
 
       if (user.status !== UserStatus.ACTIVE) {
-        return NextResponse.json(
+        // Create response with 403 status
+        const response = NextResponse.json(
           { error: 'Unauthorized - Account is not active' },
           { status: 403 }
         );
+
+        // Clear all auth cookies
+        const cookiesToClear = [
+          'jwt',
+          'x-user-id',
+          'x-user-role',
+          'x-user-name'
+        ];
+
+        cookiesToClear.forEach(name => {
+          response.cookies.delete(name);
+        });
+
+        return response;
       }
 
-      // Call the handler
-      const response = await handler(req);
-
-      // Create user data object
-      const userData = {
-        userId: user.id,
+      // Attach user to request
+      req.user = {
+        id: user.id,
         username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -62,12 +92,11 @@ export async function withAdminAuth(handler: (req: NextRequest) => Promise<NextR
         role: user.role,
         permissions: user.permissions,
         profile: user.profile,
-        status: user.status,
-        lastActivity: new Date().toISOString()
+        status: user.status
       };
 
-      // Return new response with user data
-      return NextResponse.json(userData, response);
+      // Call the handler with the enhanced request
+      return handler(req);
 
     } catch (error) {
       console.error('Auth middleware error:', error);
