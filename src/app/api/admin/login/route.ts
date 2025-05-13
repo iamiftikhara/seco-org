@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateAdminCredentials } from '@/lib/users';
-import { cookies } from 'next/headers';
-import { UserRole } from '@/types/user';
 
 export async function POST(request: NextRequest) {
   try {
