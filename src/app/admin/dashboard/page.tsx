@@ -144,52 +144,39 @@ function StatCard({
   title, 
   value, 
   icon: Icon, 
-  trend,
   color = theme.colors.primary 
 }: { 
   title: string; 
   value: number; 
   icon: any;
-  trend?: string;
   color?: string;
 }) {
   return (
     <div 
-      className="relative overflow-hidden rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:translate-y-[-2px]"
+      className="relative overflow-hidden rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:translate-y-[-2px] p-3"
       style={{ 
         backgroundColor: theme.colors.background.secondary,
         border: `1px solid ${color}20`
       }}>
-      <div className="flex items-center p-3">
+      <p 
+        className="text-xs font-bold uppercase tracking-wide mb-2" 
+        style={{ color: theme.colors.text.primary }}>
+        {title}
+      </p>
+      <div className="flex items-center">
         <div 
           className="rounded-lg p-2 mr-3" 
           style={{ 
             backgroundColor: `${color}15`,
             boxShadow: `0 0 1px ${color}15`
           }}>
-          <Icon className="h-5 w-5" style={{ color }} />
+          <Icon className="h-4 w-4" style={{ color }} />
         </div>
-        <div className="flex-1 min-w-0">
-          <p 
-            className="text-xs font-bold uppercase tracking-wide truncate" 
-            style={{ color: theme.colors.text.primary }}>
-            {title}
-          </p>
-          <div className="flex items-baseline">
-            <p 
-              className="text-xl font-bold mr-2" 
-              style={{ color }}>
-              {value}
-            </p>
-            {trend && (
-              <p 
-                className="text-xs truncate" 
-                style={{ color: theme.colors.text.secondary }}>
-                {trend}
-              </p>
-            )}
-          </div>
-        </div>
+        <p 
+          className="text-xl font-bold" 
+          style={{ color }}>
+          {value}
+        </p>
       </div>
       <div 
         className="absolute bottom-0 left-0 h-0.5 w-full" 
@@ -387,7 +374,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-0">
-      <div className='mb-6'>
+      <div className='mb-4'>
         <h1 className="text-xl font-bold mb-1" style={{ color: theme.colors.text.primary }}>
           Dashboard Overview
         </h1>
@@ -396,29 +383,29 @@ export default function AdminDashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Services Stats Card */}
-        <div className="rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md" 
+        <div className="rounded-lg shadow-sm p-4 transition-all duration-200 hover:shadow-md" 
              style={{ backgroundColor: theme.colors.background.primary }}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
               <div 
-                className="rounded-lg p-2" 
+                className="rounded-lg p-1.5" 
                 style={{ 
                   backgroundColor: `${theme.colors.primary}15`,
-                  boxShadow: `0 0 12px ${theme.colors.primary}15`
+                  boxShadow: `0 0 8px ${theme.colors.primary}15`
                 }}>
                 <WrenchScrewdriverIcon 
-                  className="h-5 w-5" 
+                  className="h-4 w-4" 
                   style={{ color: theme.colors.primary }} />
               </div>
-              <h2 className="text-lg font-bold" style={{ color: theme.colors.text.primary }}>
+              <h2 className="text-base font-bold" style={{ color: theme.colors.text.primary }}>
                 Services
               </h2>
             </div>
             <Link 
               href="/admin/services"
-              className="rounded-md px-4 py-2 text-xs font-medium transition-colors duration-200 hover:opacity-80"
+              className="rounded-md px-2 py-1 text-xs font-medium transition-colors duration-200 hover:opacity-80"
               style={{ 
                 backgroundColor: `${theme.colors.primary}20`,
                 color: theme.colors.primary
@@ -428,46 +415,44 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <StatCard
               title="English"
               value={serviceCounts.english}
               icon={DocumentTextIcon}
-              trend="Content"
               color="#0EA5E9"
             />
             <StatCard
               title="Urdu"
               value={serviceCounts.urdu}
               icon={LanguageIcon}
-              trend="Content"
               color="#F59E0B"
             />
           </div>
         </div>
 
         {/* Programs Stats Card */}
-        <div className="rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md" 
+        <div className="rounded-lg shadow-sm p-4 transition-all duration-200 hover:shadow-md" 
              style={{ backgroundColor: theme.colors.background.primary }}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
               <div 
-                className="rounded-lg p-2" 
+                className="rounded-lg p-1.5" 
                 style={{ 
                   backgroundColor: `${theme.colors.primary}15`,
-                  boxShadow: `0 0 12px ${theme.colors.primary}15`
+                  boxShadow: `0 0 8px ${theme.colors.primary}15`
                 }}>
                 <CalendarIcon 
-                  className="h-5 w-5" 
+                  className="h-4 w-4" 
                   style={{ color: theme.colors.primary }} />
               </div>
-              <h2 className="text-lg font-bold" style={{ color: theme.colors.text.primary }}>
+              <h2 className="text-base font-bold" style={{ color: theme.colors.text.primary }}>
                 Programs
               </h2>
             </div>
             <Link 
               href="/admin/programs"
-              className="rounded-md px-4 py-2 text-xs font-medium transition-colors duration-200 hover:opacity-80"
+              className="rounded-md px-2 py-1 text-xs font-medium transition-colors duration-200 hover:opacity-80"
               style={{ 
                 backgroundColor: `${theme.colors.primary}20`,
                 color: theme.colors.primary
@@ -477,46 +462,44 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <StatCard
               title="English"
               value={programCounts.english}
               icon={DocumentTextIcon}
-              trend="Content"
               color="#0EA5E9"
             />
             <StatCard
               title="Urdu"
               value={programCounts.urdu}
               icon={LanguageIcon}
-              trend="Content"
               color="#F59E0B"
             />
           </div>
         </div>
 
         {/* Events Stats Card */}
-        <div className="rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md" 
+        <div className="rounded-lg shadow-sm p-4 transition-all duration-200 hover:shadow-md" 
              style={{ backgroundColor: theme.colors.background.primary }}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
               <div 
-                className="rounded-lg p-2" 
+                className="rounded-lg p-1.5" 
                 style={{ 
                   backgroundColor: `${theme.colors.primary}15`,
-                  boxShadow: `0 0 12px ${theme.colors.primary}15`
+                  boxShadow: `0 0 8px ${theme.colors.primary}15`
                 }}>
                 <ClockIcon 
-                  className="h-5 w-5" 
+                  className="h-4 w-4" 
                   style={{ color: theme.colors.primary }} />
               </div>
-              <h2 className="text-lg font-bold" style={{ color: theme.colors.text.primary }}>
+              <h2 className="text-base font-bold" style={{ color: theme.colors.text.primary }}>
                 Events
               </h2>
             </div>
             <Link 
               href="/admin/events"
-              className="rounded-md px-4 py-2 text-xs font-medium transition-colors duration-200 hover:opacity-80"
+              className="rounded-md px-2 py-1 text-xs font-medium transition-colors duration-200 hover:opacity-80"
               style={{ 
                 backgroundColor: `${theme.colors.primary}20`,
                 color: theme.colors.primary
@@ -526,46 +509,44 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <StatCard
               title="English"
               value={eventCounts.english}
               icon={DocumentTextIcon}
-              trend="Content"
               color="#0EA5E9"
             />
             <StatCard
               title="Urdu"
               value={eventCounts.urdu}
               icon={LanguageIcon}
-              trend="Content"
               color="#F59E0B"
             />
           </div>
         </div>
 
         {/* Blogs Stats Card */}
-        <div className="rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md" 
+        <div className="rounded-lg shadow-sm p-4 transition-all duration-200 hover:shadow-md" 
              style={{ backgroundColor: theme.colors.background.primary }}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
               <div 
-                className="rounded-lg p-2" 
+                className="rounded-lg p-1.5" 
                 style={{ 
                   backgroundColor: `${theme.colors.primary}15`,
-                  boxShadow: `0 0 12px ${theme.colors.primary}15`
+                  boxShadow: `0 0 8px ${theme.colors.primary}15`
                 }}>
                 <NewspaperIcon 
-                  className="h-5 w-5" 
+                  className="h-4 w-4" 
                   style={{ color: theme.colors.primary }} />
               </div>
-              <h2 className="text-lg font-bold" style={{ color: theme.colors.text.primary }}>
+              <h2 className="text-base font-bold" style={{ color: theme.colors.text.primary }}>
                 Blogs
               </h2>
             </div>
             <Link 
               href="/admin/blogs"
-              className="rounded-md px-4 py-2 text-xs font-medium transition-colors duration-200 hover:opacity-80"
+              className="rounded-md px-2 py-1 text-xs font-medium transition-colors duration-200 hover:opacity-80"
               style={{ 
                 backgroundColor: `${theme.colors.primary}20`,
                 color: theme.colors.primary
@@ -575,19 +556,17 @@ export default function AdminDashboard() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <StatCard
               title="English"
               value={blogCounts.english}
               icon={DocumentTextIcon}
-              trend="Content"
               color="#0EA5E9"
             />
             <StatCard
               title="Urdu"
               value={blogCounts.urdu}
               icon={LanguageIcon}
-              trend="Content"
               color="#F59E0B"
             />
           </div>
