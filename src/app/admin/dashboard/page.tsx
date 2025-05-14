@@ -387,7 +387,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-0">
-      <div className='mb-3'>
+      <div className='mb-6'>
         <h1 className="text-xl font-bold mb-1" style={{ color: theme.colors.text.primary }}>
           Dashboard Overview
         </h1>
@@ -396,246 +396,203 @@ export default function AdminDashboard() {
         </p>
       </div>
 
-      {/* Services Stats Card */}
-      <div className="rounded-xl shadow-sm p-4 mb-6" 
-           style={{ backgroundColor: theme.colors.background.secondary }}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-base font-bold" style={{ color: theme.colors.text.primary }}>
-              Services Statistics
-            </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Services Stats Card */}
+        <div className="rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md" 
+             style={{ backgroundColor: theme.colors.background.primary }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div 
+                className="rounded-lg p-2" 
+                style={{ 
+                  backgroundColor: `${theme.colors.primary}15`,
+                  boxShadow: `0 0 12px ${theme.colors.primary}15`
+                }}>
+                <WrenchScrewdriverIcon 
+                  className="h-5 w-5" 
+                  style={{ color: theme.colors.primary }} />
+              </div>
+              <h2 className="text-lg font-bold" style={{ color: theme.colors.text.primary }}>
+                Services
+              </h2>
+            </div>
+            <Link 
+              href="/admin/services"
+              className="rounded-md px-4 py-2 text-xs font-medium transition-colors duration-200 hover:opacity-80"
+              style={{ 
+                backgroundColor: `${theme.colors.primary}20`,
+                color: theme.colors.primary
+              }}
+            >
+              Manage
+            </Link>
           </div>
-          <Link 
-            href="/admin/services"
-            className="rounded-md px-3 py-1.5 text-xs font-medium transition-colors duration-200"
-            style={{ 
-              backgroundColor: `${theme.colors.primary}20`,
-              color: theme.colors.primary
-            }}
-          >
-            Manage
-          </Link>
+
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard
+              title="English"
+              value={serviceCounts.english}
+              icon={DocumentTextIcon}
+              trend="Content"
+              color="#0EA5E9"
+            />
+            <StatCard
+              title="Urdu"
+              value={serviceCounts.urdu}
+              icon={LanguageIcon}
+              trend="Content"
+              color="#F59E0B"
+            />
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          <StatCard
-            title="Total Services"
-            value={serviceCounts.total}
-            icon={WrenchScrewdriverIcon}
-            trend="All services"
-            color={theme.colors.primary}
-          />
-          <StatCard
-            title="Active"
-            value={serviceCounts.active}
-            icon={CheckCircleIcon}
-            trend="In operation"
-            color="#10B981"
-          />
-          <StatCard
-            title="Featured"
-            value={serviceCounts.featured}
-            icon={ArrowPathIcon}
-            trend="Homepage"
-            color="#8B5CF6"
-          />
-          <StatCard
-            title="English"
-            value={serviceCounts.english}
-            icon={DocumentTextIcon}
-            trend="Content"
-            color="#0EA5E9"
-          />
-          <StatCard
-            title="Urdu"
-            value={serviceCounts.urdu}
-            icon={LanguageIcon}
-            trend="Content"
-            color="#F59E0B"
-          />
+        {/* Programs Stats Card */}
+        <div className="rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md" 
+             style={{ backgroundColor: theme.colors.background.primary }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div 
+                className="rounded-lg p-2" 
+                style={{ 
+                  backgroundColor: `${theme.colors.primary}15`,
+                  boxShadow: `0 0 12px ${theme.colors.primary}15`
+                }}>
+                <CalendarIcon 
+                  className="h-5 w-5" 
+                  style={{ color: theme.colors.primary }} />
+              </div>
+              <h2 className="text-lg font-bold" style={{ color: theme.colors.text.primary }}>
+                Programs
+              </h2>
+            </div>
+            <Link 
+              href="/admin/programs"
+              className="rounded-md px-4 py-2 text-xs font-medium transition-colors duration-200 hover:opacity-80"
+              style={{ 
+                backgroundColor: `${theme.colors.primary}20`,
+                color: theme.colors.primary
+              }}
+            >
+              Manage
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard
+              title="English"
+              value={programCounts.english}
+              icon={DocumentTextIcon}
+              trend="Content"
+              color="#0EA5E9"
+            />
+            <StatCard
+              title="Urdu"
+              value={programCounts.urdu}
+              icon={LanguageIcon}
+              trend="Content"
+              color="#F59E0B"
+            />
+          </div>
+        </div>
+
+        {/* Events Stats Card */}
+        <div className="rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md" 
+             style={{ backgroundColor: theme.colors.background.primary }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div 
+                className="rounded-lg p-2" 
+                style={{ 
+                  backgroundColor: `${theme.colors.primary}15`,
+                  boxShadow: `0 0 12px ${theme.colors.primary}15`
+                }}>
+                <ClockIcon 
+                  className="h-5 w-5" 
+                  style={{ color: theme.colors.primary }} />
+              </div>
+              <h2 className="text-lg font-bold" style={{ color: theme.colors.text.primary }}>
+                Events
+              </h2>
+            </div>
+            <Link 
+              href="/admin/events"
+              className="rounded-md px-4 py-2 text-xs font-medium transition-colors duration-200 hover:opacity-80"
+              style={{ 
+                backgroundColor: `${theme.colors.primary}20`,
+                color: theme.colors.primary
+              }}
+            >
+              Manage
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard
+              title="English"
+              value={eventCounts.english}
+              icon={DocumentTextIcon}
+              trend="Content"
+              color="#0EA5E9"
+            />
+            <StatCard
+              title="Urdu"
+              value={eventCounts.urdu}
+              icon={LanguageIcon}
+              trend="Content"
+              color="#F59E0B"
+            />
+          </div>
+        </div>
+
+        {/* Blogs Stats Card */}
+        <div className="rounded-xl shadow-sm p-6 transition-all duration-200 hover:shadow-md" 
+             style={{ backgroundColor: theme.colors.background.primary }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div 
+                className="rounded-lg p-2" 
+                style={{ 
+                  backgroundColor: `${theme.colors.primary}15`,
+                  boxShadow: `0 0 12px ${theme.colors.primary}15`
+                }}>
+                <NewspaperIcon 
+                  className="h-5 w-5" 
+                  style={{ color: theme.colors.primary }} />
+              </div>
+              <h2 className="text-lg font-bold" style={{ color: theme.colors.text.primary }}>
+                Blogs
+              </h2>
+            </div>
+            <Link 
+              href="/admin/blogs"
+              className="rounded-md px-4 py-2 text-xs font-medium transition-colors duration-200 hover:opacity-80"
+              style={{ 
+                backgroundColor: `${theme.colors.primary}20`,
+                color: theme.colors.primary
+              }}
+            >
+              Manage
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard
+              title="English"
+              value={blogCounts.english}
+              icon={DocumentTextIcon}
+              trend="Content"
+              color="#0EA5E9"
+            />
+            <StatCard
+              title="Urdu"
+              value={blogCounts.urdu}
+              icon={LanguageIcon}
+              trend="Content"
+              color="#F59E0B"
+            />
+          </div>
         </div>
       </div>
-
-      {/* Programs Stats Card */}
-      <div className="rounded-xl shadow-sm p-4 mb-6" 
-           style={{ backgroundColor: theme.colors.background.secondary }}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-base font-bold" style={{ color: theme.colors.text.primary }}>
-              Programs Statistics
-            </h2>
-          </div>
-          <Link 
-            href="/admin/programs"
-            className="rounded-md px-3 py-1.5 text-xs font-medium transition-colors duration-200"
-            style={{ 
-              backgroundColor: `${theme.colors.primary}20`,
-              color: theme.colors.primary
-            }}
-          >
-            Manage
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          <StatCard
-            title="Total Programs"
-            value={programCounts.total}
-            icon={CalendarIcon}
-            trend="All programs"
-            color={theme.colors.primary}
-          />
-          {/* <StatCard
-            title="Active"
-            value={programCounts.active}
-            icon={CheckCircleIcon}
-            trend="In operation"
-            color="#10B981"
-          /> */}
-          <StatCard
-            title="Featured"
-            value={programCounts.featured}
-            icon={ArrowPathIcon}
-            trend="Homepage"
-            color="#8B5CF6"
-          />
-          <StatCard
-            title="English"
-            value={programCounts.english}
-            icon={DocumentTextIcon}
-            trend="Content"
-            color="#0EA5E9"
-          />
-          <StatCard
-            title="Urdu"
-            value={programCounts.urdu}
-            icon={LanguageIcon}
-            trend="Content"
-            color="#F59E0B"
-          />
-        </div>
-      </div>
-
-      {/* Events Stats Card */}
-      <div className="rounded-xl shadow-sm p-4" 
-           style={{ backgroundColor: theme.colors.background.secondary }}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-base font-bold" style={{ color: theme.colors.text.primary }}>
-              Events Statistics
-            </h2>
-          </div>
-          <Link 
-            href="/admin/events"
-            className="rounded-md px-3 py-1.5 text-xs font-medium transition-colors duration-200"
-            style={{ 
-              backgroundColor: `${theme.colors.primary}20`,
-              color: theme.colors.primary
-            }}
-          >
-            Manage
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <StatCard
-            title="Total Events"
-            value={eventCounts.total}
-            icon={CalendarIcon}
-            trend="All time"
-            color={theme.colors.primary}
-          />
-          <StatCard
-            title="Upcoming"
-            value={eventCounts.upcoming}
-            icon={ClockIcon}
-            trend="Pipeline"
-            color="#0EA5E9"
-          />
-          <StatCard
-            title="Past Events"
-            value={eventCounts.past}
-            icon={CheckCircleIcon}
-            trend="Completed"
-            color="#8B5CF6"
-          />
-          <StatCard
-            title="English"
-            value={eventCounts.english}
-            icon={DocumentTextIcon}
-            trend="Content"
-            color="#10B981"
-          />
-          <StatCard
-            title="Urdu"
-            value={eventCounts.urdu}
-            icon={LanguageIcon}
-            trend="Content"
-            color="#F59E0B"
-          />
-          <StatCard
-            title="Featured"
-            value={eventCounts.featured}
-            icon={ArrowPathIcon}
-            trend="Homepage"
-            color="#EC4899"
-          />
-        </div>
-      </div>
-
-      {/* Blogs Stats Card */}
-      <div className="rounded-xl shadow-sm p-4 mb-6" 
-           style={{ backgroundColor: theme.colors.background.secondary }}>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-base font-bold" style={{ color: theme.colors.text.primary }}>
-              Blogs Statistics
-            </h2>
-          </div>
-          <Link 
-            href="/admin/blogs"
-            className="rounded-md px-3 py-1.5 text-xs font-medium transition-colors duration-200"
-            style={{ 
-              backgroundColor: `${theme.colors.primary}20`,
-              color: theme.colors.primary
-            }}
-          >
-            Manage
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          <StatCard
-            title="Total Blogs"
-            value={blogCounts.total}
-            icon={NewspaperIcon}
-            trend="All blogs"
-            color={theme.colors.primary}
-          />
-          <StatCard
-            title="Featured"
-            value={blogCounts.featured}
-            icon={ArrowPathIcon}
-            trend="Homepage"
-            color="#8B5CF6"
-          />
-          <StatCard
-            title="English"
-            value={blogCounts.english}
-            icon={DocumentTextIcon}
-            trend="Content"
-            color="#0EA5E9"
-          />
-          <StatCard
-            title="Urdu"
-            value={blogCounts.urdu}
-            icon={LanguageIcon}
-            trend="Content"
-            color="#F59E0B"
-          />
-        </div>
-      </div>
-
     </div>
   );
 }
