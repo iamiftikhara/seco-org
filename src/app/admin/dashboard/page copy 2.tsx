@@ -418,7 +418,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          <StatCard
+          {/* <StatCard
             title="Total Services"
             value={serviceCounts.total}
             icon={WrenchScrewdriverIcon}
@@ -438,7 +438,7 @@ export default function AdminDashboard() {
             icon={ArrowPathIcon}
             trend="Homepage"
             color="#8B5CF6"
-          />
+          /> */}
           <StatCard
             title="English"
             value={serviceCounts.english}
@@ -478,13 +478,13 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          <StatCard
+          {/* <StatCard
             title="Total Programs"
             value={programCounts.total}
             icon={CalendarIcon}
             trend="All programs"
             color={theme.colors.primary}
-          />
+          /> */}
           {/* <StatCard
             title="Active"
             value={programCounts.active}
@@ -492,13 +492,13 @@ export default function AdminDashboard() {
             trend="In operation"
             color="#10B981"
           /> */}
-          <StatCard
+          {/* <StatCard
             title="Featured"
             value={programCounts.featured}
             icon={ArrowPathIcon}
             trend="Homepage"
             color="#8B5CF6"
-          />
+          /> */}
           <StatCard
             title="English"
             value={programCounts.english}
@@ -538,7 +538,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <StatCard
+          {/* <StatCard
             title="Total Events"
             value={eventCounts.total}
             icon={CalendarIcon}
@@ -558,7 +558,7 @@ export default function AdminDashboard() {
             icon={CheckCircleIcon}
             trend="Completed"
             color="#8B5CF6"
-          />
+          /> */}
           <StatCard
             title="English"
             value={eventCounts.english}
@@ -573,13 +573,13 @@ export default function AdminDashboard() {
             trend="Content"
             color="#F59E0B"
           />
-          <StatCard
+          {/* <StatCard
             title="Featured"
             value={eventCounts.featured}
             icon={ArrowPathIcon}
             trend="Homepage"
             color="#EC4899"
-          />
+          /> */}
         </div>
       </div>
 
@@ -605,20 +605,20 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          <StatCard
+          {/* <StatCard
             title="Total Blogs"
             value={blogCounts.total}
             icon={NewspaperIcon}
             trend="All blogs"
             color={theme.colors.primary}
-          />
-          <StatCard
+          /> */}
+          {/* <StatCard
             title="Featured"
             value={blogCounts.featured}
             icon={ArrowPathIcon}
             trend="Homepage"
             color="#8B5CF6"
-          />
+          /> */}
           <StatCard
             title="English"
             value={blogCounts.english}
