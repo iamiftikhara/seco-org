@@ -5,8 +5,32 @@ import { verifyToken } from '@/lib/jwt';
 export async function middleware(request: NextRequest) {
   // Check if it's an admin route
   if (request.nextUrl.pathname.startsWith('/admin')) {
+    // Handle root admin path
+    if (request.nextUrl.pathname === '/admin' || request.nextUrl.pathname === '/admin/') {
+      const token = request.cookies.get('jwt')?.value;
+      if (token) {
+        // If user is logged in, redirect to dashboard
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      } else {
+        // If user is not logged in, redirect to login
+        return NextResponse.redirect(new URL('/admin/login', request.url));
+      }
+    }
+
     // Skip middleware for login page
     if (request.nextUrl.pathname === '/admin/login') {
+      // If user is already logged in, redirect to dashboard
+      const token = request.cookies.get('jwt')?.value;
+      if (token) {
+        try {
+          const payload = await verifyToken(token);
+          if (payload) {
+            return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+          }
+        } catch (error) {
+          // Invalid token, continue to login page
+        }
+      }
       return NextResponse.next();
     }
 
@@ -16,10 +40,10 @@ export async function middleware(request: NextRequest) {
       if (!token) {
         console.log('No token');
         const response = NextResponse.redirect(new URL('/admin/login', request.url));
-        // Clear all auth cookies
-        ['jwt','x-user-id', 'x-user-role', 'x-user-name'].forEach(cookie => {
-          response.cookies.delete(cookie);
-        });
+        response.cookies.delete('jwt');
+        response.cookies.delete('x-user-id');
+        response.cookies.delete('x-user-role');
+        response.cookies.delete('x-user-name');
         return response;
       }
 
@@ -28,10 +52,10 @@ export async function middleware(request: NextRequest) {
       if (!payload) {
         console.log('Invalid token', payload);
         const response = NextResponse.redirect(new URL('/admin/login', request.url));
-        // Clear all auth cookies
-        ['jwt', 'x-user-id', 'x-user-role', 'x-user-name'].forEach(cookie => {
-          response.cookies.delete(cookie);
-        });
+        response.cookies.delete('jwt');
+        response.cookies.delete('x-user-id');
+        response.cookies.delete('x-user-role');
+        response.cookies.delete('x-user-name');
         return response;
       }
 
@@ -43,27 +67,27 @@ export async function middleware(request: NextRequest) {
       response.headers.set('x-user-role', payload.role);
       response.headers.set('x-user-name', payload.username);
       
-      // Set cookies with proper configuration
+      // Set cookies with same data and proper configuration
       const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' as const, // Changed from 'strict' to 'lax' for better compatibility
-        path: '/',  // Ensure cookies are available across all paths
+        sameSite: 'lax' as const,
+        path: '/',
         maxAge: 24 * 60 * 60 // 24 hours in seconds
       };
 
-      // Set all cookies with consistent options
       response.cookies.set('x-user-id', payload.userId, cookieOptions);
       response.cookies.set('x-user-role', payload.role, cookieOptions);
       response.cookies.set('x-user-name', payload.username, cookieOptions);
-      response.cookies.set('adminSession', JSON.stringify({ userId: payload.userId, role: payload.role }), cookieOptions);
-      response.cookies.set('isAdminLoggedIn', 'true', cookieOptions);
 
       return response;
     } catch (error) {
       console.error('Middleware error:', error);
       const response = NextResponse.redirect(new URL('/admin/login', request.url));
       response.cookies.delete('jwt');
+      response.cookies.delete('x-user-id');
+      response.cookies.delete('x-user-role');
+      response.cookies.delete('x-user-name');
       return response;
     }
   }
