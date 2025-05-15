@@ -16,7 +16,10 @@ export async function middleware(request: NextRequest) {
       if (!token) {
         console.log('No token');
         const response = NextResponse.redirect(new URL('/admin/login', request.url));
-        response.cookies.delete('jwt');
+        // Clear all auth cookies
+        ['jwt','x-user-id', 'x-user-role', 'x-user-name'].forEach(cookie => {
+          response.cookies.delete(cookie);
+        });
         return response;
       }
 
@@ -25,37 +28,36 @@ export async function middleware(request: NextRequest) {
       if (!payload) {
         console.log('Invalid token', payload);
         const response = NextResponse.redirect(new URL('/admin/login', request.url));
-        response.cookies.delete('jwt');
+        // Clear all auth cookies
+        ['jwt', 'x-user-id', 'x-user-role', 'x-user-name'].forEach(cookie => {
+          response.cookies.delete(cookie);
+        });
         return response;
       }
 
       // Create response with user info in both headers and cookies
       const response = NextResponse.next();
       
-      // Add a small delay to ensure session is set
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
       // Set headers
       response.headers.set('x-user-id', payload.userId);
       response.headers.set('x-user-role', payload.role);
       response.headers.set('x-user-name', payload.username);
       
-      // Set cookies with same data
-      response.cookies.set('x-user-id', payload.userId, {
+      // Set cookies with proper configuration
+      const cookieOptions = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
-      response.cookies.set('x-user-role', payload.role, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
-      response.cookies.set('x-user-name', payload.username, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-      });
+        sameSite: 'lax' as const, // Changed from 'strict' to 'lax' for better compatibility
+        path: '/',  // Ensure cookies are available across all paths
+        maxAge: 24 * 60 * 60 // 24 hours in seconds
+      };
+
+      // Set all cookies with consistent options
+      response.cookies.set('x-user-id', payload.userId, cookieOptions);
+      response.cookies.set('x-user-role', payload.role, cookieOptions);
+      response.cookies.set('x-user-name', payload.username, cookieOptions);
+      response.cookies.set('adminSession', JSON.stringify({ userId: payload.userId, role: payload.role }), cookieOptions);
+      response.cookies.set('isAdminLoggedIn', 'true', cookieOptions);
 
       return response;
     } catch (error) {
