@@ -50,7 +50,7 @@ export default function AdminLogin() {
       sessionStorage.setItem('isAdminLoggedIn', 'true');
       
       // Dispatch event after ensuring data is stored
-      window.dispatchEvent(new Event('adminSessionSet'));
+      // window.dispatchEvent(new Event('adminSessionSet'));
 
       setTimeout(() => {
         // router.push('/admin/dashboard');
