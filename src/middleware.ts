@@ -16,8 +16,6 @@ export async function middleware(request: NextRequest) {
       if (!token) {
         console.log('No token');
         const response = NextResponse.redirect(new URL('/admin/login', request.url));
-        response.cookies.delete('adminSession');
-        response.cookies.delete('isAdminLoggedIn');
         response.cookies.delete('jwt');
         return response;
       }
@@ -27,8 +25,6 @@ export async function middleware(request: NextRequest) {
       if (!payload) {
         console.log('Invalid token', payload);
         const response = NextResponse.redirect(new URL('/admin/login', request.url));
-        response.cookies.delete('adminSession');
-        response.cookies.delete('isAdminLoggedIn');
         response.cookies.delete('jwt');
         return response;
       }
@@ -62,8 +58,6 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
       console.error('Middleware error:', error);
       const response = NextResponse.redirect(new URL('/admin/login', request.url));
-      response.cookies.delete('adminSession');
-      response.cookies.delete('isAdminLoggedIn');
       response.cookies.delete('jwt');
       return response;
     }
