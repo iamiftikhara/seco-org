@@ -32,6 +32,9 @@ export async function middleware(request: NextRequest) {
       // Create response with user info in both headers and cookies
       const response = NextResponse.next();
       
+      // Add a small delay to ensure session is set
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Set headers
       response.headers.set('x-user-id', payload.userId);
       response.headers.set('x-user-role', payload.role);
