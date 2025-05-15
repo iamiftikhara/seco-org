@@ -140,6 +140,23 @@ interface ProgramCounts {
   featured: number;
 }
 
+// Add Blog interface
+interface Blog {
+  id: string;
+  title: {
+    text: string;
+    language: 'en' | 'ur';
+  };
+  showOnHome: boolean;
+}
+
+interface BlogResponse {
+  success: boolean;
+  data: {
+    blogsList: Blog[];  // Keep only one declaration
+  };
+}
+
 function StatCard({ 
   title, 
   value, 
@@ -149,7 +166,7 @@ function StatCard({
 }: { 
   title: string; 
   value: number; 
-  icon: any;
+  icon: React.ElementType;  // Replace any with proper type
   trend?: string;
   color?: string;
 }) {
@@ -248,7 +265,7 @@ interface BlogCounts {
 interface BlogResponse {
   success: boolean;
   data: {
-    blogsList: any[];
+    blogsList: Blog[];
   };
 }
 
@@ -392,7 +409,7 @@ export default function AdminDashboard() {
           Dashboard Overview
         </h1>
         <p className="text-xs" style={{ color: theme.colors.text.secondary }}>
-          Welcome back! Here's what's happening with your organization.
+          Welcome back! Here&apos;s what&apos;s happening with your organization.
         </p>
       </div>
 
