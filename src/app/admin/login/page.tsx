@@ -50,9 +50,11 @@ export default function AdminLogin() {
       sessionStorage.setItem('isAdminLoggedIn', 'true');
       
       // Dispatch event after ensuring data is stored
+      window.dispatchEvent(new Event('adminSessionSet'));
+
       setTimeout(() => {
-        window.dispatchEvent(new Event('adminSessionSet'));
         router.push('/admin/dashboard');
+        console.log('Redirecting to /admin/dashboard'); // Debugging log for redirectio
       }, 100);
       
     } catch (error) {
