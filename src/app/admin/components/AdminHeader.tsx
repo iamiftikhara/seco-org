@@ -56,7 +56,9 @@ export default function AdminHeader() {
     if (success) {
       sessionStorage.clear()
       window.dispatchEvent(new Event('adminSessionSet'));
-      router.push('/admin/login');
+      // router.push('/admin/login');
+      window.location.href = '/admin/login';
+
     }
   };
 

@@ -53,7 +53,8 @@ export default function AdminLogin() {
       window.dispatchEvent(new Event('adminSessionSet'));
 
       setTimeout(() => {
-        router.push('/admin/dashboard');
+        // router.push('/admin/dashboard');
+        window.location.href = '/admin/dashboard';
         console.log('Redirecting to /admin/dashboard'); // Debugging log for redirectio
       }, 100);
       
