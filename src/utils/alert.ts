@@ -63,12 +63,13 @@ export const showConfirmDialog = async (options: {
     color: theme.colors.text.primary,
     confirmButtonColor: theme.colors.status.success,
     cancelButtonColor: theme.colors.status.error,
+    reverseButtons: true,
     customClass: {
       popup: 'swal2-modern',
       title: 'swal2-title-modern',
       content: 'swal2-content-modern',
-      confirmButton: 'swal2-confirm-modern',
-      cancelButton: 'swal2-cancel-modern'
+      cancelButton: 'swal2-cancel-modern',
+      confirmButton: 'swal2-confirm-modern'
     }
   });
 };
