@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2';
+import Swal, { SweetAlertOptions, SweetAlertResult } from 'sweetalert2';
 import { theme } from '@/config/theme';
 
 interface AlertOptions {
@@ -21,10 +21,10 @@ const Toast = Swal.mixin({
   }
 });
 
-export const showAlert = async (options: AlertOptions) => {
+export const showAlert = async (options: AlertOptions): Promise<SweetAlertResult<any>> => {
   const { title, text, icon = 'info', timer = 3000, showConfirmButton = false } = options;
 
-  return Toast.fire({
+  const alertOptions: SweetAlertOptions = {
     icon,
     title: text,
     background: theme.colors.background.primary,
@@ -32,11 +32,26 @@ export const showAlert = async (options: AlertOptions) => {
     timer,
     showConfirmButton,
     customClass: {
+      container: '',
       popup: 'swal2-modern',
       title: 'swal2-title-modern',
-      content: 'swal2-content-modern'
+      htmlContainer: 'swal2-content-modern',
+      closeButton: '',
+      icon: '',
+      image: '',
+      input: '',
+      inputLabel: '',
+      validationMessage: '',
+      actions: '',
+      confirmButton: '',
+      denyButton: '',
+      cancelButton: '',
+      loader: '',
+      footer: ''
     }
-  });
+  };
+
+  return Toast.fire(alertOptions);
 };
 
 export const showConfirmDialog = async (options: {
@@ -44,7 +59,7 @@ export const showConfirmDialog = async (options: {
   text: string;
   confirmButtonText?: string;
   cancelButtonText?: string;
-}) => {
+}): Promise<SweetAlertResult<any>> => {
   const {
     title,
     text,
@@ -52,7 +67,7 @@ export const showConfirmDialog = async (options: {
     cancelButtonText = 'Cancel'
   } = options;
 
-  return Swal.fire({
+  const confirmOptions: SweetAlertOptions = {
     title,
     text,
     icon: 'warning',
@@ -65,11 +80,24 @@ export const showConfirmDialog = async (options: {
     cancelButtonColor: theme.colors.status.error,
     reverseButtons: true,
     customClass: {
+      container: '',
       popup: 'swal2-modern',
       title: 'swal2-title-modern',
-      content: 'swal2-content-modern',
+      htmlContainer: 'swal2-content-modern',
+      closeButton: '',
+      icon: '',
+      image: '',
+      input: '',
+      inputLabel: '',
+      validationMessage: '',
+      actions: '',
+      confirmButton: 'swal2-confirm-modern',
+      denyButton: '',
       cancelButton: 'swal2-cancel-modern',
-      confirmButton: 'swal2-confirm-modern'
+      loader: '',
+      footer: ''
     }
-  });
+  };
+
+  return Swal.fire(confirmOptions);
 };

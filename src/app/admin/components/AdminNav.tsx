@@ -21,9 +21,9 @@ const menuItems = [
     ],
   },
   { href: "/admin/users", label: "Users", icon: FiUsers },
-  { href: "/admin/media", label: "Media", icon: FiImage },
   { href: "/admin/messages", label: "Messages", icon: FiMessageSquare },
   { href: "/admin/events", label: "Events", icon: FiCalendar },
+  { href: "/admin/gallery", label: "Gallery", icon: FiImage },
   { href: "/admin/settings", label: "Settings", icon: FiSettings },
 ];
 

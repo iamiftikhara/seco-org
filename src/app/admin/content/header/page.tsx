@@ -5,6 +5,7 @@ import { TextContent } from '@/data/navbar';
 import { theme } from '@/config/theme';
 import { FiEdit2, FiSave, FiX, FiImage, FiType } from 'react-icons/fi';
 import { showAlert, showConfirmDialog } from '@/utils/alert';
+import ImageSelector from '@/components/ImageSelector';
 
 interface NavbarFormData {
   logo: {
@@ -140,7 +141,7 @@ export default function NavbarAdmin() {
       </div>
       
       <div className="bg-white rounded-xl shadow-sm p-8" style={{ backgroundColor: theme.colors.background.primary }}>
-        <form className="space-y-8">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
           <div className="space-y-6">
             <div className="flex items-center gap-2 mb-4">
               <FiImage className="w-5 h-5" style={{ color: theme.colors.primary }} />
@@ -149,22 +150,17 @@ export default function NavbarAdmin() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="block text-sm font-medium" style={{ color: theme.colors.text.secondary }}>
-                  Image Path
+                  Logo Image
                 </label>
-                <input
-                  type="text"
-                  value={formData.logo.image}
-                  onChange={e => setFormData({
+                <ImageSelector
+                  selectedPath={formData.logo.image}
+                  onSelect={(path) => setFormData({
                     ...formData,
-                    logo: { ...formData.logo, image: e.target.value }
+                    logo: { ...formData.logo, image: path }
                   })}
+                  className="w-full"
                   disabled={!isEditing}
-                  className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50 disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  style={{ 
-                    borderColor: theme.colors.border.default,  // or .light or .dark depending on your needs
-                    color: theme.colors.text.primary,
-                    backgroundColor: isEditing ? theme.colors.background.primary : theme.colors.background.secondary
-                  }}
+                  size="small" // or "medium" or "large" depending on your needs
                 />
               </div>
               <div className="space-y-2">
@@ -245,7 +241,7 @@ export default function NavbarAdmin() {
             </div>
           </div>
 
-          {(status.error || status.success) && (
+          {/* {(status.error || status.success) && (
             <div 
               className="text-sm p-3 rounded-lg mt-4"
               style={{ 
@@ -255,11 +251,12 @@ export default function NavbarAdmin() {
             >
               {status.error || 'Successfully updated navbar data!'}
             </div>
-          )}
+          )} */}
 
           {isEditing && (
             <div className="pt-6 border-t" style={{ borderColor: theme.colors.border.default }}>
               <button
+                type="button"
                 onClick={handleSubmit}
                 disabled={!isDirty || status.loading}
                 className="w-full flex items-center justify-center gap-2 p-3 rounded-lg transition-all duration-200 disabled:opacity-50"

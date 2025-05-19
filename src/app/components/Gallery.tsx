@@ -10,6 +10,35 @@ export default function Gallery() {
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   
+  // Add handleFileUpload function
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('files', file);
+      });
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      // Handle successful upload
+      console.log('Upload successful:', data);
+    } catch (error) {
+      // Handle upload error
+      console.error('Upload error:', error);
+    }
+  };
+
   // Get all images that should be shown on home page
   const homeImages = galleryData.sections.flatMap(section => 
     section.images.filter(img => img.showOnHome)
