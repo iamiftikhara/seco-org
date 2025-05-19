@@ -147,12 +147,18 @@ export default function Gallery({ className = '' }: GalleryProps) {
     if (!viewImage || !newImageName) return;
 
     try {
-      const response = await fetch('/api/images/rename', {
+      // Get the old filename from the path
+      const oldName = viewImage.split('/').pop();
+      // Add the extension to the new name
+      const extension = oldName?.split('.').pop() || '';
+      const newNameWithExt = newImageName + '.' + extension;
+
+      const response = await fetch('/api/images', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          oldPath: viewImage,
-          newName: newImageName
+          oldName: oldName,
+          newName: newNameWithExt
         })
       });
 
