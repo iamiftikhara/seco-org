@@ -6,6 +6,7 @@ import { theme } from '@/config/theme';
 import { FiEdit2, FiSave, FiX, FiImage, FiType } from 'react-icons/fi';
 import { showAlert, showConfirmDialog } from '@/utils/alert';
 import ImageSelector from '@/components/ImageSelector';
+import Loader from '../../components/Loader';
 
 interface NavbarFormData {
   logo: {
@@ -107,6 +108,7 @@ export default function NavbarAdmin() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      <Loader isVisible={status.loading} />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold" style={{ color: theme.colors.text.primary }}>Header Settings</h1>
         {!isEditing ? (
