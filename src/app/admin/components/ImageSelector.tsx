@@ -102,7 +102,7 @@ export default function ImageSelector({
       {/* Selected Image Preview */}
       <div 
         className={`w-full rounded-lg border flex items-center ${size === 'small' ? 'justify-between' : 'flex-col justify-center'} overflow-hidden ${
-          disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+          disabled ? 'cursor-not-allowed' : 'cursor-pointer'
         } ${sizeStyles[size].container}`}
         style={{ 
           borderColor: theme.colors.border.default,

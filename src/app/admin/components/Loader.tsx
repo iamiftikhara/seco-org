@@ -4,9 +4,10 @@ import { theme } from '@/config/theme';
 
 interface LoaderProps {
   isVisible: boolean;
+  text: string;
 }
 
-export default function Loader({ isVisible }: LoaderProps) {
+export default function Loader({ isVisible, text }: LoaderProps) {
   if (!isVisible) return null;
 
   return (
@@ -19,7 +20,7 @@ export default function Loader({ isVisible }: LoaderProps) {
           style={{ borderColor: `${theme.colors.primary} transparent transparent` }}
         />
         <p className="text-lg font-medium" style={{ color: theme.colors.text.primary }}>
-          Saving changes...
+          {text || 'Loading...'}
         </p>
       </div>
     </div>

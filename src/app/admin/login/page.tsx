@@ -116,7 +116,8 @@ export default function AdminLogin() {
               className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2"
               style={{ 
                 borderColor: theme.colors.border.light,
-                outlineOffset: theme.colors.primary
+                outlineOffset: theme.colors.primary,
+                color: theme.colors.text.primary
               }}
               required
             />
@@ -136,7 +137,8 @@ export default function AdminLogin() {
               className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2"
               style={{ 
                 borderColor: theme.colors.border.light,
-                outlineOffset: theme.colors.primary
+                outlineOffset: theme.colors.primary,
+                color: theme.colors.text.primary
               }}
               required
             />

@@ -5,10 +5,11 @@ import {TextContent} from "@/data/navbar";
 import {theme} from "@/config/theme";
 import {FiEdit2, FiSave, FiX, FiImage, FiType} from "react-icons/fi";
 import {showAlert, showConfirmDialog} from "@/utils/alert";
-import ImageSelector from "@/components/ImageSelector";
+import ImageSelector from "@/app/admin/components/ImageSelector";
 import Loader from "../../components/Loader";
 import {handle403Response} from "@/app/admin/errors/error403";
 import {useRouter} from "next/navigation";
+import DashboardLoader from '../../components/DashboardLoader';
 
 interface NavbarFormData {
   logo: {
@@ -29,6 +30,7 @@ export default function NavbarAdmin() {
   const [originalData, setOriginalData] = useState<NavbarFormData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const [status, setStatus] = useState({
     loading: false,
@@ -53,6 +55,7 @@ export default function NavbarAdmin() {
       if (data.success) {
         setFormData(data.data);
         setOriginalData(data.data);
+        setIsLoading(false);
       } else {
         if (response.status === 401) {
           router.push("/admin/login");
@@ -60,7 +63,7 @@ export default function NavbarAdmin() {
         } else if (response.status === 403) {
           const shouldRedirect = await handle403Response();
           if (shouldRedirect) {
-            router.push("/admin/login");
+            window.location.href = '/admin/login';
           }
           return;
         }
@@ -109,7 +112,7 @@ export default function NavbarAdmin() {
           } else if (response.status === 403) {
             const shouldRedirect = await handle403Response();
             if (shouldRedirect) {
-              router.push("/admin/login");
+              window.location.href = '/admin/login';
             }
             return;
           }
@@ -128,11 +131,15 @@ export default function NavbarAdmin() {
     }
   };
 
+  if (isLoading) {
+    return <DashboardLoader />;
+  }
+
   if (!formData) return <div>Loading...</div>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <Loader isVisible={status.loading} />
+      <Loader isVisible={status.loading} text="Saving" />
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold" style={{color: theme.colors.text.primary}}>
           Header Settings
