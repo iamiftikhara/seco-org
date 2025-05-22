@@ -12,6 +12,7 @@ export async function handle403Response(response: Response): Promise<boolean> {
     
     // If the response indicates we should redirect
       window.location.href = '/admin/login';
+
     
     return true;
   }

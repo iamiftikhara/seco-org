@@ -1,12 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { TextContent } from '@/data/navbar';
-import { theme } from '@/config/theme';
-import { FiEdit2, FiSave, FiX, FiImage, FiType } from 'react-icons/fi';
-import { showAlert, showConfirmDialog } from '@/utils/alert';
-import ImageSelector from '@/components/ImageSelector';
-import Loader from '../../components/Loader';
+import {useState, useEffect} from "react";
+import {TextContent} from "@/data/navbar";
+import {theme} from "@/config/theme";
+import {FiEdit2, FiSave, FiX, FiImage, FiType} from "react-icons/fi";
+import {showAlert, showConfirmDialog} from "@/utils/alert";
+import ImageSelector from "@/components/ImageSelector";
+import Loader from "../../components/Loader";
+import {handle403Response} from "@/app/admin/errors/error403";
+import {useRouter} from "next/navigation";
 
 interface NavbarFormData {
   logo: {
@@ -27,10 +29,11 @@ export default function NavbarAdmin() {
   const [originalData, setOriginalData] = useState<NavbarFormData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const router = useRouter();
   const [status, setStatus] = useState({
     loading: false,
     error: null as string | null,
-    success: false
+    success: false,
   });
 
   useEffect(() => {
@@ -45,61 +48,82 @@ export default function NavbarAdmin() {
 
   const fetchNavbarData = async () => {
     try {
-      const response = await fetch('/api/navbar');
+      const response = await fetch("/api/admin/navbar");
       const data = await response.json();
       if (data.success) {
         setFormData(data.data);
         setOriginalData(data.data);
       } else {
-        setStatus(prev => ({ ...prev, error: data.error }));
+        if (response.status === 401) {
+          router.push("/admin/login");
+          return;
+        } else if (response.status === 403) {
+          const shouldRedirect = await handle403Response();
+          if (shouldRedirect) {
+            router.push("/admin/login");
+          }
+          return;
+        }
+        setStatus((prev) => ({...prev, error: data.error}));
       }
     } catch (error) {
-      setStatus(prev => ({ ...prev, error: 'Failed to fetch navbar data' }));
+      setStatus((prev) => ({...prev, error: "Failed to fetch navbar data"}));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const result = await showConfirmDialog({
-        title: 'Save Changes?',
-        text: 'Are you sure you want to save these changes?',
-        confirmButtonText: 'Save',
-        cancelButtonText: 'Cancel'
+        title: "Save Changes?",
+        text: "Are you sure you want to save these changes?",
+        confirmButtonText: "Save",
+        cancelButtonText: "Cancel",
+        icon: "warning",
+        showCancelButton: true,
       });
 
       if (result.isConfirmed) {
-        setStatus({ loading: true, error: null, success: false });
+        setStatus({loading: true, error: null, success: false});
 
-        const response = await fetch('/api/navbar', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+        const response = await fetch("/api/admin/navbar", {
+          method: "PUT",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(formData),
         });
 
         const data = await response.json();
-        
+
         if (data.success) {
-          setStatus({ loading: false, error: null, success: true });
+          setStatus({loading: false, error: null, success: true});
           setIsEditing(false);
           showAlert({
-            text: 'Changes saved successfully!',
-            icon: 'success'
+            text: "Changes saved successfully!",
+            icon: "success",
           });
         } else {
-          throw new Error(data.error || 'Failed to update navbar data');
+          if (response.status === 401) {
+            router.push("/admin/login");
+            return;
+          } else if (response.status === 403) {
+            const shouldRedirect = await handle403Response();
+            if (shouldRedirect) {
+              router.push("/admin/login");
+            }
+            return;
+          }
         }
       }
     } catch (error) {
-      setStatus({ 
-        loading: false, 
-        error: error instanceof Error ? error.message : 'An unknown error occurred',
-        success: false 
+      setStatus({
+        loading: false,
+        error: error instanceof Error ? error.message : "An unknown error occurred",
+        success: false,
       });
       showAlert({
-        text: error instanceof Error ? error.message : 'An unknown error occurred',
-        icon: 'error'
+        text: error instanceof Error ? error.message : "An unknown error occurred",
+        icon: "error",
       });
     }
   };
@@ -110,14 +134,16 @@ export default function NavbarAdmin() {
     <div className="max-w-4xl mx-auto p-6">
       <Loader isVisible={status.loading} />
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold" style={{ color: theme.colors.text.primary }}>Header Settings</h1>
+        <h1 className="text-3xl font-bold" style={{color: theme.colors.text.primary}}>
+          Header Settings
+        </h1>
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90"
-            style={{ 
+            style={{
               backgroundColor: theme.colors.primary,
-              color: theme.colors.text.light
+              color: theme.colors.text.light,
             }}
           >
             <FiEdit2 className="w-4 h-4" />
@@ -131,9 +157,9 @@ export default function NavbarAdmin() {
               setIsDirty(false);
             }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90"
-            style={{ 
+            style={{
               backgroundColor: theme.colors.status.error,
-              color: theme.colors.text.light
+              color: theme.colors.text.light,
             }}
           >
             <FiX className="w-4 h-4" />
@@ -141,47 +167,53 @@ export default function NavbarAdmin() {
           </button>
         )}
       </div>
-      
-      <div className="bg-white rounded-xl shadow-sm p-8" style={{ backgroundColor: theme.colors.background.primary }}>
+
+      <div className="bg-white rounded-xl shadow-sm p-8" style={{backgroundColor: theme.colors.background.primary}}>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-8">
           <div className="space-y-6">
             <div className="flex items-center gap-2 mb-4">
-              <FiImage className="w-5 h-5" style={{ color: theme.colors.primary }} />
-              <h2 className="text-xl font-semibold" style={{ color: theme.colors.text.primary }}>Logo Settings</h2>
+              <FiImage className="w-5 h-5" style={{color: theme.colors.primary}} />
+              <h2 className="text-xl font-semibold" style={{color: theme.colors.text.primary}}>
+                Logo Settings
+              </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-sm font-medium" style={{ color: theme.colors.text.secondary }}>
+                <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                   Logo Image
                 </label>
                 <ImageSelector
                   selectedPath={formData.logo.image}
-                  onSelect={(path) => setFormData({
-                    ...formData,
-                    logo: { ...formData.logo, image: path }
-                  })}
+                  onSelect={(path) =>
+                    setFormData({
+                      ...formData,
+                      logo: {...formData.logo, image: path},
+                    })
+                  }
                   className="w-full"
                   disabled={!isEditing}
                   size="small" // or "medium" or "large" depending on your needs
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-medium" style={{ color: theme.colors.text.secondary }}>
+                <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                   Alt Text
                 </label>
                 <input
                   type="text"
                   value={formData.logo.alt}
-                  onChange={e => setFormData({
-                    ...formData,
-                    logo: { ...formData.logo, alt: e.target.value }
-                  })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      logo: {...formData.logo, alt: e.target.value},
+                    })
+                  }
                   disabled={!isEditing}
                   className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50 disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  style={{ 
+                  style={{
                     borderColor: theme.colors.border.default,
                     color: theme.colors.text.primary,
-                    backgroundColor: isEditing ? theme.colors.background.primary : theme.colors.background.secondary
+                    backgroundColor: isEditing ? theme.colors.background.primary : theme.colors.background.secondary,
                   }}
                 />
               </div>
@@ -190,53 +222,59 @@ export default function NavbarAdmin() {
 
           <div className="space-y-6">
             <div className="flex items-center gap-2 mb-4">
-              <FiType className="w-5 h-5" style={{ color: theme.colors.primary }} />
-              <h2 className="text-xl font-semibold" style={{ color: theme.colors.text.primary }}>Title Settings</h2>
+              <FiType className="w-5 h-5" style={{color: theme.colors.primary}} />
+              <h2 className="text-xl font-semibold" style={{color: theme.colors.text.primary}}>
+                Title Settings
+              </h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-sm font-medium" style={{ color: theme.colors.text.secondary }}>
+                <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                   Title
                 </label>
                 <input
                   type="text"
                   value={formData.logoTitle.title.text}
-                  onChange={e => setFormData({
-                    ...formData,
-                    logoTitle: {
-                      ...formData.logoTitle,
-                      title: { ...formData.logoTitle.title, text: e.target.value }
-                    }
-                  })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      logoTitle: {
+                        ...formData.logoTitle,
+                        title: {...formData.logoTitle.title, text: e.target.value},
+                      },
+                    })
+                  }
                   disabled={!isEditing}
                   className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50 disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  style={{ 
+                  style={{
                     borderColor: theme.colors.border.default,
                     color: theme.colors.text.primary,
-                    backgroundColor: isEditing ? 'white' : theme.colors.background.secondary
+                    backgroundColor: isEditing ? "white" : theme.colors.background.secondary,
                   }}
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-medium" style={{ color: theme.colors.text.secondary }}>
+                <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                   Subtitle
                 </label>
                 <input
                   type="text"
                   value={formData.logoTitle.subTitle.text}
-                  onChange={e => setFormData({
-                    ...formData,
-                    logoTitle: {
-                      ...formData.logoTitle,
-                      subTitle: { ...formData.logoTitle.subTitle, text: e.target.value }
-                    }
-                  })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      logoTitle: {
+                        ...formData.logoTitle,
+                        subTitle: {...formData.logoTitle.subTitle, text: e.target.value},
+                      },
+                    })
+                  }
                   disabled={!isEditing}
                   className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50 disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  style={{ 
+                  style={{
                     borderColor: theme.colors.border.default,
                     color: theme.colors.text.primary,
-                    backgroundColor: isEditing ? 'white' : theme.colors.background.secondary
+                    backgroundColor: isEditing ? "white" : theme.colors.background.secondary,
                   }}
                 />
               </div>
@@ -256,19 +294,19 @@ export default function NavbarAdmin() {
           )} */}
 
           {isEditing && (
-            <div className="pt-6 border-t" style={{ borderColor: theme.colors.border.default }}>
+            <div className="pt-6 border-t" style={{borderColor: theme.colors.border.default}}>
               <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={!isDirty || status.loading}
                 className="w-full flex items-center justify-center gap-2 p-3 rounded-lg transition-all duration-200 disabled:opacity-50"
-                style={{ 
+                style={{
                   backgroundColor: theme.colors.status.success,
-                  color: theme.colors.text.light
+                  color: theme.colors.text.light,
                 }}
               >
                 <FiSave className="w-4 h-4" />
-                {status.loading ? 'Saving Changes...' : 'Save Changes'}
+                {status.loading ? "Saving Changes..." : "Save Changes"}
               </button>
             </div>
           )}

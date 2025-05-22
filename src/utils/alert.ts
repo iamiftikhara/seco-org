@@ -59,19 +59,23 @@ export const showConfirmDialog = async (options: {
   text: string;
   confirmButtonText?: string;
   cancelButtonText?: string;
+  icon?: 'success' | 'error' | 'warning' | 'info' | 'question';
+  showCancelButton: boolean;
 }): Promise<SweetAlertResult<boolean>> => {
   const {
     title,
     text,
     confirmButtonText = 'Confirm',
-    cancelButtonText = 'Cancel'
+    cancelButtonText = 'Cancel',
+    icon = 'warning',
+    showCancelButton= true
   } = options;
 
   const confirmOptions: SweetAlertOptions = {
     title,
     text,
-    icon: 'warning',
-    showCancelButton: true,
+    icon: icon,
+    showCancelButton: showCancelButton,
     confirmButtonText,
     cancelButtonText,
     background: theme.colors.background.primary,
