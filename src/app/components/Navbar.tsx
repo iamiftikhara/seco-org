@@ -68,10 +68,10 @@ export default function Navbar() {
           {/* Desktop menu */}
           {!isMobile && (
             <div className="flex md:items-center md:space-x-4">
-              {["home", "about", "services", "programs", "events", "gallery", "blog", "contact"].map((item) => (
+              {navbarData.navigationLinks.map((link) => (
                 <Link
-                  key={item}
-                  href={item === "home" ? "/" : `/${item}`}
+                  key={link.name}
+                  href={link.url}
                   className="px-3 py-2 transition-colors capitalize"
                   style={{color: theme.colors.secondary, fontFamily: theme.fonts.en.secondary}}
                   onMouseEnter={(e) => {
@@ -81,36 +81,36 @@ export default function Navbar() {
                     e.currentTarget.style.color = theme.colors.secondary;
                   }}
                 >
-                  {item}
+                  {link.name}
                 </Link>
               ))}
             </div>
           )}
         </div>
 
-        {/* Mobile menu */}
-        {isMobile && (
-          <div className={` ${isOpen ? "block" : "hidden"}`}>
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {["home", "about", "programs", "impact", "events", "gallery", "blog", "contact"].map((item) => (
-                <Link
-                  key={item}
-                  href={item === "home" ? "/" : `/${item}`}
-                  className="block px-3 py-2 rounded transition-colors capitalize"
-                  style={{color: theme.colors.secondary, fontFamily: theme.fonts.en.secondary}}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = theme.colors.text.light;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = theme.colors.secondary;
-                  }}
-                >
-                  {item}
-                </Link>
-              ))}
+          {/* Mobile menu */}
+          {isMobile && (
+            <div className={` ${isOpen ? "block" : "hidden"}`}>
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                {navbarData.navigationLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.url}
+                    className="block px-3 py-2 rounded transition-colors capitalize"
+                    style={{color: theme.colors.secondary, fontFamily: theme.fonts.en.secondary}}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = theme.colors.text.light;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = theme.colors.secondary;
+                    }}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </nav>
   );

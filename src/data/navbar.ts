@@ -31,6 +31,11 @@ export interface FooterColumn {
   };
 }
 
+export interface NavLink {
+  name: string;
+  url: string;
+}
+
 export const navbarData = {
   logo: {
     image: "/images/logo.png",
@@ -49,7 +54,14 @@ export const navbarData = {
       language: "en",
     },
   },
-  columns: [
-    
-  ],
+  navigationLinks: [
+    {name: "home", url: "/"},
+    {name: "about", url: "/about"},
+    {name: "services", url: "/services"},
+    {name: "programs", url: "/programs"},
+    {name: "events", url: "/events"},
+    {name: "gallery", url: "/gallery"},
+    {name: "blog", url: "/blog"},
+    {name: "contact", url: "/contact"},
+  ] as NavLink[],
 };

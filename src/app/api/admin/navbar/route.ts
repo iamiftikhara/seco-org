@@ -23,6 +23,7 @@ const getNavbarData = async () => {
 const updateNavbarData = async(request: Request) => {
   try {
     const data = await request.json();
+
     
     // Validate the incoming data structure
     if (!data.logo || !data.logoTitle) {
@@ -36,6 +37,8 @@ const updateNavbarData = async(request: Request) => {
     }
 
     // In a real application, you would update the data in a database
+    navbarData.logo = data.logo;
+    navbarData.logoTitle = data.logoTitle;
     // For now, we'll just return success
     return NextResponse.json({ 
       success: true, 
