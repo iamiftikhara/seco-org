@@ -33,7 +33,10 @@ const updateNavbarData = async(request: Request) => {
       );
     }
 
-    const updatedNavbar = await navbarCollection.findOneAndUpdate({}, { $set: data }, { upsert: true, returnDocument: 'after' });
+    // Exclude the _id field from the update operation
+    const { _id, ...updateData } = data;
+
+    const updatedNavbar = await navbarCollection.findOneAndUpdate({}, { $set: updateData }, { upsert: true, returnDocument: 'after' });
 
     if (!updatedNavbar) {
       return NextResponse.json(

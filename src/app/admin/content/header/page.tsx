@@ -95,6 +95,7 @@ export default function NavbarAdmin() {
             text: "Changes saved successfully!",
             icon: "success",
           });
+          fetchNavbarData();
         } else {
           if (response.status === 401) {
             router.push("/admin/login");
@@ -309,7 +310,7 @@ export default function NavbarAdmin() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={!isDirty || status.loading}
-                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg transition-all duration-200 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg transition-all duration-200 disabled:opacity-50 cursor-pointer"
                 style={{
                   backgroundColor: theme.colors.status.success,
                   color: theme.colors.text.light,
