@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserRole, UserStatus } from '@/types/user';
 import { theme } from '@/config/theme';
-import { handle403Response } from '@/lib/error403';
+import {handle403Response} from "@/app/admin/errors/error403";
 
 interface UserProfile {
   userId: string;
@@ -55,7 +55,10 @@ export default function ProfilePage() {
           return;
         }
         else if (response.status === 403) {
-          await handle403Response(response);
+          const shouldRedirect = await handle403Response();
+          if (shouldRedirect) {
+            window.location.href = '/admin/login';
+          }
           return;
         }
         throw new Error('Failed to fetch profile');

@@ -5,11 +5,17 @@ import AdminHeader from './components/AdminHeader';
 import { theme } from '@/config/theme';
 import Image from 'next/image';
 
+
+
 export default function AdminLayoutUI({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+
+
+
   return (
     <div className="flex h-screen" style={{ backgroundColor: theme.colors.background.primary }}>
       {/* Sidebar */}

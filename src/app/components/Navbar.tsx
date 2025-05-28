@@ -4,12 +4,36 @@ import Link from "next/link";
 import Image from "next/image";
 import {useState, useEffect} from "react";
 import {theme} from "@/config/theme";
-import {navbarData} from "@/data/navbar";
+import {useLoading} from "@/app/providers/LoadingProvider";
+import type { NavbarData } from '@/types/navbar';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-
   const [isMobile, setIsMobile] = useState(false);
+  const [navbarData, setNavbarData] = useState<NavbarData | null>(null);
+  const {setIsLoading: setGlobalLoading, setError: setGlobalError} = useLoading(); // Get setError
+
+  useEffect(() => {
+    const fetchNavbarData = async () => {
+      try {
+        const response = await fetch('/api/navbar');
+        const result = await response.json();
+        if (result.success) {
+          setNavbarData(result.data);
+        } else {
+          console.error('Failed to fetch navbar data:', result.error);
+          setGlobalError(true); // Set error state on failure
+        }
+      } catch (error) {
+        console.error('Error fetching navbar data:', error);
+        setGlobalError(true); // Set error state on error
+      } finally {
+        setGlobalLoading(false);
+      }
+    };
+
+    fetchNavbarData();
+  }, [setGlobalLoading, setGlobalError]);
 
   useEffect(() => {
     // Handler to check screen width
@@ -27,17 +51,12 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, section: string) => {
-  //   e.preventDefault();
-  //   const element = document.getElementById(section);
-  //   if (element) {
-  //     element.scrollIntoView({behavior: "smooth"});
-  //     setIsOpen(false);
-  //   }
-  // };
+  if (!navbarData) {
+    return null; // Or a minimal placeholder if you don't want the PageLoader to cover it
+  }
 
   return (
-    <nav className="bg-[#4B0082] shadow-lg fixed w-full z-50">
+    <nav className={`bg-[${theme.colors.primary}] shadow-lg fixed w-full z-50`}>
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16">
           <div className="flex items-center">

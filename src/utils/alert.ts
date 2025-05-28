@@ -21,8 +21,29 @@ const Toast = Swal.mixin({
   }
 });
 
-export const showAlert = async (options: AlertOptions): Promise<SweetAlertResult<void>> => {
-  const { title, text, icon = 'info', timer = 3000, showConfirmButton = false } = options;
+// export const showAlert = async (options: AlertOptions): Promise<SweetAlertResult<void>> => {
+//   const {
+//     title,
+//     text,
+//     icon?: 'success' | 'error' | 'warning' | 'info' | 'question'
+//     timer = 3000,
+//     showConfirmButton = false
+//   } = options;
+
+export const showAlert = async (options: {
+  title: string;
+  text: string;
+  icon?: 'success' | 'error' | 'warning' | 'info' | 'question';
+  timer?: number;
+  showConfirmButton?: boolean;
+}): Promise<SweetAlertResult<boolean>> => {
+  const {
+    title,
+    text,
+    icon = 'info',
+    timer = 3000, // Default value assigned here
+    showConfirmButton = false // Default value assigned here
+  } = options;
 
   const alertOptions: SweetAlertOptions = {
     icon,

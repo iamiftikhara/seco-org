@@ -1,42 +1,6 @@
-export interface TextContent {
-  text: string;
-  language: string;
-}
+import { NavbarData } from '@/types/navbar';
 
-export interface FooterLink {
-  text: string;
-  url: string;
-}
-
-export interface SocialLink extends FooterLink {
-  icon: string;
-}
-
-export interface FooterColumn {
-  title: TextContent;
-  type: "links" | "text" | "contact" | "social" | "partners";
-  content: {
-    links?: FooterLink[];
-    text?: TextContent;
-    contact?: {
-      address: string[];
-      phone: string;
-      email: string;
-    };
-    social?: SocialLink[];
-    partners?: Array<{
-      name: string;
-      logo: string;
-    }>;
-  };
-}
-
-export interface NavLink {
-  name: string;
-  url: string;
-}
-
-export const navbarData = {
+export const navbarData: NavbarData = {
   logo: {
     image: "/images/logo.png",
     alt: "SECO Logo",
@@ -63,5 +27,5 @@ export const navbarData = {
     {name: "gallery", url: "/gallery"},
     {name: "blog", url: "/blog"},
     {name: "contact", url: "/contact"},
-  ] as NavLink[],
+  ]
 };

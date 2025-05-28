@@ -1,7 +1,6 @@
 "use client";
 
 import {useState, useEffect} from "react";
-import {TextContent} from "@/data/navbar";
 import {theme} from "@/config/theme";
 import {FiEdit2, FiSave, FiX, FiImage, FiType} from "react-icons/fi";
 import {showAlert, showConfirmDialog} from "@/utils/alert";
@@ -10,24 +9,14 @@ import Loader from "../../components/Loader";
 import {handle403Response} from "@/app/admin/errors/error403";
 import {useRouter} from "next/navigation";
 import DashboardLoader from '../../components/DashboardLoader';
+import type { NavbarData } from '@/types/navbar';
 
-interface NavbarFormData {
-  logo: {
-    image: string;
-    alt: string;
-    width: number;
-    height: number;
-    url: string;
-  };
-  logoTitle: {
-    title: TextContent;
-    subTitle: TextContent;
-  };
-}
+
+
 
 export default function NavbarAdmin() {
-  const [formData, setFormData] = useState<NavbarFormData | null>(null);
-  const [originalData, setOriginalData] = useState<NavbarFormData | null>(null);
+  const [formData, setFormData] = useState<NavbarData | null>(null);
+  const [originalData, setOriginalData] = useState<NavbarData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -102,6 +91,7 @@ export default function NavbarAdmin() {
           setStatus({loading: false, error: null, success: true});
           setIsEditing(false);
           showAlert({
+            title: "Success",
             text: "Changes saved successfully!",
             icon: "success",
           });
@@ -116,9 +106,23 @@ export default function NavbarAdmin() {
             }
             return;
           }
+          else{
+            console.log(data.error, data, "dddddddddddddddd");
+          setStatus({
+            loading: false,
+            error: data.error || "An unknown error occurred",
+            success: false,
+          });
+          showAlert({
+            text: data.error || "An unknown error occurred",
+            title: "Error",
+            icon: "error",
+          });
+        }
         }
       }
     } catch (error) {
+      console.error(error,"eeeeeeeeeeeeeeeeeeee");
       setStatus({
         loading: false,
         error: error instanceof Error ? error.message : "An unknown error occurred",
@@ -126,6 +130,7 @@ export default function NavbarAdmin() {
       });
       showAlert({
         text: error instanceof Error ? error.message : "An unknown error occurred",
+        title: "Error",
         icon: "error",
       });
     }
