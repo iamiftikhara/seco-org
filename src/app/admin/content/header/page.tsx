@@ -107,7 +107,6 @@ export default function NavbarAdmin() {
             return;
           }
           else{
-            console.log(data.error, data, "dddddddddddddddd");
           setStatus({
             loading: false,
             error: data.error || "An unknown error occurred",
@@ -122,7 +121,6 @@ export default function NavbarAdmin() {
         }
       }
     } catch (error) {
-      console.error(error,"eeeeeeeeeeeeeeeeeeee");
       setStatus({
         loading: false,
         error: error instanceof Error ? error.message : "An unknown error occurred",
