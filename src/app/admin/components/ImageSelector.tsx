@@ -24,8 +24,10 @@ export default function ImageSelector({
   const [isUploading, setIsUploading] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingImages, setIsLoadingImages] = useState(false); // New state for image loading
 
   const fetchImages = useCallback(async () => {
+    setIsLoadingImages(true); // Set loading to true before fetching
     try {
       const response = await fetch('/api/images');
       const data = await response.json();
@@ -38,6 +40,8 @@ export default function ImageSelector({
     } catch (error) {
       setError('Failed to fetch images');
       console.error('Failed to fetch images:', error);
+    } finally {
+      setIsLoadingImages(false); // Set loading to false after fetching
     }
   }, []);
 
@@ -186,27 +190,37 @@ export default function ImageSelector({
             </div>
 
             {/* Image Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {images.map((path, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    onSelect(path);
-                    setShowGallery(false);
-                  }}
-                  className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
-                    selectedPath === path ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-gray-300'
-                  }`}
-                >
-                  <Image
-                    src={path}
-                    alt={`Gallery image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            {isLoadingImages ? (
+              <div className="flex justify-center items-center h-32">
+                <p className="text-gray-500">Loading images...</p>
+              </div>
+            ) : images.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {images.map((path, index) => (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      onSelect(path);
+                      setShowGallery(false);
+                    }}
+                    className={`relative aspect-video rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedPath === path ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-gray-300'
+                    }`}
+                  >
+                    <Image
+                      src={path}
+                      alt={`Gallery image ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-gray-500 py-8">
+                No images found. Upload a new one!
+              </div>
+            )}
           </div>
         </div>
       )}
