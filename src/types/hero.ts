@@ -33,11 +33,6 @@ export interface HeroConfig {
 }
 
 export interface HeroData {
-  logo: {
-    src: string;
-    width: number;
-    height: number;
-  };
   slides: HeroSlide[];
   announcements: Announcement[];
   config: HeroConfig;

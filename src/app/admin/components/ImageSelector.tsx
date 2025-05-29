@@ -136,9 +136,9 @@ export default function ImageSelector({
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center gap-2 text-gray-500">
-            <FiImage className={size === 'small' ? 'w-4 h-4' : 'w-8 h-8'} />
+          <div className="flex items-center justify-between w-full px-3 text-gray-500">
             <span className={sizeStyles[size].text}>Select Image</span>
+            <FiImage className={size === 'small' ? 'w-4 h-4' : 'w-8 h-8'} />
           </div>
         )}
       </div>

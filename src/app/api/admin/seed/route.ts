@@ -15,11 +15,12 @@ import * as projects from '@/data/projects';
 import * as services from '@/data/services';
 import * as testimonials from '@/data/testimonials';
 
-const dataModules = {
-  navbar, blog, contact, events, footer, gallery,
-  hero, impact, partners, programs, projects,
-  services, testimonials
-};
+// const dataModules = {
+//   navbar, blog, contact, events, footer, gallery,
+//   hero, impact, partners, programs, projects,
+//   services, testimonials
+// };
+const dataModules = {navbar};
 
 async function handler() {
   try {
