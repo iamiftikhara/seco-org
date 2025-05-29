@@ -6,6 +6,9 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'SECO - Supporting Communities',
   description: 'Supporting Communities Through Sustainable Development',
+  icons: {
+    icon: '/favicon.ico', // Points 
+  },
   openGraph: {
     type: 'website',
     siteName: 'SECO',
@@ -13,7 +16,7 @@ export const metadata: Metadata = {
     description: 'Supporting Communities Through Sustainable Development',
     images: [
       {
-        url: '/images/og-default.jpg', // Make sure this image exists in your public folder
+        url: '/images/log.png', // Make sure this image exists in your public folder
         width: 1200,
         height: 630,
         alt: 'SECO'
@@ -25,7 +28,7 @@ export const metadata: Metadata = {
     title: 'SECO - Supporting Communities',
     description: 'Supporting Communities Through Sustainable Development',
     creator: '@SECO',
-    images: ['/images/og-default.jpg'] // Make sure this image exists
+    images: ['/images/log.png'] // Make sure this image exists
   }
 }
 
