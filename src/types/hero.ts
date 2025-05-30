@@ -4,6 +4,7 @@ export interface LocalizedString {
 }
 
 export interface HeroSlide {
+  id: number;
   image: string;
   mobileImage: string;
   title: LocalizedString;
@@ -11,6 +12,7 @@ export interface HeroSlide {
 }
 
 export interface Announcement {
+  id: number;
   text: string;
   icon: string;
   language: string;

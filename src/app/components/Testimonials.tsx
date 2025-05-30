@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
-import { testimonialsData } from '@/data/testimonials';
+import type { TestimonialsData } from '@/types/testimonials';
 import { theme } from '@/config/theme';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -12,6 +12,63 @@ import 'swiper/css/pagination';
 
 export default function Testimonials() {
   const [currentLanguage, setCurrentLanguage] = useState('en');
+  const [testimonialsData, setTestimonialsData] = useState<TestimonialsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadTestimonials = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await fetch('/api/testimonials');
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to fetch testimonials');
+        }
+
+        if (!result.data) {
+          throw new Error('No testimonials data received');
+        }
+
+        setTestimonialsData(result.data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load testimonials');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTestimonials();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section className="py-16" style={{ backgroundColor: theme.colors.primary }}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-pulse">
+              <div className="h-8 w-48 bg-gray-200 rounded mx-auto mb-6"></div>
+              <div className="h-64 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !testimonialsData) {
+    return (
+      <section className="py-16" style={{ backgroundColor: theme.colors.primary }}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <p className="text-red-500">{error || 'Failed to load testimonials'}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16" style={{ backgroundColor: theme.colors.primary }}>
@@ -60,7 +117,11 @@ export default function Testimonials() {
         <Swiper
           modules={[Autoplay, Navigation, Pagination]}
           pagination={{ clickable: true }}
-          autoplay={{ delay: testimonialsData.config.autoplayDelay }}
+          autoplay={{ 
+            delay: testimonialsData.config.autoplayDelay,
+            pauseOnMouseEnter: true,
+            disableOnInteraction: false
+          }}
           loop={true}
           spaceBetween={testimonialsData.config.spaceBetween}
           breakpoints={testimonialsData.config.breakpoints}
@@ -68,7 +129,7 @@ export default function Testimonials() {
         >
           <div className="swiper-wrapper" style={{ height: 'auto' }}>
             {testimonialsData.items.map((testimonial, index) => (
-              <SwiperSlide key={index} className="!h-auto">
+              <SwiperSlide key={testimonial.id} className="!h-auto">
                 <div 
                   className="p-8 rounded-lg flex flex-col h-full" 
                   style={{ backgroundColor: theme.colors.background.secondary }}

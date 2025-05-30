@@ -1,8 +1,15 @@
 // API route for hero section data
 import { NextResponse } from 'next/server';
 import { withAdminAuth } from '@/lib/authMiddleware';
-import { connectToDatabase, getCollection, closeDatabaseConnection } from '@/lib/mongodb';
-import type { HeroData } from '@/types/hero';
+import { connectToDatabase, getCollection } from '@/lib/mongodb';
+import type { HeroData, HeroSlide, Announcement } from '@/types/hero';
+import { Document, UpdateFilter } from 'mongodb';
+
+// Helper function to generate new ID
+const generateNewId = (items: { id: number }[]): number => {
+  if (items.length === 0) return 1;
+  return Math.max(...items.map(item => item.id)) + 1;
+};
 
 // GET: Fetch hero data
 export async function getHeroData() {
@@ -10,7 +17,6 @@ export async function getHeroData() {
     await connectToDatabase();
     const collection = await getCollection('hero');
     const heroData = await collection.findOne({});
-    await closeDatabaseConnection();
 
     if (!heroData) {
       return NextResponse.json(
@@ -25,7 +31,6 @@ export async function getHeroData() {
     });
   } catch (error) {
     console.error('Error fetching hero data:', error);
-    await closeDatabaseConnection();
     return NextResponse.json(
       {
         success: false,
@@ -58,27 +63,34 @@ export async function addSlide(request: Request) {
     if (!heroData) {
       // If no hero data exists, create new with the data
       const newHeroData = {
-        slides: slide ? [slide] : [],
-        announcements: announcement ? [announcement] : [],
+        slides: slide ? [{ ...slide, id: 1 }] : [],
+        announcements: announcement ? [{ ...announcement, id: 1 }] : [],
         config: {}
       };
       await collection.insertOne(newHeroData);
     } else {
-      // Add data to existing arrays
+      // Add data to existing arrays with new ID
       if (slide) {
+        const newSlide: HeroSlide = {
+          ...slide,
+          id: generateNewId(heroData.slides)
+        };
         await collection.updateOne(
           {},
-          { $push: { slides: slide } }
+          { $push: { slides: newSlide } as UpdateFilter<Document> }
         );
       }
       if (announcement) {
+        const newAnnouncement: Announcement = {
+          ...announcement,
+          id: generateNewId(heroData.announcements)
+        };
         await collection.updateOne(
           {},
-          { $push: { announcements: announcement } }
+          { $push: { announcements: newAnnouncement } as UpdateFilter<Document> }
         );
       }
     }
-    await closeDatabaseConnection();
 
     return NextResponse.json({
       success: true,
@@ -86,7 +98,6 @@ export async function addSlide(request: Request) {
     });
   } catch (error) {
     console.error('Error adding data:', error);
-    await closeDatabaseConnection();
     return NextResponse.json(
       {
         success: false,
@@ -97,15 +108,39 @@ export async function addSlide(request: Request) {
   }
 }
 
-// PUT: Update a slide or announcement
+// PUT: Update a slide, announcement, or config
 export async function updateSlide(request: Request) {
   try {
     const body = await request.json();
-    const { index, slide, announcement } = body;
+    const { id, slide, announcement, config } = body;
 
-    if (typeof index !== 'number' || (!slide && !announcement)) {
+    // Handle config update separately
+    if (config) {
+      await connectToDatabase();
+      const collection = await getCollection('hero');
+      
+      const result = await collection.updateOne(
+        {},
+        { $set: { config } }
+      );
+
+      if (result.matchedCount === 0) {
+        return NextResponse.json(
+          { success: false, error: 'Hero data not found' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Configuration updated successfully'
+      });
+    }
+
+    // Handle slide/announcement updates
+    if (!id || (!slide && !announcement)) {
       return NextResponse.json(
-        { success: false, error: 'Index and data are required' },
+        { success: false, error: 'ID and data are required' },
         { status: 400 }
       );
     }
@@ -113,19 +148,18 @@ export async function updateSlide(request: Request) {
     await connectToDatabase();
     const collection = await getCollection('hero');
     
-    // Update the data at the specified index
-    const updateField = slide ? `slides.${index}` : `announcements.${index}`;
+    // Update the data with the specified ID
+    const updateField = slide ? 'slides' : 'announcements';
     const updateData = slide || announcement;
     
     const result = await collection.updateOne(
-      {},
-      { $set: { [updateField]: updateData } }
+      { [`${updateField}.id`]: id },
+      { $set: { [`${updateField}.$`]: { ...updateData, id } } }
     );
-    await closeDatabaseConnection();
 
     if (result.matchedCount === 0) {
       return NextResponse.json(
-        { success: false, error: 'Hero data not found' },
+        { success: false, error: 'Item not found' },
         { status: 404 }
       );
     }
@@ -136,7 +170,6 @@ export async function updateSlide(request: Request) {
     });
   } catch (error) {
     console.error('Error updating data:', error);
-    await closeDatabaseConnection();
     return NextResponse.json(
       {
         success: false,
@@ -151,12 +184,12 @@ export async function updateSlide(request: Request) {
 export async function deleteSlide(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const index = parseInt(searchParams.get('index') || '');
+    const id = parseInt(searchParams.get('id') || '');
     const type = searchParams.get('type') || 'slide';
 
-    if (isNaN(index)) {
+    if (isNaN(id)) {
       return NextResponse.json(
-        { success: false, error: 'Valid index is required' },
+        { success: false, error: 'Valid ID is required' },
         { status: 400 }
       );
     }
@@ -164,33 +197,12 @@ export async function deleteSlide(request: Request) {
     await connectToDatabase();
     const collection = await getCollection('hero');
     
-    // First, get the current hero data
-    const heroData = await collection.findOne({});
-    if (!heroData) {
-      await closeDatabaseConnection();
-      return NextResponse.json(
-        { success: false, error: 'Hero data not found' },
-        { status: 404 }
-      );
-    }
-
-    // Remove the item at the specified index
+    // Remove the item with the specified ID
     const arrayField = type === 'slide' ? 'slides' : 'announcements';
-    const updatedArray = heroData[arrayField].filter((_: unknown, i: number) => i !== index);
-    
-    // Update the document with the new array
-    const result = await collection.updateOne(
+    await collection.updateOne(
       {},
-      { $set: { [arrayField]: updatedArray } }
+      { $pull: { [arrayField]: { id } } as UpdateFilter<Document> }
     );
-    await closeDatabaseConnection();
-
-    if (result.matchedCount === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Hero data not found' },
-        { status: 404 }
-      );
-    }
 
     return NextResponse.json({
       success: true,
@@ -198,7 +210,6 @@ export async function deleteSlide(request: Request) {
     });
   } catch (error) {
     console.error('Error deleting data:', error);
-    await closeDatabaseConnection();
     return NextResponse.json(
       {
         success: false,

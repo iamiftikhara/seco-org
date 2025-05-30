@@ -10,8 +10,10 @@ import { theme } from '@/config/theme';
 import { handle403Response } from '@/app/admin/errors/error403';
 import { useRouter } from 'next/navigation';
 import type { HeroData } from '@/types/hero';
+import AdminError from '@/app/admin/errors/error';
 
 interface SlideFormData {
+  id?: number;
   image: string;
   mobileImage: string;
   title: { en: string; ur: string };
@@ -19,6 +21,7 @@ interface SlideFormData {
 }
 
 interface AnnouncementFormData {
+  id?: number;
   text: string;
   icon: string;
   language: 'en' | 'ur';
@@ -48,9 +51,11 @@ export default function HeroSection() {
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
 
-  const handleErrorResponse = async (response: Response) => {
+  const handleErrorResponse = async (response: Response, identifier: string = 'default') => {
+    setIsLoading(false);
     if (response.status === 401) {
       router.push('/admin/login');
       return;
@@ -61,10 +66,18 @@ export default function HeroSection() {
       }
       return;
     }
-    const data = await response.json();
+    if (identifier === 'get') {
+      if (response.status === 500 || response.status === 400 || response.status === 404) {
+        console.log('error, 400, 500. 404');
+        const errorMessage = response.statusText || 'An error occurred';
+        setError(new Error(errorMessage));
+        return;
+      }
+    }
+
     showAlert({
       title: 'Error',
-      text: data.error || 'An error occurred',
+      text: response.statusText || 'An error occurred',
       icon: 'error',
     });
   };
@@ -78,14 +91,10 @@ export default function HeroSection() {
         setOriginalData(data.data);
         setIsLoading(false);
       } else {
-        handleErrorResponse(response);
+        handleErrorResponse(response, 'get');
       }
     } catch (error) {
-      showAlert({
-        title: 'Error',
-        text: 'Failed to fetch hero data',
-        icon: 'error',
-      });
+      handleErrorResponse(error as Response, 'get');
     }
   }, [router]);
 
@@ -95,7 +104,14 @@ export default function HeroSection() {
 
 
   const handleAddSlide = () => {
+    if (!formData) return;
+    
+    const newId = formData.slides.length > 0 
+      ? Math.max(...formData.slides.map(s => s.id || 0)) + 1 
+      : 1;
+
     const newSlide: SlideFormData = {
+      id: newId,
       image: '',
       mobileImage: '',
       title: { en: '', ur: '' },
@@ -119,7 +135,15 @@ export default function HeroSection() {
     });
 
     if (result.isConfirmed) {
-      setSelectedSlide(formData.slides[index]);
+      const slide = formData.slides[index];
+      const typedSlide: SlideFormData = {
+        id: slide.id,
+        image: slide.image,
+        mobileImage: slide.mobileImage,
+        title: slide.title,
+        subtitle: slide.subtitle
+      };
+      setSelectedSlide(typedSlide);
       setIsModalOpen(true);
       setHasChanges(false);
     }
@@ -127,6 +151,16 @@ export default function HeroSection() {
 
   const handleDeleteSlide = async (index: number) => {
     if (!formData) return;
+
+    // Check if this is the last slide
+    if (formData.slides.length <= 1) {
+      showAlert({
+        title: 'Cannot Delete',
+        text: 'At least one slide must remain in the hero section.',
+        icon: 'warning',
+      });
+      return;
+    }
 
     const result = await showConfirmDialog({
       title: 'Delete Slide?',
@@ -140,7 +174,18 @@ export default function HeroSection() {
     if (result.isConfirmed) {
       try {
         setIsSaving(true);
-        const response = await fetch(`/api/admin/hero?index=${index}`, {
+        const slide = formData.slides[index];
+        
+        if (!slide.id) {
+          showAlert({
+            title: 'Error',
+            text: 'Invalid slide ID',
+            icon: 'error',
+          });
+          return;
+        }
+
+        const response = await fetch(`/api/admin/hero?id=${slide.id}&type=slide`, {
           method: 'DELETE',
         });
 
@@ -152,7 +197,7 @@ export default function HeroSection() {
             text: 'Slide deleted successfully!',
             icon: 'success',
           });
-          fetchHeroData(); // Refresh data after successful delete
+          fetchHeroData();
         } else {
           handleErrorResponse(response);
         }
@@ -175,7 +220,7 @@ export default function HeroSection() {
       setIsSaving(true);
       const newSlides = [...formData.slides];
       const existingIndex = newSlides.findIndex(
-        (slide) => slide.image === selectedSlide.image
+        (slide) => slide.id === selectedSlide.id
       );
 
       let response;
@@ -185,7 +230,7 @@ export default function HeroSection() {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            index: existingIndex,
+            id: selectedSlide.id,
             slide: selectedSlide
           }),
         });
@@ -211,7 +256,7 @@ export default function HeroSection() {
         setIsModalOpen(false);
         setSelectedSlide(null);
         setHasChanges(false);
-        fetchHeroData(); // Wait for data to refresh
+        fetchHeroData();
       } else {
         handleErrorResponse(response);
       }
@@ -238,7 +283,14 @@ export default function HeroSection() {
   };
 
   const handleAddAnnouncement = () => {
+    if (!formData) return;
+    
+    const newId = formData.announcements.length > 0 
+      ? Math.max(...formData.announcements.map(a => a.id || 0)) + 1 
+      : 1;
+
     const newAnnouncement: AnnouncementFormData = {
+      id: newId,
       text: '',
       icon: 'newspaper',
       language: 'en'
@@ -251,18 +303,19 @@ export default function HeroSection() {
   const handleEditAnnouncement = async (index: number) => {
     if (!formData) return;
 
-      const result = await showConfirmDialog({
+    const result = await showConfirmDialog({
       title: 'Edit Announcement?',
       text: 'Are you sure you want to edit this announcement?',
       confirmButtonText: 'Edit',
-        cancelButtonText: 'Cancel',
-        icon: 'warning',
-        showCancelButton: true,
-      });
+      cancelButtonText: 'Cancel',
+      icon: 'warning',
+      showCancelButton: true,
+    });
 
-      if (result.isConfirmed) {
+    if (result.isConfirmed) {
       const announcement = formData.announcements[index];
       const typedAnnouncement: AnnouncementFormData = {
+        id: announcement.id,
         text: announcement.text,
         icon: announcement.icon,
         language: announcement.language === 'ur' ? 'ur' : 'en'
@@ -276,6 +329,16 @@ export default function HeroSection() {
   const handleDeleteAnnouncement = async (index: number) => {
     if (!formData) return;
 
+    // Check if this is the last announcement
+    if (formData.announcements.length <= 1) {
+      showAlert({
+        title: 'Cannot Delete',
+        text: 'At least one announcement must remain in the hero section.',
+        icon: 'warning',
+      });
+      return;
+    }
+
     const result = await showConfirmDialog({
       title: 'Delete Announcement?',
       text: 'Are you sure you want to delete this announcement? This action cannot be undone.',
@@ -288,13 +351,19 @@ export default function HeroSection() {
     if (result.isConfirmed) {
       try {
         setIsSaving(true);
-        const updatedAnnouncements = formData.announcements.filter((_, i) => i !== index);
-        const response = await fetch('/api/admin/hero', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            announcements: updatedAnnouncements
-          }),
+        const announcement = formData.announcements[index];
+        
+        if (!announcement.id) {
+          showAlert({
+            title: 'Error',
+            text: 'Invalid announcement ID',
+            icon: 'error',
+          });
+          return;
+        }
+
+        const response = await fetch(`/api/admin/hero?id=${announcement.id}&type=announcement`, {
+          method: 'DELETE',
         });
 
         const data = await response.json();
@@ -310,11 +379,11 @@ export default function HeroSection() {
           handleErrorResponse(response);
         }
       } catch (error) {
-            showAlert({
-              title: 'Error',
+        showAlert({
+          title: 'Error',
           text: 'Failed to delete announcement',
-              icon: 'error',
-            });
+          icon: 'error',
+        });
       } finally {
         setIsSaving(false);
       }
@@ -328,9 +397,7 @@ export default function HeroSection() {
       setIsSaving(true);
       const newAnnouncements = [...formData.announcements];
       const existingIndex = newAnnouncements.findIndex(
-        (announcement) => 
-          announcement.text === selectedAnnouncement.text && 
-          announcement.language === selectedAnnouncement.language
+        (announcement) => announcement.id === selectedAnnouncement.id
       );
 
       let response;
@@ -340,7 +407,7 @@ export default function HeroSection() {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            index: existingIndex,
+            id: selectedAnnouncement.id,
             announcement: selectedAnnouncement
           }),
         });
@@ -456,6 +523,19 @@ export default function HeroSection() {
     setHasChanges(true);
   };
 
+  if (error) {
+    return (
+      <AdminError 
+        error={error} 
+        reset={() => {
+          setError(null);
+          setIsLoading(true);
+          fetchHeroData();
+        }} 
+      />
+    );
+  }
+
   if (isLoading) {
     return <DashboardLoader />;
   }
@@ -541,7 +621,7 @@ export default function HeroSection() {
                   </td>
                   <td className="px-6 py-4" style={{ color: theme.colors.text.primary }}>
                     <div 
-                      className="max-w-[200px] truncate" 
+                      className="max-w-[180px] truncate" 
                       title={slide.title.en}
                       style={{ fontFamily: theme.fonts.en.primary }}
                     >
@@ -550,7 +630,7 @@ export default function HeroSection() {
                   </td>
                   <td className="px-6 py-4" style={{ color: theme.colors.text.primary }}>
                     <div 
-                      className="max-w-[200px] truncate" 
+                      className="max-w-[180px] truncate" 
                       title={slide.title.ur}
                       style={{ 
                         fontFamily: theme.fonts.ur.primary,
@@ -563,7 +643,7 @@ export default function HeroSection() {
                   </td>
                   <td className="px-6 py-4" style={{ color: theme.colors.text.primary }}>
                     <div 
-                      className="max-w-[200px] truncate" 
+                      className="max-w-[180px] truncate" 
                       title={slide.subtitle.en}
                       style={{ fontFamily: theme.fonts.en.primary }}
                     >
@@ -572,7 +652,7 @@ export default function HeroSection() {
                   </td>
                   <td className="px-6 py-4" style={{ color: theme.colors.text.primary }}>
                     <div 
-                      className="max-w-[200px] truncate" 
+                      className="max-w-[180px] truncate" 
                       title={slide.subtitle.ur}
             style={{
                         fontFamily: theme.fonts.ur.primary,
@@ -595,12 +675,17 @@ export default function HeroSection() {
                       </button>
                       <button
                         onClick={() => handleDeleteSlide(index)}
-                        title='Click to delete.'
-                        className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 cursor-pointer"
-                        style={{ color: theme.colors.status.error }}
+                        title={formData.slides.length <= 1 ? 'Cannot delete the last slide' : 'Click to delete.'}
+                        disabled={formData.slides.length <= 1}
+                        className={`p-2 rounded-lg transition-colors duration-200 ${
+                          formData.slides.length <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'
+                        }`}
+                        style={{ 
+                          color: formData.slides.length <= 1 ? theme.colors.text.secondary : theme.colors.status.error 
+                        }}
                       >
                         <FiTrash2 className="w-4 h-4" />
-          </button>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -829,7 +914,7 @@ export default function HeroSection() {
                   <tr key={index} className="hover:bg-gray-50" style={{ backgroundColor: theme.colors.background.secondary }}>
                     <td className="px-6 py-4" style={{ color: theme.colors.text.primary }}>
                       <div 
-                        className="max-w-[300px] truncate" 
+                        className="max-w-[500px] truncate" 
                         title={announcement.text}
                         style={{ 
                           fontFamily: announcement.language === 'en' ? theme.fonts.en.primary : theme.fonts.ur.primary,
@@ -858,9 +943,14 @@ export default function HeroSection() {
                         </button>
                         <button
                           onClick={() => handleDeleteAnnouncement(index)}
-                          title='Click to delete.'
-                          className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 cursor-pointer"
-                          style={{ color: theme.colors.status.error }}
+                          title={formData.announcements.length <= 1 ? 'Cannot delete the last announcement' : 'Click to delete.'}
+                          disabled={formData.announcements.length <= 1}
+                          className={`p-2 rounded-lg transition-colors duration-200 ${
+                            formData.announcements.length <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 cursor-pointer'
+                          }`}
+                          style={{ 
+                            color: formData.announcements.length <= 1 ? theme.colors.text.secondary : theme.colors.status.error 
+                          }}
                         >
                           <FiTrash2 className="w-4 h-4" />
                         </button>

@@ -1,11 +1,15 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import SessionManager from './components/SessionManager'
 
 // console.log('Generating root layout metadata');
 
+const inter = Inter({ subsets: ['latin'] })
+
 export const metadata: Metadata = {
-  title: 'SECO - Supporting Communities',
-  description: 'Supporting Communities Through Sustainable Development',
+  title: 'SECO Organization',
+  description: 'SECO Organization Website',
   icons: {
     icon: '/favicon.ico', // Points 
   },
@@ -42,7 +46,8 @@ export default function RootLayout({
   // console.log('Rendering RootLayout');
   return (
     <html lang="en">
-      <body>
+      <body className={inter.className}>
+        <SessionManager />
         <LoadingProvider>
           {children}
         </LoadingProvider>
