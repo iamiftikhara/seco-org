@@ -10,9 +10,7 @@ import {handle403Response} from "@/app/admin/errors/error403";
 import {useRouter} from "next/navigation";
 import DashboardLoader from '../../components/DashboardLoader';
 import type { NavbarData } from '@/types/navbar';
-
-
-
+import AdminError from "@/app/admin/errors/error";
 
 export default function NavbarAdmin() {
   const [formData, setFormData] = useState<NavbarData | null>(null);
@@ -20,6 +18,7 @@ export default function NavbarAdmin() {
   const [isEditing, setIsEditing] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
   const [status, setStatus] = useState({
     loading: false,
@@ -37,6 +36,34 @@ export default function NavbarAdmin() {
     }
   }, [formData, originalData]);
 
+  const handleErrorResponse = async (response: Response, identifier: string = "default") => {
+    setIsLoading(false);
+    if (response.status === 401) {
+      router.push("/admin/login");
+      return;
+    } else if (response.status === 403) {
+      const shouldRedirect = await handle403Response();
+      if (shouldRedirect) {
+        window.location.href = "/admin/login";
+      }
+      return;
+    }
+    if (identifier === "get") {
+      if (response.status === 500 || response.status === 400 || response.status === 404) {
+        console.log("error, 400, 500. 404");
+        const errorMessage = response.statusText || "An error occurred";
+        setError(new Error(errorMessage));
+        return;
+      }
+    }
+
+    showAlert({
+      title: "Error",
+      text: response.statusText || "An error occurred",
+      icon: "error",
+    });
+  };
+
   const fetchNavbarData = async () => {
     try {
       const response = await fetch("/api/admin/navbar");
@@ -46,20 +73,10 @@ export default function NavbarAdmin() {
         setOriginalData(data.data);
         setIsLoading(false);
       } else {
-        if (response.status === 401) {
-          router.push("/admin/login");
-          return;
-        } else if (response.status === 403) {
-          const shouldRedirect = await handle403Response();
-          if (shouldRedirect) {
-            window.location.href = '/admin/login';
-          }
-          return;
-        }
-        setStatus((prev) => ({...prev, error: data.error}));
+        handleErrorResponse(response, "get");
       }
     } catch (error) {
-      setStatus((prev) => ({...prev, error: "Failed to fetch navbar data"}));
+      handleErrorResponse(error as Response, "get");
     }
   };
 
@@ -97,43 +114,26 @@ export default function NavbarAdmin() {
           });
           fetchNavbarData();
         } else {
-          if (response.status === 401) {
-            router.push("/admin/login");
-            return;
-          } else if (response.status === 403) {
-            const shouldRedirect = await handle403Response();
-            if (shouldRedirect) {
-              window.location.href = '/admin/login';
-            }
-            return;
-          }
-          else{
-          setStatus({
-            loading: false,
-            error: data.error || "An unknown error occurred",
-            success: false,
-          });
-          showAlert({
-            text: data.error || "An unknown error occurred",
-            title: "Error",
-            icon: "error",
-          });
-        }
+          handleErrorResponse(response);
         }
       }
     } catch (error) {
-      setStatus({
-        loading: false,
-        error: error instanceof Error ? error.message : "An unknown error occurred",
-        success: false,
-      });
-      showAlert({
-        text: error instanceof Error ? error.message : "An unknown error occurred",
-        title: "Error",
-        icon: "error",
-      });
+      handleErrorResponse(error as Response);
     }
   };
+
+  if (error) {
+    return (
+      <AdminError 
+        error={error} 
+        reset={() => {
+          setError(null);
+          setIsLoading(true);
+          fetchNavbarData();
+        }} 
+      />
+    );
+  }
 
   if (isLoading) {
     return <DashboardLoader />;

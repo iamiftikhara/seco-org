@@ -1,10 +1,9 @@
 // API route for hero section data
 import { NextResponse } from 'next/server';
-import { connectToDatabase, getCollection } from '@/lib/mongodb';
+import { getCollection } from '@/lib/mongodb';
 
 export async function GET() {
   try {
-    await connectToDatabase();
     const collection = await getCollection('hero'); // Use 'hero' as the collection name
     const heroData = await collection.findOne({}); // Fetch the hero data
 

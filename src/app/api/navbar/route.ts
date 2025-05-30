@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase, getCollection } from '@/lib/mongodb';
+import { getCollection } from '@/lib/mongodb';
 
 export async function GET() {
   try {
-    await connectToDatabase();
     const collection = await getCollection('navbar');
     const navbarData = await collection.findOne({});
 

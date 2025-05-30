@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase, getCollection } from '@/lib/mongodb';
+import { getCollection } from '@/lib/mongodb';
 import { withAdminAuth } from '@/lib/authMiddleware';
 import * as navbar from '@/data/navbar';
 import * as blog from '@/data/blog';
@@ -20,11 +20,10 @@ import * as testimonials from '@/data/testimonials';
 //   hero, impact, partners, programs, projects,
 //   services, testimonials
 // };
-const dataModules = {hero};
+const dataModules = {testimonials};
 
 async function handler() {
   try {
-    await connectToDatabase();
     const results = [];
 
     for (const [name, module] of Object.entries(dataModules)) {

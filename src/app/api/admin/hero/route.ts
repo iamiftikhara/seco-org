@@ -1,7 +1,7 @@
 // API route for hero section data
 import { NextResponse } from 'next/server';
 import { withAdminAuth } from '@/lib/authMiddleware';
-import { connectToDatabase, getCollection } from '@/lib/mongodb';
+import { getCollection } from '@/lib/mongodb';
 import type { HeroData, HeroSlide, Announcement } from '@/types/hero';
 import { Document, UpdateFilter } from 'mongodb';
 
@@ -14,7 +14,6 @@ const generateNewId = (items: { id: number }[]): number => {
 // GET: Fetch hero data
 export async function getHeroData() {
   try {
-    await connectToDatabase();
     const collection = await getCollection('hero');
     const heroData = await collection.findOne({});
 
@@ -54,7 +53,6 @@ export async function addSlide(request: Request) {
       );
     }
 
-    await connectToDatabase();
     const collection = await getCollection('hero');
     
     // Get current hero data
@@ -116,7 +114,6 @@ export async function updateSlide(request: Request) {
 
     // Handle config update separately
     if (config) {
-      await connectToDatabase();
       const collection = await getCollection('hero');
       
       const result = await collection.updateOne(
@@ -145,7 +142,6 @@ export async function updateSlide(request: Request) {
       );
     }
 
-    await connectToDatabase();
     const collection = await getCollection('hero');
     
     // Update the data with the specified ID
@@ -194,7 +190,6 @@ export async function deleteSlide(request: Request) {
       );
     }
 
-    await connectToDatabase();
     const collection = await getCollection('hero');
     
     // Remove the item with the specified ID

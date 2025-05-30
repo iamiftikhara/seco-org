@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import type { TestimonialsData } from '@/types/testimonials';
 import { theme } from '@/config/theme';
+import UniversalError from './UniversalError';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -16,30 +17,30 @@ export default function Testimonials() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadTestimonials = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await fetch('/api/testimonials');
-        const result = await response.json();
+  const loadTestimonials = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch('/api/testimonials');
+      const result = await response.json();
 
-        if (!result.success) {
-          throw new Error(result.error || 'Failed to fetch testimonials');
-        }
-
-        if (!result.data) {
-          throw new Error('No testimonials data received');
-        }
-
-        setTestimonialsData(result.data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load testimonials');
-      } finally {
-        setIsLoading(false);
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch testimonials');
       }
-    };
 
+      if (!result.data) {
+        throw new Error('No testimonials data received');
+      }
+
+      setTestimonialsData(result.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load testimonials');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadTestimonials();
   }, []);
 
@@ -62,9 +63,11 @@ export default function Testimonials() {
     return (
       <section className="py-16" style={{ backgroundColor: theme.colors.primary }}>
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center">
-            <p className="text-red-500">{error || 'Failed to load testimonials'}</p>
-          </div>
+          <UniversalError
+            error={error || 'Failed to load testimonials'}
+            onRetry={loadTestimonials}
+            sectionName="Testimonials"
+          />
         </div>
       </section>
     );

@@ -3,6 +3,9 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import SessionManager from './components/SessionManager'
 
+// Database initialization will happen automatically on the server side
+// No need to import db-init.ts here
+
 // console.log('Generating root layout metadata');
 
 const inter = Inter({ subsets: ['latin'] })

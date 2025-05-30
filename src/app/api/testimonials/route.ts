@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase, getCollection } from '@/lib/mongodb';
+import { getCollection } from '@/lib/mongodb';
 
 // GET: Fetch testimonials data
 export async function GET() {
   try {
-    await connectToDatabase();
     const collection = await getCollection('testimonials');
     const testimonialsData = await collection.findOne({});
 
