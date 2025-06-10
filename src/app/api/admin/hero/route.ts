@@ -12,7 +12,7 @@ const generateNewId = (items: { id: number }[]): number => {
 };
 
 // GET: Fetch hero data
-export async function getHeroData() {
+async function getHeroData() {
   try {
     const collection = await getCollection('hero');
     const heroData = await collection.findOne({});
@@ -41,7 +41,7 @@ export async function getHeroData() {
 }
 
 // POST: Add a new slide or announcement
-export async function addSlide(request: Request) {
+async function addSlide(request: Request) {
   try {
     const body = await request.json();
     const { slide, announcement } = body;
@@ -107,7 +107,7 @@ export async function addSlide(request: Request) {
 }
 
 // PUT: Update a slide, announcement, or config
-export async function updateSlide(request: Request) {
+async function updateSlide(request: Request) {
   try {
     const body = await request.json();
     const { id, slide, announcement, config } = body;
@@ -177,7 +177,7 @@ export async function updateSlide(request: Request) {
 }
 
 // DELETE: Delete a slide or announcement
-export async function deleteSlide(request: Request) {
+async function deleteSlide(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = parseInt(searchParams.get('id') || '');
