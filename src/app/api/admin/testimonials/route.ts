@@ -11,7 +11,7 @@ const generateNewId = (items: { id: number }[]): number => {
 };
 
 // GET: Fetch testimonials data
-export async function getTestimonialsData() {
+async function getTestimonialsData() {
   try {
     const collection = await getCollection('testimonials');
     const testimonialsData = await collection.findOne({});
@@ -40,7 +40,7 @@ export async function getTestimonialsData() {
 }
 
 // POST: Add a new testimonial
-export async function addTestimonial(request: Request) {
+async function addTestimonial(request: Request) {
   try {
     const body = await request.json();
     const { testimonial } = body;
@@ -93,7 +93,7 @@ export async function addTestimonial(request: Request) {
 }
 
 // PUT: Update a testimonial or config
-export async function updateTestimonial(request: Request) {
+async function updateTestimonial(request: Request) {
   try {
     const body = await request.json();
     const { id, testimonial, config } = body;
@@ -159,7 +159,7 @@ export async function updateTestimonial(request: Request) {
 }
 
 // DELETE: Delete a testimonial
-export async function deleteTestimonial(request: Request) {
+async function deleteTestimonial(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = parseInt(searchParams.get('id') || '');
