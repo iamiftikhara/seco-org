@@ -67,7 +67,7 @@ export default function Hero() {
   }
 
   return (
-    <div className={`${isMobile ? `h-[calc(100vh-23rem)] top-[calc(40vh-16rem)] ${isMobile}` : 'min-h-screen'} relative flex flex-col`}>
+    <div className={`${isMobile ? `h-[calc(100vh-25rem)] top-[calc(40vh-15.5rem)] ${isMobile}` : 'min-h-screen'} relative flex flex-col`}>
       <div className={`${isMobile ? 'h-[calc(100vh-35rem)]' : 'h-[calc(100vh-9.7rem)]'}  relative`}>
         <Swiper
           modules={[Autoplay, Navigation, Pagination]}
@@ -102,27 +102,28 @@ export default function Hero() {
                 <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4 z-10">
                   <button
                     onClick={() => setCurrentLanguage("en")}
-                    className="px-4 py-2 rounded-full transition-all duration-300"
+                    className={`${isMobile ? 'px-3 py-1' : 'px-4 py-2'}  rounded-full transition-all duration-300`}
                     style={{
                       backgroundColor: currentLanguage === "en" ? theme.colors.primary : "rgba(21, 21, 21, 0.6)",
                       color: currentLanguage === "en" ? theme.colors.secondary : "white",
                       backdropFilter: "blur(4px)",
                       border: `2px solid ${currentLanguage === "en" ? theme.colors.secondary : "transparent"}`,
                       fontFamily: theme.fonts.en.primary,
+                      fontSize: `${isMobile ? '0.9rem !important' : ''}`
                     }}
                   >
                     English
                   </button>
                   <button
                     onClick={() => setCurrentLanguage("ur")}
-                    className="px-4 py-2 rounded-full transition-all duration-300"
+                    className={`${isMobile ? 'px-3 py-1' : 'px-4 py-2'}  rounded-full transition-all duration-300`}
                     style={{
                       backgroundColor: currentLanguage === "ur" ? theme.colors.primary : "rgba(21, 21, 21, 0.6)",
                       color: currentLanguage === "ur" ? theme.colors.secondary : "white",
                       backdropFilter: "blur(4px)",
                       border: `2px solid ${currentLanguage === "ur" ? theme.colors.secondary : "transparent"}`,
                       fontFamily: theme.fonts.ur.primary,
-                      fontSize: `${isMobile ? '1rem' : ''}`
+                      fontSize: `${isMobile ? '0.9rem !important' : ''}`
                     }}
                   >
                     اردو

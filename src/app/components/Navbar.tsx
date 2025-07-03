@@ -38,7 +38,7 @@ export default function Navbar() {
   useEffect(() => {
     // Handler to check screen width
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 920);
     };
 
     // Initial check
@@ -63,10 +63,10 @@ export default function Navbar() {
             <Link href="/" className="flex items-center">
               <Image src={navbarData.logo.image} alt={navbarData.logo.alt} width={navbarData.logo.width} height={navbarData.logo.height} className="object-contain" />
               <div className="flex flex-col">
-                <span className={`${isMobile ? 'text-sm' : 'text-2xl'} font-bold ml-2`} style={{color: theme.colors.secondary}}>
+                <span className={`${isMobile ? 'text-sm' : 'text-2xl'} font-bold ml-2 logo-title`} style={{color: theme.colors.secondary}}>
                   {navbarData.logoTitle.title.text}
                 </span>
-                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-bold ml-2`} style={{color: theme.colors.secondary}}>
+                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-bold ml-2 logo-subtitle`} style={{color: theme.colors.secondary}}>
                   {navbarData.logoTitle.subTitle.text}
                 </span>
               </div>

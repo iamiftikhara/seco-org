@@ -254,3 +254,72 @@ body {
 .animate-fade-in-out {
   animation: fade-in-out 2s ease-in-out infinite;
 }
+
+
+
+
+/* 1150 */
+@media only screen and (max-width: 1150px) {
+
+  .logo-title{
+    font-size: 1.2rem;
+  }
+
+  .logo-subtitle{
+    font-size: 0.7rem;
+  }
+  
+}
+
+
+/* 962 */
+@media only screen and (max-width: 9620px) {
+
+  .logo-title{
+    font-size: 1rem;
+  }
+
+  .logo-subtitle{
+    font-size: 0.5rem;
+  }
+  
+}
+
+/* 920 */
+@media only screen and (max-width: 920px) {
+
+  .logo-title{
+    font-size: 1.3rem;
+  }
+
+  .logo-subtitle{
+    font-size: 0.8rem;
+  }
+  
+}
+
+
+/* 768 */
+@media only screen and (max-width: 768px) {
+
+  .logo-title{
+    font-size: 1.2rem;
+  }
+
+  .logo-subtitle{
+    font-size: 0.7rem;
+  }
+
+  h1{
+    font-size: 1.3rem;
+  }
+
+  h2{
+    font-size: 1.5rem;
+  }
+
+  p.text-xl{
+    font-size: 0.9rem;
+  }
+  
+}
