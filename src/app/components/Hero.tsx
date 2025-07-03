@@ -67,7 +67,7 @@ export default function Hero() {
   }
 
   return (
-    <div className={`${isMobile ? `h-[calc(100vh-22rem)] top-[calc(40vh-15rem)] ${isMobile}` : 'min-h-screen'} relative flex flex-col`}>
+    <div className={`${isMobile ? `h-[calc(100vh-23rem)] top-[calc(40vh-16rem)] ${isMobile}` : 'min-h-screen'} relative flex flex-col`}>
       <div className={`${isMobile ? 'h-[calc(100vh-35rem)]' : 'h-[calc(100vh-9.7rem)]'}  relative`}>
         <Swiper
           modules={[Autoplay, Navigation, Pagination]}
