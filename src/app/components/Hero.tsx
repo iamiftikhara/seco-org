@@ -67,7 +67,7 @@ export default function Hero() {
   }
 
   return (
-    <div className={`${isMobile ? `h-[calc(100vh-25rem)] top-[calc(40vh-15.5rem)] ${isMobile}` : 'min-h-screen'} relative flex flex-col`}>
+    <div className={`${isMobile ? `h-[calc(100vh-25rem)] top-[calc(40vh-15.7rem)] ${isMobile}` : 'min-h-screen'} relative flex flex-col`}>
       <div className={`${isMobile ? 'h-[calc(100vh-35rem)]' : 'h-[calc(100vh-9.7rem)]'}  relative`}>
         <Swiper
           modules={[Autoplay, Navigation, Pagination]}
@@ -109,7 +109,6 @@ export default function Hero() {
                       backdropFilter: "blur(4px)",
                       border: `2px solid ${currentLanguage === "en" ? theme.colors.secondary : "transparent"}`,
                       fontFamily: theme.fonts.en.primary,
-                      fontSize: `${isMobile ? '0.9rem !important' : ''}`
                     }}
                   >
                     English
@@ -123,7 +122,6 @@ export default function Hero() {
                       backdropFilter: "blur(4px)",
                       border: `2px solid ${currentLanguage === "ur" ? theme.colors.secondary : "transparent"}`,
                       fontFamily: theme.fonts.ur.primary,
-                      fontSize: `${isMobile ? '0.9rem !important' : ''}`
                     }}
                   >
                     اردو

@@ -1,27 +1,32 @@
-interface TextWithLanguage {
+export type BilingualKeyFeature = {
+  id: string;
+  en: { title: { text: string }; description: { text: string } };
+  ur: { title: { text: string }; description: { text: string } };
+};
+
+export type BilingualImpact = {
+  id: string;
+  en: { label: { text: string } };
+  ur: { label: { text: string } };
+  value: string;
+  iconName: string;
+  prefix?: string;
+  suffix?: string;
+};
+
+export interface TextWithLanguage {
   text: string;
-  language: 'en' | 'ur';
+  language?: 'en' | 'ur';
 }
 
-interface ServicePageContent {
-  image: string;
-  title: {
-    en: TextWithLanguage;
-    ur: TextWithLanguage;
-  };
-  description: {
-    en: TextWithLanguage;
-    ur: TextWithLanguage;
-  };
-}
-
-interface KeyFeature {
+export interface KeyFeature {
   id: string;
   title: TextWithLanguage;
   description: TextWithLanguage;
 }
 
-interface ImpactMetric {
+export interface ImpactMetric {
+  id: string;
   label: TextWithLanguage;
   value: string;
   suffix?: string;
@@ -29,7 +34,7 @@ interface ImpactMetric {
   iconName: string;
 }
 
-interface SocialShare {
+export interface SocialShare {
   title: TextWithLanguage;
   description: TextWithLanguage;
   hashtags: string[];
@@ -40,22 +45,46 @@ interface SocialShare {
 export interface ServiceDetail {
   id: string;
   slug: string;
-  title: TextWithLanguage;
   iconName: string;
   heroImage: string;
-  shortDescription: TextWithLanguage;
-  fullDescription: TextWithLanguage;
-  impactTitle: TextWithLanguage;
-  keyFeaturesTitle: TextWithLanguage;
-  overviewTitle: TextWithLanguage;
-  keyFeatures: KeyFeature[];
-  impact: ImpactMetric[];
   isActive: boolean;
   showOnHomepage: boolean;
-  language: 'en' | 'ur';
   createdAt: Date;
   updatedAt: Date;
-  socialShare: SocialShare;
+  en: {
+    title: TextWithLanguage;
+    shortDescription: TextWithLanguage;
+    fullDescription: TextWithLanguage;
+    impactTitle: TextWithLanguage;
+    keyFeaturesTitle: TextWithLanguage;
+    overviewTitle: TextWithLanguage;
+    keyFeatures: KeyFeature[];
+    impact: ImpactMetric[];
+    socialShare: SocialShare;
+  };
+  ur: {
+    title: TextWithLanguage;
+    shortDescription: TextWithLanguage;
+    fullDescription: TextWithLanguage;
+    impactTitle: TextWithLanguage;
+    keyFeaturesTitle: TextWithLanguage;
+    overviewTitle: TextWithLanguage;
+    keyFeatures: KeyFeature[];
+    impact: ImpactMetric[];
+    socialShare: SocialShare;
+  };
+}
+
+export interface ServicePageContent {
+  image: string;
+  title: {
+    en: TextWithLanguage;
+    ur: TextWithLanguage;
+  };
+  description: {
+    en: TextWithLanguage;
+    ur: TextWithLanguage;
+  };
 }
 
 export interface Services {

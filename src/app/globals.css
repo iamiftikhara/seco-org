@@ -30,8 +30,10 @@
 @tailwind utilities;
 
 :root {
-  --primary: #4B0082;    /* Purple */
-  --secondary: #FFD700;  /* Gold */
+  --primary: #4B0082;
+  /* Purple */
+  --secondary: #FFD700;
+  /* Gold */
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -85,8 +87,13 @@ body {
 }
 
 @keyframes scroll {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 .swiper-pagination-bullet-active {
@@ -127,7 +134,8 @@ body {
   align-items: center;
   height: 100%;
   width: max-content;
-  transform: translateX(90%); /* Initial position */
+  transform: translateX(90%);
+  /* Initial position */
 }
 
 
@@ -140,6 +148,7 @@ body {
   0% {
     transform: translateX(80%);
   }
+
   100% {
     transform: translateX(-100%);
   }
@@ -154,6 +163,7 @@ body {
   0% {
     transform: translateX(-80%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -172,6 +182,7 @@ body {
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-100%);
   }
@@ -182,19 +193,30 @@ body {
   0% {
     transform: translateX(-80%);
   }
+
   100% {
     transform: translateX(100%);
   }
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 @keyframes marquee-rtl {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Slider styles */
@@ -228,19 +250,41 @@ body {
 
 /* Add to your globals.css */
 @keyframes ping-slow {
-  0% { transform: scale(0.8); opacity: 0.8; }
-  100% { transform: scale(1.2); opacity: 0; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
 }
 
 @keyframes pulse-slow {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes fade-in-out {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .animate-ping-slow {
@@ -261,65 +305,86 @@ body {
 /* 1150 */
 @media only screen and (max-width: 1150px) {
 
-  .logo-title{
+  .logo-title {
     font-size: 1.2rem;
   }
 
-  .logo-subtitle{
+  .logo-subtitle {
     font-size: 0.7rem;
   }
-  
+
 }
 
 
 /* 962 */
-@media only screen and (max-width: 9620px) {
+@media only screen and (max-width: 962px) {
 
-  .logo-title{
+  .logo-title {
     font-size: 1rem;
   }
 
-  .logo-subtitle{
+  .logo-subtitle {
     font-size: 0.5rem;
   }
-  
+
 }
 
 /* 920 */
 @media only screen and (max-width: 920px) {
 
-  .logo-title{
+  .logo-title {
     font-size: 1.3rem;
   }
 
-  .logo-subtitle{
+  .logo-subtitle {
     font-size: 0.8rem;
   }
-  
+
 }
 
 
 /* 768 */
 @media only screen and (max-width: 768px) {
 
-  .logo-title{
+  .logo-title {
     font-size: 1.2rem;
   }
 
-  .logo-subtitle{
+  .logo-subtitle {
     font-size: 0.7rem;
   }
 
-  h1{
+  h1 {
     font-size: 1.3rem;
   }
 
-  h2{
-    font-size: 1.5rem;
+  h2 {
+    font-size: 1.3rem;
   }
 
-  p.text-xl{
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  p.text-xl {
     font-size: 0.9rem;
   }
-  
+
+  p {
+    font-size: 0.9rem;
+  }
+
+  section.py-16{
+    padding-block: 2rem;
+  }
+
+
+  button, a {
+    font-size: 0.9rem;
+    padding-inline: .8rem;
+    padding-block: 0.3rem;
+  }
+
+
+
 }

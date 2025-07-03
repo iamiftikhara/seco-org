@@ -1,1023 +1,956 @@
-import {Services} from "@/types/services";
+import { Services } from "@/types/services";
 
 export const services: Services = {
   servicePage: {
     image: "/images/community-hero.jpeg",
     title: {
       en: {
-        text: "Our Services",
-        language: "en",
+        text: "Our Services"
       },
       ur: {
-        text: "ہماری خدمات",
-        language: "ur",
+        text: "ہماری خدمات"
+
       },
     },
     description: {
       en: {
-        text: "Discover our comprehensive range of services designed to support and empower communities",
-        language: "en",
+        text: "Discover our comprehensive range of services designed to support and empower communities"
       },
       ur: {
-        text: "کمیونٹیز کی مدد اور بااختیار بنانے کے لیے ڈیزائن کی گئی ہماری جامع خدمات دریافت کریں",
-        language: "ur",
+        text: "کمیونٹیز کی مدد اور بااختیار بنانے کے لیے ڈیزائن کی گئی ہماری جامع خدمات دریافت کریں"
       },
     },
   },
   servicesList: [
+
     {
       id: "1",
       slug: "sustainable-agriculture",
-      title: {
-        text: "Sustainable Agriculture",
-        language: "en",
-      },
       iconName: "FaSeedling",
       heroImage: "/images/agriculture-hero.jpg",
-      shortDescription: {
-        text: "Empowering farmers with sustainable practices",
-        language: "en",
-      },
-      fullDescription: {
-        text: "Our sustainable agriculture initiatives focus on empowering farmers with modern techniques while preserving traditional knowledge.",
-        language: "en",
-      },
-      impactTitle: {
-        text: "Key Impact",
-        language: "en",
-      },
-      keyFeaturesTitle: {
-        text: "Key Features",
-        language: "en",
-      },
-      overviewTitle: {
-        text: "Overview",
-        language: "en",
-      },
-      keyFeatures: [
-        {
-          id: "1",
-          title: {
-            text: "Modern Farming Techniques",
-            language: "en",
-          },
-          description: {
-            text: "Implementation of latest agricultural technologies",
-            language: "en",
-          },
-        },
-        {
-          id: "2",
-          title: {
-            text: "Organic Farming",
-            language: "en",
-          },
-          description: {
-            text: "Promoting chemical-free farming practices",
-            language: "en",
-          },
-        },
-      ],
-      impact: [
-        {
-          label: {
-            text: "Farmers",
-            language: "en",
-          },
-          value: "1000",
-          suffix: "+",
-          iconName: "FaUsers",
-        },
-        {
-          label: {
-            text: "Hectares",
-            language: "en",
-          },
-          value: "5000",
-          suffix: "+",
-          iconName: "FaGlobe",
-        },
-      ],
       isActive: true,
       showOnHomepage: true,
-      language: "en",
       createdAt: new Date(),
       updatedAt: new Date(),
-      socialShare: {
-        title: {
-          text: "Sustainable Agriculture: Empowering Farmers with Modern Practices",
-          language: "en"
+      en: {
+        title: { text: "Sustainable Agriculture" },
+        shortDescription: { text: "Empowering farmers with sustainable practices" },
+        fullDescription: { text: "Our sustainable agriculture initiatives focus on empowering farmers with modern techniques while preserving traditional knowledge." },
+        impactTitle: { text: "Key Impact" },
+        keyFeaturesTitle: { text: "Key Features" },
+        overviewTitle: { text: "Overview" },
+        keyFeatures: [
+          {
+            id: "1",
+            title: { text: "Modern Farming Techniques" },
+            description: { text: "Implementation of latest agricultural technologies" },
+          },
+          {
+            id: "2",
+            title: { text: "Organic Farming" },
+            description: { text: "Promoting chemical-free farming practices" },
+          },
+        ],
+        impact: [
+          {
+            id: "1",
+            label: { text: "Farmers" },
+            value: "1000",
+            suffix: "+",
+            iconName: "FaUsers",
+          },
+          {
+            id: "2",
+            label: { text: "Hectares" },
+            value: "5000",
+            suffix: "+",
+            iconName: "FaGlobe",
+          },
+        ],
+        socialShare: {
+          title: { text: "Sustainable Agriculture: Empowering Farmers with Modern Practices" },
+          description: { text: "Discover how we're empowering farmers with sustainable agricultural practices while preserving traditional knowledge. Join us in building a sustainable future for farming." },
+          hashtags: ["SustainableAgriculture", "FarmingPractices", "Sustainability", "ModernFarming"],
+          twitterHandle: "@YourOrganization",
+          ogType: "article"
         },
-        description: {
-          text: "Discover how we're empowering farmers with sustainable agricultural practices while preserving traditional knowledge. Join us in building a sustainable future for farming.",
-          language: "en"
-        },
-        hashtags: ["SustainableAgriculture", "FarmingPractices", "Sustainability", "ModernFarming"],
-        twitterHandle: "@YourOrganization",
-        ogType: "article"
       },
+      ur: {
+        title: { text: "پائیدار زراعت" },
+        shortDescription: { text: "کسانوں کو پائیدار طریقوں سے بااختیار بنانا" },
+        fullDescription: { text: "ہماری پائیدار زراعت کی پہل کاری روایتی علم کو برقرار رکھتے ہوئے کسانوں کو جدید تکنیکوں سے آراستہ کرنے پر مرکوز ہے۔" },
+        impactTitle: { text: "کلیدی اثرات" },
+        keyFeaturesTitle: { text: "اہم خصوصیات" },
+        overviewTitle: { text: "جائزہ" },
+        keyFeatures: [
+          {
+            id: "1",
+            title: { text: "جدید کاشتکاری کے طریقے" },
+            description: { text: "جدید زرعی ٹیکنالوجیز کا نفاذ" },
+          },
+          {
+            id: "2",
+            title: { text: "نامیاتی کاشتکاری" },
+            description: { text: "کیمیکل سے پاک کاشتکاری کے طریقوں کو فروغ دینا" },
+          },
+        ],
+        impact: [
+          {
+            id: "1",
+            label: { text: "کسان" },
+            value: "1000",
+            suffix: "+",
+            iconName: "FaUsers",
+          },
+          {
+            id: "2",
+            label: { text: "ہیکٹر" },
+            value: "5000",
+            suffix: "+",
+            iconName: "FaGlobe",
+          },
+        ],
+        socialShare: {
+          title: { text: "پائیدار زراعت: کسانوں کو جدید طریقوں سے بااختیار بنانا" },
+          description: { text: "جانیں کہ ہم کیسے روایتی علم کو برقرار رکھتے ہوئے کسانوں کو پائیدار زرعی طریقوں سے آراستہ کر رہے ہیں۔ زراعت کے پائیدار مستقبل کی تعمیر میں ہمارے ساتھ شامل ہوں۔" },
+          hashtags: ["پائیدارزراعت", "زرعیترقی", "جدیدکاشتکاری", "کسان"],
+          twitterHandle: "@YourOrganization",
+          ogType: "article"
+        },
+      }
     },
+
     {
       id: "2",
       slug: "education-training",
-      title: {
-        text: "Education & Training",
-        language: "en",
-      },
       iconName: "FaGraduationCap",
       heroImage: "/images/education-hero.jpg",
-      shortDescription: {
-        text: "Building capacity through knowledge sharing",
-        language: "en",
-      },
-      fullDescription: {
-        text: "We provide comprehensive educational programs and vocational training to empower communities with essential skills and knowledge.",
-        language: "en",
-      },
-      impactTitle: {
-        text: "Key Impact",
-        language: "en",
-      },
-      impact: [
-        {
-          label: {
-            text: "Schools & Madaris Facilities",
-            language: "en",
-          },
-          value: "1950",
-          suffix: "",
-          iconName: "FaSchool",
-        },
-        {
-          label: {
-            text: "Students with Resources",
-            language: "en",
-          },
-          value: "7350",
-          suffix: "",
-          iconName: "FaBookReader",
-        },
-        {
-          label: {
-            text: "School Enrollment",
-            language: "en",
-          },
-          value: "23550",
-          suffix: "",
-          iconName: "FaUserGraduate",
-        },
-        {
-          label: {
-            text: "Madaris Enrollment",
-            language: "en",
-          },
-          value: "6676",
-          suffix: "",
-          iconName: "FaPrayingHands",
-        },
-        {
-          label: {
-            text: "ALP Madaris",
-            language: "en",
-          },
-          value: "242",
-          suffix: "",
-          iconName: "FaLandmark",
-        },
-        {
-          label: {
-            text: "Trained Teachers",
-            language: "en",
-          },
-          value: "925",
-          suffix: "",
-          iconName: "FaChalkboardTeacher",
-        },
-        {
-          label: {
-            text: "Adult Literacy Trainees",
-            language: "en",
-          },
-          value: "9810",
-          suffix: "",
-          iconName: "FaUserCheck",
-        },
-        {
-          label: {
-            text: "SMCs Formed",
-            language: "en",
-          },
-          value: "1059",
-          suffix: "",
-          iconName: "FaUsers",
-        },
-        {
-          label: {
-            text: "Exposure Visits",
-            language: "en",
-          },
-          value: "1937",
-          suffix: "",
-          iconName: "FaGlobe",
-        },
-        {
-          label: {
-            text: "TVET Students",
-            language: "en",
-          },
-          value: "2238",
-          suffix: "",
-          iconName: "FaToolbox",
-        },
-        {
-          label: {
-            text: "COVID-19 Awareness",
-            language: "en",
-          },
-          value: "88772",
-          suffix: "",
-          iconName: "FaVirus",
-        },
-        {
-          label: {
-            text: "Sports Engagement",
-            language: "en",
-          },
-          value: "3555",
-          suffix: "",
-          iconName: "FaRunning",
-        },
-      ],
-      keyFeaturesTitle: {
-        text: "Key Features",
-        language: "en",
-      },
-      overviewTitle: {
-        text: "Overview",
-        language: "en",
-      },
-      keyFeatures: [
-        {
-          id: "1",
-          title: {
-            text: "Vocational Training",
-            language: "en",
-          },
-          description: {
-            text: "Practical skills development for sustainable livelihoods",
-            language: "en",
-          },
-        },
-        {
-          id: "2",
-          title: {
-            text: "Youth Education",
-            language: "en",
-          },
-          description: {
-            text: "Supporting academic growth and development",
-            language: "en",
-          },
-        },
-      ],
       isActive: true,
       showOnHomepage: true,
-      language: "en",
       createdAt: new Date(),
       updatedAt: new Date(),
-      socialShare: {
+      en: {
         title: {
-          text: "Education & Training: Building Community Capacity Through Knowledge",
-          language: "en"
+          text: "Education & Training"
         },
-        description: {
-          text: "Explore our comprehensive educational programs and vocational training initiatives empowering communities with essential skills and knowledge for a better future.",
-          language: "en"
+        shortDescription: {
+          text: "Building capacity through knowledge sharing"
         },
-        hashtags: ["Education", "VocationalTraining", "CommunityDevelopment", "SkillsDevelopment"],
-        twitterHandle: "@YourOrganization",
-        ogType: "article"
+        fullDescription: {
+          text: "We provide comprehensive educational programs and vocational training to empower communities with essential skills and knowledge."
+        },
+        impactTitle: {
+          text: "Key Impact"
+        },
+        impact: [
+          {
+            id: "1",
+            label: {
+              text: "Schools & Madaris Facilities"
+            },
+            value: "1950",
+            suffix: "",
+            iconName: "FaSchool",
+          },
+          {
+            id: "2",
+            label: {
+              text: "Students with Resources"
+            },
+            value: "7350",
+            suffix: "",
+            iconName: "FaBookReader",
+          },
+          {
+            id: "3",
+            label: {
+              text: "School Enrollment"
+            },
+            value: "23550",
+            suffix: "",
+            iconName: "FaUserGraduate",
+          },
+          {
+            id: "4",
+            label: {
+              text: "Madaris Enrollment"
+            },
+            value: "6676",
+            suffix: "",
+            iconName: "FaPrayingHands",
+          },
+          {
+            id: "5",
+            label: {
+              text: "ALP Madaris"
+            },
+            value: "242",
+            suffix: "",
+            iconName: "FaLandmark",
+          },
+          {
+            id: "6",
+            label: {
+              text: "Trained Teachers",
+
+            },
+            value: "925",
+            suffix: "",
+            iconName: "FaChalkboardTeacher",
+          },
+          {
+            id: "7",
+            label: {
+              text: "Adult Literacy Trainees",
+
+            },
+            value: "9810",
+            suffix: "",
+            iconName: "FaUserCheck",
+          },
+          {
+            id: "8",
+            label: {
+              text: "SMCs Formed",
+
+            },
+            value: "1059",
+            suffix: "",
+            iconName: "FaUsers",
+          },
+          {
+            id: "9",
+            label: {
+              text: "Exposure Visits",
+
+            },
+            value: "1937",
+            suffix: "",
+            iconName: "FaGlobe",
+          },
+          {
+            id: "10",
+            label: {
+              text: "TVET Students",
+
+            },
+            value: "2238",
+            suffix: "",
+            iconName: "FaToolbox",
+          },
+          {
+            id: "11",
+            label: {
+              text: "COVID-19 Awareness",
+
+            },
+            value: "88772",
+            suffix: "",
+            iconName: "FaVirus",
+          },
+          {
+            id: "12",
+            label: {
+              text: "Sports Engagement",
+
+            },
+            value: "3555",
+            suffix: "",
+            iconName: "FaRunning",
+          },
+        ],
+        keyFeaturesTitle: {
+          text: "Key Features",
+
+        },
+        overviewTitle: {
+          text: "Overview",
+
+        },
+        keyFeatures: [
+          {
+            id: "1",
+            title: {
+              text: "Vocational Training",
+
+            },
+            description: {
+              text: "Practical skills development for sustainable livelihoods",
+
+            },
+          },
+          {
+            id: "2",
+            title: {
+              text: "Youth Education",
+
+            },
+            description: {
+              text: "Supporting academic growth and development",
+
+            },
+          },
+        ],
+
+        socialShare: {
+          title: {
+            text: "Education & Training: Building Community Capacity Through Knowledge",
+
+          },
+          description: {
+            text: "Explore our comprehensive educational programs and vocational training initiatives empowering communities with essential skills and knowledge for a better future.",
+
+          },
+          hashtags: ["Education", "VocationalTraining", "CommunityDevelopment", "SkillsDevelopment"],
+          twitterHandle: "@YourOrganization",
+          ogType: "article"
+        },
+      },
+      ur: {
+        title: {
+          text: "تعلیم و تربیت",
+
+        },
+        shortDescription: {
+          text: "علم کے تبادلے کے ذریعے صلاحیتوں کی تعمیر",
+
+        },
+        fullDescription: {
+          text: "ہم کمیونٹیز کو ضروری مہارتوں اور علم سے لیس کرنے کے لیے جامع تعلیمی پروگرام اور پیشہ ورانہ تربیت فراہم کرتے ہیں۔",
+
+        },
+        impactTitle: {
+          text: "کلیدی اثرات",
+
+        },
+        impact: [
+          {
+            id: "1",
+            label: {
+              text: "اسکول اور مدارس کی سہولیات",
+
+            },
+            value: "1950",
+            suffix: "",
+            iconName: "FaSchool",
+          },
+          {
+            id: "2",
+            label: {
+              text: "وسائل کے ساتھ طلباء",
+
+            },
+            value: "7350",
+            suffix: "",
+            iconName: "FaBookReader",
+          },
+          {
+            id: "3",
+            label: {
+              text: "اسکول میں داخلہ",
+
+            },
+            value: "23550",
+            suffix: "",
+            iconName: "FaUserGraduate",
+          },
+          {
+            id: "4",
+            label: {
+              text: "مدارس میں داخلہ",
+
+            },
+            value: "6676",
+            suffix: "",
+            iconName: "FaPrayingHands",
+          },
+          {
+            id: "5",
+            label: {
+              text: "اے ایل پی مدارس",
+
+            },
+            value: "242",
+            suffix: "",
+            iconName: "FaLandmark",
+          },
+          {
+            id: "6",
+            label: {
+              text: "تربیت یافتہ اساتذہ",
+
+            },
+            value: "925",
+            suffix: "",
+            iconName: "FaChalkboardTeacher",
+          },
+          {
+            id: "7",
+            label: {
+              text: "بالغ خواندگی کے تربیت کار",
+
+            },
+            value: "9810",
+            suffix: "",
+            iconName: "FaUserCheck",
+          },
+          {
+            id: "8",
+            label: {
+              text: "ایس ایم سی تشکیل",
+
+            },
+            value: "1059",
+            suffix: "",
+            iconName: "FaUsers",
+          },
+          {
+            id: "9",
+            label: {
+              text: "تعلیمی دورے",
+
+            },
+            value: "1937",
+            suffix: "",
+            iconName: "FaGlobe",
+          },
+          {
+            id: "10",
+            label: {
+              text: "ٹی وی ای ٹی طلباء",
+
+            },
+            value: "2238",
+            suffix: "",
+            iconName: "FaToolbox",
+          },
+          {
+            id: "11",
+            label: {
+              text: "کوویڈ-19 آگاہی",
+
+            },
+            value: "88772",
+            suffix: "",
+            iconName: "FaVirus",
+          },
+          {
+            id: "12",
+            label: {
+              text: "کھیلوں میں شرکت",
+
+            },
+            value: "3555",
+            suffix: "",
+            iconName: "FaRunning",
+          },
+        ],
+        keyFeaturesTitle: {
+          text: "اہم خصوصیات",
+
+        },
+        overviewTitle: {
+          text: "جائزہ",
+
+        },
+        keyFeatures: [
+          {
+            id: "1",
+            title: {
+              text: "پیشہ ورانہ تربیت",
+
+            },
+            description: {
+              text: "پائیدار روزگار کے لیے عملی مہارتوں کی ترقی",
+
+            },
+          },
+          {
+            id: "2",
+            title: {
+              text: "نوجوانوں کی تعلیم",
+
+            },
+            description: {
+              text: "تعلیمی ترقی اور نشوونما میں معاونت",
+
+            },
+          },
+        ],
+        socialShare: {
+          title: {
+            text: "تعلیم و تربیت: علم کے ذریعے کمیونٹی کی صلاحیتوں کی تعمیر",
+
+          },
+          description: {
+            text: "بہتر مستقبل کے لیے ضروری مہارتوں اور علم کے ساتھ کمیونٹیز کو بااختیار بنانے والے ہمارے جامع تعلیمی پروگرامز اور پیشہ ورانہ تربیت کے اقدامات دریافت کریں۔",
+
+          },
+          hashtags: ["تعلیم", "پیشہورانہتربیت", "کمیونٹیترقی", "مہارتیںترقی"],
+          twitterHandle: "@YourOrganization",
+          ogType: "article"
+        },
       },
     },
 
     {
       id: "3",
       slug: "community-development",
-      title: {
-        text: "Community Development",
-        language: "en",
-      },
       iconName: "FaHandsHelping",
       heroImage: "/images/community-hero.jpeg",
-      shortDescription: {
-        text: "Strengthening local communities",
-        language: "en",
-      },
-      fullDescription: {
-        text: "Our community development initiatives focus on building resilient and self-sustaining communities through participatory approaches.",
-        language: "en",
-      },
-      impactTitle: {
-        text: "Key Impact",
-        language: "en",
-      },
-      keyFeaturesTitle: {
-        text: "Key Features",
-        language: "en",
-      },
-      overviewTitle: {
-        text: "Overview",
-        language: "en",
-      },
-      keyFeatures: [
-        {
-          id: "1",
-          title: {
-            text: "Local Leadership",
-            language: "en",
-          },
-          description: {
-            text: "Developing community leaders and change-makers",
-            language: "en",
-          },
-        },
-        {
-          id: "2",
-          title: {
-            text: "Social Programs",
-            language: "en",
-          },
-          description: {
-            text: "Supporting community welfare and cohesion",
-            language: "en",
-          },
-        },
-      ],
-      impact: [
-        {
-          label: {
-            text: "Community Members Trained",
-            language: "en",
-          },
-          value: "530478",
-          suffix: "",
-          iconName: "FaUsers",
-        },
-        {
-          label: {
-            text: "Staff Trained",
-            language: "en",
-          },
-          value: "2699",
-          suffix: "",
-          iconName: "FaUserTie",
-        },
-        {
-          label: {
-            text: "International Partners",
-            language: "en",
-          },
-          value: "256",
-          suffix: "",
-          iconName: "FaHandshake",
-        },
-        {
-          label: {
-            text: "Communities",
-            language: "en",
-          },
-          value: "50",
-          suffix: "+",
-          iconName: "FaPeopleCarry",
-        },
-      ],
       isActive: true,
       showOnHomepage: true,
-      language: "en",
       createdAt: new Date(),
       updatedAt: new Date(),
-      socialShare: {
+      en: {
         title: {
-          text: "Community Development: Building Resilient Communities Together",
-          language: "en"
+          text: "Community Development",
+
         },
-        description: {
-          text: "Learn about our community development initiatives focused on building resilient and self-sustaining communities through participatory approaches.",
-          language: "en"
+
+        shortDescription: {
+          text: "Strengthening local communities",
+
         },
-        hashtags: ["CommunityDevelopment", "Resilience", "SustainableDevelopment", "Community"],
-        twitterHandle: "@YourOrganization",
-        ogType: "article"
+        fullDescription: {
+          text: "Our community development initiatives focus on building resilient and self-sustaining communities through participatory approaches.",
+
+        },
+        impactTitle: {
+          text: "Key Impact",
+
+        },
+        keyFeaturesTitle: {
+          text: "Key Features",
+
+        },
+        overviewTitle: {
+          text: "Overview",
+
+        },
+        keyFeatures: [
+          {
+            id: "1",
+            title: {
+              text: "Local Leadership",
+
+            },
+            description: {
+              text: "Developing community leaders and change-makers",
+
+            },
+          },
+          {
+            id: "2",
+            title: {
+              text: "Social Programs",
+
+            },
+            description: {
+              text: "Supporting community welfare and cohesion",
+
+            },
+          },
+        ],
+        impact: [
+          {
+            id: "1",
+            label: {
+              text: "Community Members Trained",
+
+            },
+            value: "530478",
+            suffix: "",
+            iconName: "FaUsers",
+          },
+          {
+            id: "2",
+            label: {
+              text: "Staff Trained",
+
+            },
+            value: "2699",
+            suffix: "",
+            iconName: "FaUserTie",
+          },
+          {
+            id: "3",
+            label: {
+              text: "International Partners",
+
+            },
+            value: "256",
+            suffix: "",
+            iconName: "FaHandshake",
+          },
+          {
+            id: "4",
+            label: {
+              text: "Communities",
+
+            },
+            value: "50",
+            suffix: "+",
+            iconName: "FaPeopleCarry",
+          },
+        ],
+        socialShare: {
+          title: {
+            text: "Community Development: Building Resilient Communities Together",
+
+          },
+          description: {
+            text: "Learn about our community development initiatives focused on building resilient and self-sustaining communities through participatory approaches.",
+
+          },
+          hashtags: ["CommunityDevelopment", "Resilience", "SustainableDevelopment", "Community"],
+          twitterHandle: "@YourOrganization",
+          ogType: "article"
+        },
       },
+      ur: {
+        title: {
+          text: "کمیونٹی کی ترقی",
+
+        },
+        shortDescription: {
+          text: "مقامی کمیونٹیز کو مضبوط بنانا",
+
+        },
+        fullDescription: {
+          text: "ہماری کمیونٹی کی ترقی کی پہل کاری شراکت داری کے طریقوں کے ذریعے مضبوط اور خود انحصار کمیونٹیز کی تعمیر پر مرکوز ہے۔",
+
+        },
+        impactTitle: {
+          text: "کلیدی اثرات",
+
+        },
+        keyFeaturesTitle: {
+          text: "اہم خصوصیات",
+
+        },
+        overviewTitle: {
+          text: "جائزہ",
+
+        },
+        keyFeatures: [
+          {
+            id: "1",
+            title: {
+              text: "مقامی قیادت",
+
+            },
+            description: {
+              text: "کمیونٹی کے رہنماؤں اور تبدیلی لانے والوں کی تیاری",
+
+            },
+          },
+          {
+            id: "2",
+            title: {
+              text: "سماجی پروگرام",
+
+            },
+            description: {
+              text: "کمیونٹی کی فلاح و بہبود اور ہم آہنگی کی معاونت",
+
+            },
+          },
+        ],
+        impact: [
+          {
+            id: "1",
+            label: {
+              text: "تربیت یافتہ کمیونٹی ممبران",
+
+            },
+            value: "530478",
+            suffix: "",
+            iconName: "FaUsers",
+          },
+          {
+            id: "2",
+            label: {
+              text: "تربیت یافتہ عملہ",
+
+            },
+            value: "2699",
+            suffix: "",
+            iconName: "FaUserTie",
+          },
+          {
+            id: "3",
+            label: {
+              text: "بین الاقوامی شراکت دار",
+
+            },
+            value: "256",
+            suffix: "",
+            iconName: "FaHandshake",
+          },
+          {
+            id: "4",
+            label: {
+              text: "کمیونٹیز",
+
+            },
+            value: "50",
+            suffix: "+",
+            iconName: "FaPeopleCarry",
+          },
+        ],
+        socialShare: {
+          title: {
+            text: "کمیونٹی کی ترقی: مل کر مضبوط کمیونٹیز کی تعمیر",
+
+          },
+          description: {
+            text: "شراکت داری کے طریقوں کے ذریعے مضبوط اور خود انحصار کمیونٹیز کی تعمیر پر مرکوز ہماری کمیونٹی ترقی کے اقدامات کے بارے میں جانیں۔",
+
+          },
+          hashtags: ["کمیونٹیترقی", "استحکام", "پائیدارترقی", "کمیونٹی"],
+          twitterHandle: "@YourOrganization",
+          ogType: "article"
+        },
+      }
     },
+
     {
       id: "4",
       slug: "infrastructure-support",
-      title: {
-        text: "Infrastructure Support",
-        language: "en",
-      },
       iconName: "FaHome",
       heroImage: "/images/infrastructure-hero.jpg",
-      shortDescription: {
-        text: "Building sustainable infrastructure",
-        language: "en",
-      },
-      fullDescription: {
-        text: "We help communities develop and maintain essential infrastructure for improved quality of life and sustainable development.",
-        language: "en",
-      },
-      impactTitle: {
-        text: "Key Impact",
-        language: "en",
-      },
-      keyFeaturesTitle: {
-        text: "Key Features",
-        language: "en",
-      },
-      overviewTitle: {
-        text: "Overview",
-        language: "en",
-      },
-      keyFeatures: [
-        {
-          id: "1",
-          title: {
-            text: "Water Systems",
-            language: "en",
-          },
-          description: {
-            text: "Clean water access and irrigation solutions",
-            language: "en",
-          },
-        },
-        {
-          id: "2",
-          title: {
-            text: "Community Facilities",
-            language: "en",
-          },
-          description: {
-            text: "Building and maintaining essential structures",
-            language: "en",
-          },
-        },
-      ],
-      impact: [
-        {
-          label: {
-            text: "Infrastructure Schemes",
-            language: "en",
-          },
-          value: "31114",
-          suffix: "",
-          iconName: "FaBuilding",
-        },
-        {
-          label: {
-            text: "Total Beneficiaries",
-            language: "en",
-          },
-          value: "1.63",
-          suffix: "M",
-          iconName: "FaUsers",
-        },
-        {
-          label: {
-            text: "Scheme Worth",
-            language: "en",
-          },
-          value: "3.14",
-          prefix: "PKR",
-          suffix: "B",
-          iconName: "FaMoneyBillWave",
-        },
-        {
-          label: {
-            text: "Projects",
-            language: "en",
-          },
-          value: "75",
-          suffix: "+",
-          iconName: "FaTools",
-        },
-      ],
       isActive: true,
       showOnHomepage: true,
-      language: "en",
       createdAt: new Date(),
       updatedAt: new Date(),
-      socialShare: {
+      en: {
+
         title: {
-          text: "Infrastructure Support: Building Foundations for Better Lives",
-          language: "en"
+          text: "Infrastructure Support",
+
         },
-        description: {
-          text: "Discover how we're helping communities develop and maintain essential infrastructure for improved quality of life and sustainable development.",
-          language: "en"
+
+        shortDescription: {
+          text: "Building sustainable infrastructure",
+
         },
-        hashtags: ["Infrastructure", "CommunityDevelopment", "SustainableDevelopment", "QualityOfLife"],
-        twitterHandle: "@YourOrganization",
-        ogType: "article"
+        fullDescription: {
+          text: "We help communities develop and maintain essential infrastructure for improved quality of life and sustainable development.",
+
+        },
+        impactTitle: {
+          text: "Key Impact",
+
+        },
+        keyFeaturesTitle: {
+          text: "Key Features",
+
+        },
+        overviewTitle: {
+          text: "Overview",
+
+        },
+        keyFeatures: [
+          {
+            id: "1",
+            title: {
+              text: "Water Systems",
+
+            },
+            description: {
+              text: "Clean water access and irrigation solutions",
+
+            },
+          },
+          {
+            id: "2",
+            title: {
+              text: "Community Facilities",
+
+            },
+            description: {
+              text: "Building and maintaining essential structures",
+
+            },
+          },
+        ],
+        impact: [
+          {
+            id: "1",
+            label: {
+              text: "Infrastructure Schemes",
+
+            },
+            value: "31114",
+            suffix: "",
+            iconName: "FaBuilding",
+          },
+          {
+            id: "2",
+            label: {
+              text: "Total Beneficiaries",
+
+            },
+            value: "1.63",
+            suffix: "M",
+            iconName: "FaUsers",
+          },
+          {
+            id: "3",
+            label: {
+              text: "Scheme Worth",
+
+            },
+            value: "3.14",
+            prefix: "PKR",
+            suffix: "B",
+            iconName: "FaMoneyBillWave",
+          },
+          {
+            id: "4",
+            label: {
+              text: "Projects",
+
+            },
+            value: "75",
+            suffix: "+",
+            iconName: "FaTools",
+          },
+        ],
+        socialShare: {
+          title: {
+            text: "Infrastructure Support: Building Foundations for Better Lives",
+
+          },
+          description: {
+            text: "Discover how we're helping communities develop and maintain essential infrastructure for improved quality of life and sustainable development.",
+
+          },
+          hashtags: ["Infrastructure", "CommunityDevelopment", "SustainableDevelopment", "QualityOfLife"],
+          twitterHandle: "@YourOrganization",
+          ogType: "article"
+        },
       },
-    },
-   
+      ur: {
+        title: {
+          text: "بنیادی ڈھانچے کی معاونت",
+
+        },
+        shortDescription: {
+          text: "پائیدار بنیادی ڈھانچے کی تعمیر",
+
+        },
+        fullDescription: {
+          text: "ہم کمیونٹیز کو زندگی کے معیار کو بہتر بنانے اور پائیدار ترقی کے لیے ضروری بنیادی ڈھانچے کی تعمیر اور دیکھ بھال میں مدد کرتے ہیں۔",
+
+        },
+        impactTitle: {
+          text: "کلیدی اثرات",
+
+        },
+        keyFeaturesTitle: {
+          text: "اہم خصوصیات",
+
+        },
+        overviewTitle: {
+          text: "جائزہ",
+
+        },
+        keyFeatures: [
+          {
+            id: "1",
+            title: {
+              text: "پانی کے نظام",
+
+            },
+            description: {
+              text: "صاف پانی کی رسائی اور آبپاشی کے حل",
+
+            },
+          },
+          {
+            id: "2",
+            title: {
+              text: "کمیونٹی کی سہولیات",
+
+            },
+            description: {
+              text: "ضروری ڈھانچوں کی تعمیر اور دیکھ بھال",
+
+            },
+          },
+        ],
+        impact: [
+          {
+            id: "1",
+            label: {
+              text: "بنیادی ڈھانچے کی اسکیمیں",
+
+            },
+            value: "31114",
+            suffix: "",
+            iconName: "FaBuilding",
+          },
+          {
+            id: "2",
+            label: {
+              text: "کل مستفیدین",
+
+            },
+            value: "1.63",
+            suffix: "M",
+            iconName: "FaUsers",
+          },
+          {
+            id: "3",
+            label: {
+              text: "اسکیم کی مالیت",
+
+            },
+            value: "3.14",
+            prefix: "PKR",
+            suffix: "B",
+            iconName: "FaMoneyBillWave",
+          },
+          {
+            id: "4",
+            label: {
+              text: "منصوبے",
+
+            },
+            value: "75",
+            suffix: "+",
+            iconName: "FaTools",
+          },
+        ],
+        socialShare: {
+          title: {
+            text: "بنیادی ڈھانچہ: بہتر زندگی کی بنیادوں کی تعمیر",
+
+          },
+          description: {
+            text: "جانیں کہ ہم کیسے کمیونٹیز کو بہتر معیار زندگی اور پائیدار ترقی کے لیے ضروری بنیادی ڈھانچے کی تعمیر اور دیکھ بھال میں مدد کر رہے ہیں۔",
+
+          },
+          hashtags: ["بنیادیڈھانچہ", "کمیونٹیترقی", "پائیدارترقی", "معیارزندگی"],
+          twitterHandle: "@YourOrganization",
+          ogType: "article"
+        },
+      }
+    }
+
+
+
+
 
     // Add these services to the servicesList array
-    {
-      id: "5",
-      slug: "sustainable-agriculture-ur",
-      title: {
-        text: "پائیدار زراعت",
-        language: "ur",
-      },
-      iconName: "FaSeedling",
-      heroImage: "/images/agriculture-hero.jpg",
-      shortDescription: {
-        text: "کسانوں کو پائیدار طریقوں سے بااختیار بنانا",
-        language: "ur",
-      },
-      fullDescription: {
-        text: "ہماری پائیدار زراعت کی پہل کاری روایتی علم کو برقرار رکھتے ہوئے کسانوں کو جدید تکنیکوں سے آراستہ کرنے پر مرکوز ہے۔",
-        language: "ur",
-      },
-      impactTitle: {
-        text: "کلیدی اثرات",
-        language: "ur",
-      },
-      keyFeaturesTitle: {
-        text: "اہم خصوصیات",
-        language: "ur",
-      },
-      overviewTitle: {
-        text: "جائزہ",
-        language: "ur",
-      },
-      keyFeatures: [
-        {
-          id: "1",
-          title: {
-            text: "جدید کاشتکاری کے طریقے",
-            language: "ur",
-          },
-          description: {
-            text: "جدید زرعی ٹیکنالوجیز کا نفاذ",
-            language: "ur",
-          },
-        },
-        {
-          id: "2",
-          title: {
-            text: "نامیاتی کاشتکاری",
-            language: "ur",
-          },
-          description: {
-            text: "کیمیکل سے پاک کاشتکاری کے طریقوں کو فروغ دینا",
-            language: "ur",
-          },
-        },
-      ],
-      impact: [
-        {
-          label: {
-            text: "کسان",
-            language: "ur",
-          },
-          value: "1000",
-          suffix: "+",
-          iconName: "FaUsers",
-        },
-        {
-          label: {
-            text: "ہیکٹر",
-            language: "ur",
-          },
-          value: "5000",
-          suffix: "+",
-          iconName: "FaGlobe",
-        },
-      ],
-      isActive: true,
-      showOnHomepage: true,
-      language: "ur",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      socialShare: {
-        title: {
-          text: "پائیدار زراعت: کسانوں کو جدید طریقوں سے بااختیار بنانا",
-          language: "ur"
-        },
-        description: {
-          text: "جانیں کہ ہم کیسے روایتی علم کو برقرار رکھتے ہوئے کسانوں کو پائیدار زرعی طریقوں سے آراستہ کر رہے ہیں۔ زراعت کے پائیدار مستقبل کی تعمیر میں ہمارے ساتھ شامل ہوں۔",
-          language: "ur"
-        },
-        hashtags: ["پائیدارزراعت", "زرعیترقی", "جدیدکاشتکاری", "کسان"],
-        twitterHandle: "@YourOrganization",
-        ogType: "article"
-      },
-    },
-    {
-      id: "6",
-      slug: "education-training-ur",
-      title: {
-        text: "تعلیم و تربیت",
-        language: "ur",
-      },
-      iconName: "FaGraduationCap",
-      heroImage: "/images/education-hero.jpg",
-      shortDescription: {
-        text: "علم کے تبادلے کے ذریعے صلاحیتوں کی تعمیر",
-        language: "ur",
-      },
-      fullDescription: {
-        text: "ہم کمیونٹیز کو ضروری مہارتوں اور علم سے لیس کرنے کے لیے جامع تعلیمی پروگرام اور پیشہ ورانہ تربیت فراہم کرتے ہیں۔",
-        language: "ur",
-      },
-      impactTitle: {
-        text: "کلیدی اثرات",
-        language: "ur",
-      },
-      impact: [
-        {
-          label: {
-            text: "اسکول اور مدارس کی سہولیات",
-            language: "ur",
-          },
-          value: "1950",
-          suffix: "",
-          iconName: "FaSchool",
-        },
-        {
-          label: {
-            text: "وسائل کے ساتھ طلباء",
-            language: "ur",
-          },
-          value: "7350",
-          suffix: "",
-          iconName: "FaBookReader",
-        },
-        {
-          label: {
-            text: "اسکول میں داخلہ",
-            language: "ur",
-          },
-          value: "23550",
-          suffix: "",
-          iconName: "FaUserGraduate",
-        },
-        {
-          label: {
-            text: "مدارس میں داخلہ",
-            language: "ur",
-          },
-          value: "6676",
-          suffix: "",
-          iconName: "FaPrayingHands",
-        },
-        {
-          label: {
-            text: "اے ایل پی مدارس",
-            language: "ur",
-          },
-          value: "242",
-          suffix: "",
-          iconName: "FaLandmark",
-        },
-        {
-          label: {
-            text: "تربیت یافتہ اساتذہ",
-            language: "ur",
-          },
-          value: "925",
-          suffix: "",
-          iconName: "FaChalkboardTeacher",
-        },
-        {
-          label: {
-            text: "بالغ خواندگی کے تربیت کار",
-            language: "ur",
-          },
-          value: "9810",
-          suffix: "",
-          iconName: "FaUserCheck",
-        },
-        {
-          label: {
-            text: "ایس ایم سی تشکیل",
-            language: "ur",
-          },
-          value: "1059",
-          suffix: "",
-          iconName: "FaUsers",
-        },
-        {
-          label: {
-            text: "تعلیمی دورے",
-            language: "ur",
-          },
-          value: "1937",
-          suffix: "",
-          iconName: "FaGlobe",
-        },
-        {
-          label: {
-            text: "ٹی وی ای ٹی طلباء",
-            language: "ur",
-          },
-          value: "2238",
-          suffix: "",
-          iconName: "FaToolbox",
-        },
-        {
-          label: {
-            text: "کوویڈ-19 آگاہی",
-            language: "ur",
-          },
-          value: "88772",
-          suffix: "",
-          iconName: "FaVirus",
-        },
-        {
-          label: {
-            text: "کھیلوں میں شرکت",
-            language: "ur",
-          },
-          value: "3555",
-          suffix: "",
-          iconName: "FaRunning",
-        },
-      ],
-      keyFeaturesTitle: {
-        text: "اہم خصوصیات",
-        language: "ur",
-      },
-      overviewTitle: {
-        text: "جائزہ",
-        language: "ur",
-      },
-      keyFeatures: [
-        {
-          id: "1",
-          title: {
-            text: "پیشہ ورانہ تربیت",
-            language: "ur",
-          },
-          description: {
-            text: "پائیدار روزگار کے لیے عملی مہارتوں کی ترقی",
-            language: "ur",
-          },
-        },
-        {
-          id: "2",
-          title: {
-            text: "نوجوانوں کی تعلیم",
-            language: "ur",
-          },
-          description: {
-            text: "تعلیمی ترقی اور نشوونما میں معاونت",
-            language: "ur",
-          },
-        },
-      ],
-      isActive: true,
-      showOnHomepage: true,
-      language: "ur",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      socialShare: {
-        title: {
-          text: "تعلیم و تربیت: علم کے ذریعے کمیونٹی کی صلاحیتوں کی تعمیر",
-          language: "ur"
-        },
-        description: {
-          text: "بہتر مستقبل کے لیے ضروری مہارتوں اور علم کے ساتھ کمیونٹیز کو بااختیار بنانے والے ہمارے جامع تعلیمی پروگرامز اور پیشہ ورانہ تربیت کے اقدامات دریافت کریں۔",
-          language: "ur"
-        },
-        hashtags: ["تعلیم", "پیشہورانہتربیت", "کمیونٹیترقی", "مہارتیںترقی"],
-        twitterHandle: "@YourOrganization",
-        ogType: "article"
-      },
-    },
-    {
-      id: "7",
-      slug: "community-development-ur",
-      title: {
-        text: "کمیونٹی کی ترقی",
-        language: "ur",
-      },
-      iconName: "FaHandsHelping",
-      heroImage: "/images/community-hero.jpeg",
-      shortDescription: {
-        text: "مقامی کمیونٹیز کو مضبوط بنانا",
-        language: "ur",
-      },
-      fullDescription: {
-        text: "ہماری کمیونٹی کی ترقی کی پہل کاری شراکت داری کے طریقوں کے ذریعے مضبوط اور خود انحصار کمیونٹیز کی تعمیر پر مرکوز ہے۔",
-        language: "ur",
-      },
-      impactTitle: {
-        text: "کلیدی اثرات",
-        language: "ur",
-      },
-      keyFeaturesTitle: {
-        text: "اہم خصوصیات",
-        language: "ur",
-      },
-      overviewTitle: {
-        text: "جائزہ",
-        language: "ur",
-      },
-      keyFeatures: [
-        {
-          id: "1",
-          title: {
-            text: "مقامی قیادت",
-            language: "ur",
-          },
-          description: {
-            text: "کمیونٹی کے رہنماؤں اور تبدیلی لانے والوں کی تیاری",
-            language: "ur",
-          },
-        },
-        {
-          id: "2",
-          title: {
-            text: "سماجی پروگرام",
-            language: "ur",
-          },
-          description: {
-            text: "کمیونٹی کی فلاح و بہبود اور ہم آہنگی کی معاونت",
-            language: "ur",
-          },
-        },
-      ],
-      impact: [
-        {
-          label: {
-            text: "تربیت یافتہ کمیونٹی ممبران",
-            language: "ur",
-          },
-          value: "530478",
-          suffix: "",
-          iconName: "FaUsers",
-        },
-        {
-          label: {
-            text: "تربیت یافتہ عملہ",
-            language: "ur",
-          },
-          value: "2699",
-          suffix: "",
-          iconName: "FaUserTie",
-        },
-        {
-          label: {
-            text: "بین الاقوامی شراکت دار",
-            language: "ur",
-          },
-          value: "256",
-          suffix: "",
-          iconName: "FaHandshake",
-        },
-        {
-          label: {
-            text: "کمیونٹیز",
-            language: "ur",
-          },
-          value: "50",
-          suffix: "+",
-          iconName: "FaPeopleCarry",
-        },
-      ],
-      isActive: true,
-      showOnHomepage: true,
-      language: "ur",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      socialShare: {
-        title: {
-          text: "کمیونٹی کی ترقی: مل کر مضبوط کمیونٹیز کی تعمیر",
-          language: "ur"
-        },
-        description: {
-          text: "شراکت داری کے طریقوں کے ذریعے مضبوط اور خود انحصار کمیونٹیز کی تعمیر پر مرکوز ہماری کمیونٹی ترقی کے اقدامات کے بارے میں جانیں۔",
-          language: "ur"
-        },
-        hashtags: ["کمیونٹیترقی", "استحکام", "پائیدارترقی", "کمیونٹی"],
-        twitterHandle: "@YourOrganization",
-        ogType: "article"
-      },
-    },
-    {
-      id: "8",
-      slug: "infrastructure-support-ur",
-      title: {
-        text: "بنیادی ڈھانچے کی معاونت",
-        language: "ur",
-      },
-      iconName: "FaHome",
-      heroImage: "/images/infrastructure-hero.jpg",
-      shortDescription: {
-        text: "پائیدار بنیادی ڈھانچے کی تعمیر",
-        language: "ur",
-      },
-      fullDescription: {
-        text: "ہم کمیونٹیز کو زندگی کے معیار کو بہتر بنانے اور پائیدار ترقی کے لیے ضروری بنیادی ڈھانچے کی تعمیر اور دیکھ بھال میں مدد کرتے ہیں۔",
-        language: "ur",
-      },
-      impactTitle: {
-        text: "کلیدی اثرات",
-        language: "ur",
-      },
-      keyFeaturesTitle: {
-        text: "اہم خصوصیات",
-        language: "ur",
-      },
-      overviewTitle: {
-        text: "جائزہ",
-        language: "ur",
-      },
-      keyFeatures: [
-        {
-          id: "1",
-          title: {
-            text: "پانی کے نظام",
-            language: "ur",
-          },
-          description: {
-            text: "صاف پانی کی رسائی اور آبپاشی کے حل",
-            language: "ur",
-          },
-        },
-        {
-          id: "2",
-          title: {
-            text: "کمیونٹی کی سہولیات",
-            language: "ur",
-          },
-          description: {
-            text: "ضروری ڈھانچوں کی تعمیر اور دیکھ بھال",
-            language: "ur",
-          },
-        },
-      ],
-      impact: [
-        {
-          label: {
-            text: "بنیادی ڈھانچے کی اسکیمیں",
-            language: "ur",
-          },
-          value: "31114",
-          suffix: "",
-          iconName: "FaBuilding",
-        },
-        {
-          label: {
-            text: "کل مستفیدین",
-            language: "ur",
-          },
-          value: "1.63",
-          suffix: "M",
-          iconName: "FaUsers",
-        },
-        {
-          label: {
-            text: "اسکیم کی مالیت",
-            language: "ur",
-          },
-          value: "3.14",
-          prefix: "PKR",
-          suffix: "B",
-          iconName: "FaMoneyBillWave",
-        },
-        {
-          label: {
-            text: "منصوبے",
-            language: "ur",
-          },
-          value: "75",
-          suffix: "+",
-          iconName: "FaTools",
-        },
-      ],
-      isActive: true,
-      showOnHomepage: true,
-      language: "ur",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      socialShare: {
-        title: {
-          text: "بنیادی ڈھانچہ: بہتر زندگی کی بنیادوں کی تعمیر",
-          language: "ur"
-        },
-        description: {
-          text: "جانیں کہ ہم کیسے کمیونٹیز کو بہتر معیار زندگی اور پائیدار ترقی کے لیے ضروری بنیادی ڈھانچے کی تعمیر اور دیکھ بھال میں مدد کر رہے ہیں۔",
-          language: "ur"
-        },
-        hashtags: ["بنیادیڈھانچہ", "کمیونٹیترقی", "پائیدارترقی", "معیارزندگی"],
-        twitterHandle: "@YourOrganization",
-        ogType: "article"
-      },
-    },
+
+
+
   ],
 };
+
+
+
+

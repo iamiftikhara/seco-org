@@ -5,7 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import * as Icons from 'react-icons/fa';
 import { theme } from '@/config/theme';
-import { services } from '@/data/services';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import UniversalError from './UniversalError';
 
 function ServiceSkeleton() {
   return (
@@ -23,15 +27,78 @@ function ServiceSkeleton() {
 export default function Services() {
   const [language, setLanguage] = useState<'en' | 'ur'>('en');
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [servicesList, setServicesList] = useState<any[]>([]);
+  const [servicePage, setServicePage] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadServices = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch('/api/services');
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch services');
+      }
+      if (!result.data || !result.data.servicesList) {
+        throw new Error('No services data received');
+      }
+      setServicesList(result.data.servicesList);
+      if (result.data.servicePage) {
+        setServicePage(result.data.servicePage);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load services');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setTimeout(() => setIsLoading(false), 1000);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    loadServices();
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Filter services by language and showOnHomepage flag
-  const displayServices = services.servicesList
-    .filter(service => service.language === language && service.showOnHomepage)
-    .slice(0, 4);
+  const displayServices = servicesList.slice(0, 4);
+
+  // Helper for font family and direction
+  const getFontFamily = () => language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary;
+  const getDirection = () => language === 'ur' ? 'rtl' : 'ltr';
+  const getTextAlign = () => language === 'ur' ? 'text-right' : 'text-left';
+  const getFlexDirection = () => language === 'ur' ? 'flex-row-reverse' : '';
+
+  if (isLoading) {
+    return (
+      <section className="py-16" style={{ backgroundColor: theme.colors.background.secondary }}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="animate-pulse">
+              <div className="h-8 w-48 bg-gray-200 rounded mx-auto mb-6"></div>
+              <div className="h-64 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !servicesList.length) {
+    return (
+      <section className="py-16" style={{ backgroundColor: theme.colors.background.secondary }}>
+        <div className="max-w-7xl mx-auto px-4">
+          <UniversalError
+            error={error || 'Failed to load services'}
+            onRetry={loadServices}
+            sectionName="Services"
+          />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16" style={{ backgroundColor: theme.colors.background.secondary }}>
@@ -41,20 +108,20 @@ export default function Services() {
             className="text-3xl font-bold"
             style={{ 
               color: theme.colors.text.primary,
-              fontFamily: language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+              fontFamily: getFontFamily()
             }}
           >
-            {services.servicePage.title[language].text}
+            {servicePage?.title?.[language]?.text || ''}
           </h2>
           <div className="w-20 h-1 mx-auto mt-4" style={{ backgroundColor: theme.colors.primary }}></div>
           <p 
             className="mt-6 max-w-2xl mx-auto"
             style={{ 
               color: theme.colors.text.secondary,
-              fontFamily: language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+              fontFamily: getFontFamily()
             }}
           >
-            {services.servicePage.description[language].text}
+            {servicePage?.description?.[language]?.text || ''}
           </p>
           <div className="mt-6">
             <button
@@ -84,85 +151,173 @@ export default function Services() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {isLoading ? (
-            <>
-              <ServiceSkeleton />
-              <ServiceSkeleton />
-              <ServiceSkeleton />
-              <ServiceSkeleton />
-            </>
-          ) : (
-            displayServices.map((service) => {
-              const IconComponent = service.iconName ? Icons[service.iconName as keyof typeof Icons] : null;
-              const isUrdu = service.language === 'ur';
-              
-              return (
-                <Link 
-                  href={`/services/${service.slug}`} 
-                  key={service.id}
-                  className="block h-full"
-                >
-                  <div 
-                    className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform hover:scale-105 cursor-pointer h-full flex flex-col"
-                    style={{
-                      direction: isUrdu ? 'rtl' : 'ltr',
-                      fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
-                    }}
-                  >
-                    <div className="relative h-48">
-                      <Image
-                        src={service.heroImage}
-                        alt={service.title.text}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div 
-                      className={`p-6 flex-1 ${isUrdu ? 'text-right' : 'text-left'}`}
-                    >
-                      <div 
-                        className={`flex items-center mb-4 ${
-                          isUrdu ? 'flex-row-reverse' : ''
-                        }`}
+        {isMobile ? (
+          <div>
+            {isLoading ? (
+              <Swiper
+                modules={[Autoplay, Pagination]}
+                autoplay={{ delay: 4000, disableOnInteraction: false }}
+                pagination={{ clickable: true }}
+                loop={true}
+              >
+                {[0, 1, 2, 3].map((i) => (
+                  <SwiperSlide key={i}>
+                    <ServiceSkeleton />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            ) : (
+              <Swiper
+                modules={[Autoplay, Pagination]}
+                autoplay={{ delay: 4000, disableOnInteraction: false }}
+                pagination={{ clickable: true }}
+                loop={true}
+              >
+                {displayServices.map((service) => {
+                  const IconComponent = service.iconName ? Icons[service.iconName as keyof typeof Icons] : null;
+                  return (
+                    <SwiperSlide key={service.id}>
+                      <Link 
+                        href={`/services/${service.slug}`} 
+                        className="block h-full"
                       >
-                        {!isUrdu && IconComponent && (
-                          <IconComponent 
-                            className="text-4xl mr-3 flex-shrink-0"
-                            style={{ color: theme.colors.primary }}
-                          />
-                        )}
-                        <h3 
-                          className="text-xl font-semibold flex-1"
-                          style={{ 
-                            color: theme.colors.text.primary,
-                            fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary
+                        <div 
+                          className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform hover:scale-105 cursor-pointer h-full flex flex-col"
+                          style={{
+                            direction: getDirection(),
+                            fontFamily: getFontFamily(),
                           }}
                         >
-                          {service.title.text}
-                        </h3>
-                        {isUrdu && IconComponent && (
-                          <IconComponent 
-                            className="text-4xl ml-3 flex-shrink-0"
-                            style={{ color: theme.colors.primary }}
-                          />
-                        )}
+                          <div className="relative h-48">
+                            <Image
+                              src={service.heroImage}
+                              alt={service[language].title.text}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <div 
+                            className={`p-6 flex-1 ${getTextAlign()}`}
+                          >
+                            <div 
+                              className={`flex items-center mb-4 ${getFlexDirection()}`}
+                            >
+                              {language === 'en' && IconComponent && (
+                                <IconComponent 
+                                  className="text-4xl mr-3 flex-shrink-0"
+                                  style={{ color: theme.colors.primary }}
+                                />
+                              )}
+                              <h3 
+                                className="text-xl font-semibold flex-1"
+                                style={{ 
+                                  color: theme.colors.text.primary,
+                                  fontFamily: getFontFamily()
+                                }}
+                              >
+                                {service[language].title.text}
+                              </h3>
+                              {language === 'ur' && IconComponent && (
+                                <IconComponent 
+                                  className="text-4xl ml-3 flex-shrink-0"
+                                  style={{ color: theme.colors.primary }}
+                                />
+                              )}
+                            </div>
+                            <p 
+                              style={{ 
+                                color: theme.colors.text.secondary,
+                                fontFamily: getFontFamily()
+                              }}
+                            >
+                              {service[language].shortDescription.text}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {isLoading ? (
+              <>
+                <ServiceSkeleton />
+                <ServiceSkeleton />
+                <ServiceSkeleton />
+                <ServiceSkeleton />
+              </>
+            ) : (
+              displayServices.map((service) => {
+                const IconComponent = service.iconName ? Icons[service.iconName as keyof typeof Icons] : null;
+                return (
+                  <Link 
+                    href={`/services/${service.slug}`} 
+                    key={service.id}
+                    className="block h-full"
+                  >
+                    <div 
+                      className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform hover:scale-105 cursor-pointer h-full flex flex-col"
+                      style={{
+                        direction: getDirection(),
+                        fontFamily: getFontFamily(),
+                      }}
+                    >
+                      <div className="relative h-48">
+                        <Image
+                          src={service.heroImage}
+                          alt={service[language].title.text}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
-                      <p 
-                        style={{ 
-                          color: theme.colors.text.secondary,
-                          fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary
-                        }}
+                      <div 
+                        className={`p-6 flex-1 ${getTextAlign()}`}
                       >
-                        {service.shortDescription.text}
-                      </p>
+                        <div 
+                          className={`flex items-center mb-4 ${getFlexDirection()}`}
+                        >
+                          {language === 'en' && IconComponent && (
+                            <IconComponent 
+                              className="text-4xl mr-3 flex-shrink-0"
+                              style={{ color: theme.colors.primary }}
+                            />
+                          )}
+                          <h3 
+                            className="text-xl font-semibold flex-1"
+                            style={{ 
+                              color: theme.colors.text.primary,
+                              fontFamily: getFontFamily()
+                            }}
+                          >
+                            {service[language].title.text}
+                          </h3>
+                          {language === 'ur' && IconComponent && (
+                            <IconComponent 
+                              className="text-4xl ml-3 flex-shrink-0"
+                              style={{ color: theme.colors.primary }}
+                            />
+                          )}
+                        </div>
+                        <p 
+                          style={{ 
+                            color: theme.colors.text.secondary,
+                            fontFamily: getFontFamily()
+                          }}
+                        >
+                          {service[language].shortDescription.text}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              );
-            })
-          )}
-        </div>
+                  </Link>
+                );
+              })
+            )}
+          </div>
+        )}
       </div>
     </section>
   );
