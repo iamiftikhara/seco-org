@@ -252,7 +252,7 @@ export default function ServicesAdmin() {
     }
   };
 
-  const handleServiceChange = (field: keyof ServiceDetail, value: any) => {
+  const handleServiceChange = (field: keyof ServiceDetail, value: ServiceDetail[keyof ServiceDetail]) => {
     if (!selectedService) return;
     setSelectedService({ ...selectedService, [field]: value });
     setHasChanges(true);
@@ -264,7 +264,7 @@ export default function ServicesAdmin() {
   const getTextAlign = () => language === 'ur' ? 'text-right' : 'text-left';
 
   // ServicePage edit handlers
-  const handleServicePageChange = (field: keyof ServicePageContent, value: any) => {
+  const handleServicePageChange = (field: keyof ServicePageContent, value: ServicePageContent[keyof ServicePageContent]) => {
     if (!servicePage) return;
     setServicePage({ ...servicePage, [field]: value });
     setServicePageDirty(true);
@@ -312,7 +312,7 @@ export default function ServicesAdmin() {
   const homepageCount = services.filter(s => s.showOnHomepage && (!selectedService || s.id !== selectedService.id)).length;
 
   // Helper to update key features for the selected language
-  const updateKeyFeatures = (features: any[]) => {
+  const updateKeyFeatures = (features: KeyFeature[]) => {
     if (!selectedService) return;
     setSelectedService({
       ...selectedService,
@@ -324,7 +324,7 @@ export default function ServicesAdmin() {
     setHasChanges(true);
   };
   // Helper to update impact for the selected language
-  const updateImpact = (impact: any[]) => {
+  const updateImpact = (impact: ImpactMetric[]) => {
     if (!selectedService) return;
     setSelectedService({
       ...selectedService,

@@ -10,6 +10,7 @@ import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import UniversalError from './UniversalError';
+import type { ServiceDetail, ServicePageContent } from '@/types/services';
 
 function ServiceSkeleton() {
   return (
@@ -28,8 +29,8 @@ export default function Services() {
   const [language, setLanguage] = useState<'en' | 'ur'>('en');
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [servicesList, setServicesList] = useState<any[]>([]);
-  const [servicePage, setServicePage] = useState<any>(null);
+  const [servicesList, setServicesList] = useState<ServiceDetail[]>([]);
+  const [servicePage, setServicePage] = useState<ServicePageContent | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadServices = async () => {
