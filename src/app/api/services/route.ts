@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
+import type { ServiceDetail } from '@/types/services';
 
 export async function GET() {
   try {
@@ -14,7 +15,7 @@ export async function GET() {
     }
 
     // Only return services with showOnHomepage: true
-    const servicesList = servicesData.servicesList.filter((service: any) => service.showOnHomepage === true);
+    const servicesList = servicesData.servicesList.filter((service: ServiceDetail) => service.showOnHomepage === true);
     const servicePage = servicesData.servicePage || null;
 
     return NextResponse.json({
