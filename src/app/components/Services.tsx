@@ -37,7 +37,7 @@ export default function Services() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('/api/services');
+      const response = await fetch('/api/services?homepage=true');
       const result = await response.json();
       if (!result.success) {
         throw new Error(result.error || 'Failed to fetch services');

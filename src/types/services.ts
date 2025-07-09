@@ -51,27 +51,26 @@ export interface ServiceDetail {
   showOnHomepage: boolean;
   createdAt: Date;
   updatedAt: Date;
+  socialShare: SocialShare;
   en: {
-    title: TextWithLanguage;
-    shortDescription: TextWithLanguage;
-    fullDescription: TextWithLanguage;
-    impactTitle: TextWithLanguage;
-    keyFeaturesTitle: TextWithLanguage;
-    overviewTitle: TextWithLanguage;
-    keyFeatures: KeyFeature[];
-    impact: ImpactMetric[];
-    socialShare: SocialShare;
+    title: { text: string };
+    shortDescription: { text: string };
+    fullDescription: { text: string };
+    impactTitle: { text: string };
+    keyFeaturesTitle: { text: string };
+    overviewTitle: { text: string };
+    keyFeatures?: KeyFeature[];
+    impact?: ImpactMetric[];
   };
   ur: {
-    title: TextWithLanguage;
-    shortDescription: TextWithLanguage;
-    fullDescription: TextWithLanguage;
-    impactTitle: TextWithLanguage;
-    keyFeaturesTitle: TextWithLanguage;
-    overviewTitle: TextWithLanguage;
-    keyFeatures: KeyFeature[];
-    impact: ImpactMetric[];
-    socialShare: SocialShare;
+    title: { text: string };
+    shortDescription: { text: string };
+    fullDescription: { text: string };
+    impactTitle: { text: string };
+    keyFeaturesTitle: { text: string };
+    overviewTitle: { text: string };
+    keyFeatures?: KeyFeature[];
+    impact?: ImpactMetric[];
   };
 }
 
@@ -88,7 +87,17 @@ export interface ServicePageContent {
 }
 
 export interface Services {
-  servicePage: ServicePageContent;
+  servicePage: {
+    image: string;
+    title: {
+      en: { text: string };
+      ur: { text: string };
+    };
+    description: {
+      en: { text: string };
+      ur: { text: string };
+    };
+  };
   servicesList: ServiceDetail[];
 }
 

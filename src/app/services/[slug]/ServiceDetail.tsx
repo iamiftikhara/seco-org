@@ -4,14 +4,12 @@ import {useEffect, useState} from "react";
 import Image from "next/image";
 import {useParams} from "next/navigation";
 import * as Icons from "react-icons/fa";
-import { theme } from '@/config/theme';
-import Script from 'next/script';
+import {theme} from "@/config/theme";
+import Script from "next/script";
 
 import type {ServiceDetail} from "@/types/services";
-import {services} from "@/data/services";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
-import PageLoader from "@/app/components/PageLoader";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
 import Link from "next/link";
 import {FaArrowLeft, FaArrowRight} from "react-icons/fa";
@@ -57,192 +55,252 @@ function CountUpNumber({end, suffix = "", duration = 5000}: CountUpNumberProps) 
 export default function ServiceDetail() {
   const params = useParams();
   const [service, setService] = useState<ServiceDetail | null>(null);
-  const [pageLoading, setPageLoading] = useState(true);
-  const [dataLoading, setDataLoading] = useState(true);
+  const [servicesList, setServicesList] = useState<ServiceDetail[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [navigation, setNavigation] = useState<{prev: ServiceDetail | null; next: ServiceDetail | null}>({
-    prev: null,
-    next: null,
-  });
+  const [language, setLanguage] = useState<"en" | "ur" | "all">("en");
+  const [navigation, setNavigation] = useState<{prev: ServiceDetail | null; next: ServiceDetail | null}>({prev: null, next: null});
+  const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   const IconComponent = service?.iconName ? Icons[service.iconName as keyof typeof Icons] : null;
 
+  // Universal helpers for font, direction, and alignment
+  const getFontFamily = () => (language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary);
+  const getDirection = () => (language === "ur" ? "rtl" : "ltr");
+  const getTextAlign = () => (language === "ur" ? "text-right" : "text-left");
+  const getFlexDirection = () => (language === "ur" ? "flex-row-reverse" : "");
+
+  // Mobile detection useEffect
   useEffect(() => {
-    setPageLoading(false);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Set initial value
+    handleResize();
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
-    const fetchServiceDetail = async () => {
-      setDataLoading(true);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        // Update to use servicesList array
-        const service = services.servicesList.find((s) => s.slug === params.slug);
-        if (service) {
-          setService(service);
-          const currentIndex = services.servicesList.findIndex((s) => s.slug === params.slug);
+        console.log("Fetching services data...");
+        const response = await fetch("/api/services");
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("API result:", result);
+
+        if (!result.success) {
+          throw new Error(result.error || result.details || "Failed to fetch services");
+        }
+        if (!result.data || !result.data.servicesList) {
+          throw new Error("No services data received");
+        }
+
+        console.log("Services received:", result.data.servicesList.length);
+        setServicesList(result.data.servicesList);
+
+        const found = result.data.servicesList.find((s: ServiceDetail) => s.slug === params.slug);
+        console.log("Service found for slug:", params.slug, !!found);
+
+        setService(found || null);
+        if (found) {
+          const currentIndex = result.data.servicesList.findIndex((s: ServiceDetail) => s.slug === params.slug);
           setNavigation({
-            prev: currentIndex > 0 ? services.servicesList[currentIndex - 1] : null,
-            next: currentIndex < services.servicesList.length - 1 ? services.servicesList[currentIndex + 1] : null,
+            prev: currentIndex > 0 ? result.data.servicesList[currentIndex - 1] : null,
+            next: currentIndex < result.data.servicesList.length - 1 ? result.data.servicesList[currentIndex + 1] : null,
           });
         }
-      } catch (error) {
-        console.error("Error:", error);
+      } catch (err) {
+        console.error("Error fetching service data:", err);
+        setError(err instanceof Error ? err.message : "Failed to load service");
+      } finally {
+        setLoading(false);
       }
-      setDataLoading(false);
     };
-
     if (params.slug) {
-      fetchServiceDetail();
+      fetchData();
     }
   }, [params.slug]);
 
-  if (pageLoading) {
-    return <PageLoader />;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <LoadingSpinner />
+        <p className="text-gray-600 mt-4">Loading service details...</p>
+      </div>
+    );
   }
 
-
-
-  const structuredData = service ? {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": service.title.text,
-    "description": service.shortDescription.text,
-    "provider": {
-      "@type": "Organization",
-      "name": "SECO",
-      "url": typeof window !== "undefined" ? window.location.origin : ""
-    },
-    "image": service.heroImage,
-    "url": typeof window !== "undefined" ? window.location.href : "",
-    "areaServed": {
-      "@type": "Country",
-      "name": "Pakistan"
-    },
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": service.title.text,
-      "itemListElement": service.keyFeatures.map((feature) => ({
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service",
-          "name": feature.title.text,
-          "description": feature.description?.text
-        }
-      }))
-    },
-    "serviceOutput": service.impact.map((item) => ({
-      "@type": "Thing",
-      "name": item.label.text,
-      "value": item.value + (item.suffix || ""),
-      "identifier": item.iconName
-    })),
-    "additionalType": "NonprofitService",
-    "serviceType": service.title.text,
-    "category": service.socialShare.hashtags.join(", "),
-    "availableLanguage": [
-      service.language === "en" ? "English" : "Urdu"
-    ],
-    "sameAs": [
-      `https://twitter.com/${service.socialShare.twitterHandle.replace("@", "")}`
-    ],
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": typeof window !== "undefined" ? window.location.href : "",
-      "name": service.title.text,
-      "description": service.fullDescription.text
-    }
-  } : null;
+  // Structured data for SEO (use selected language)
+  const structuredData = service
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        name: language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text,
+        description: language === "all" ? `${service.en.shortDescription.text} / ${service.ur.shortDescription.text}` : service[language].shortDescription.text,
+        provider: {
+          "@type": "Organization",
+          name: "SECO",
+          url: typeof window !== "undefined" ? window.location.origin : "",
+        },
+        image: service.heroImage,
+        url: typeof window !== "undefined" ? window.location.href : "",
+        areaServed: {
+          "@type": "Country",
+          name: "Pakistan",
+        },
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text,
+          itemListElement: (language === "all" ? [...(service.en.keyFeatures || []), ...(service.ur.keyFeatures || [])] : service[language].keyFeatures || []).map((feature) => ({
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Service",
+              name: feature.title.text,
+              description: feature.description?.text,
+            },
+          })),
+        },
+        serviceOutput: (language === "all" ? [...(service.en.impact || []), ...(service.ur.impact || [])] : service[language].impact || []).map((item) => ({
+          "@type": "Thing",
+          name: item.label.text,
+          value: item.value + (item.suffix || ""),
+          identifier: item.iconName,
+        })),
+        additionalType: "NonprofitService",
+        serviceType: language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text,
+        category: service.socialShare.hashtags.join(", "),
+        availableLanguage: language === "all" ? ["English", "Urdu"] : [language === "en" ? "English" : "Urdu"],
+        sameAs: [`https://twitter.com/${service.socialShare.twitterHandle.replace("@", "")}`],
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": typeof window !== "undefined" ? window.location.href : "",
+          name: language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text,
+          description: language === "all" ? `${service.en.fullDescription.text} / ${service.ur.fullDescription.text}` : service[language].fullDescription.text,
+        },
+      }
+    : null;
 
   return (
     <>
-    {structuredData && (
-      <Script
-        id="structured-data"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-    )}
+      {structuredData && <Script id="structured-data" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{__html: JSON.stringify(structuredData)}} />}
       <Navbar />
-      {dataLoading ? (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-          <LoadingSpinner />
-          <p className="text-gray-600 mt-4">Loading service details...</p>
-        </div>
-      ) : !service ? (
+      {!service ? (
         <div className="min-h-screen flex flex-col items-center justify-center">
           <p className="text-xl text-gray-600">Service not found</p>
         </div>
       ) : (
         <div className="min-h-screen" style={{backgroundColor: theme.colors.background.primary}}>
-          <div className="relative h-[calc(100vh-20rem)] overflow-hidden">
-            <Image 
-              src={service.heroImage} 
-              alt={service.title.text} 
-              fill 
-              className={`object-cover transition-transform duration-[30s] ${isImageLoaded ? "scale-110" : "scale-100"}`} 
-              onLoadingComplete={() => setIsImageLoaded(true)} 
-              priority 
-            />
+          <div
+            className="relative overflow-hidden"
+            style={{ height: isMobile ? 'calc(100vh - 40rem)' : 'calc(100vh - 20rem)' }}
+          >
+            <Image src={service.heroImage} alt={language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text} fill className={`object-cover transition-transform duration-[30s] ${isImageLoaded ? "scale-110" : "scale-100"}`} onLoadingComplete={() => setIsImageLoaded(true)} priority />
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-10">
-            <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-              <div className={`flex items-center justify-center ${service.language === 'ur' ? 'flex-row-reverse' : ''}`}>
-                {IconComponent && <IconComponent className="text-5xl mx-3" style={{ color: theme.colors.primary }} />}
-                <h1 
-                  className="text-4xl font-bold"
-                  style={{ 
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
+            <div
+              className="bg-white rounded-lg shadow-xl text-center"
+              style={{ padding: isMobile ? '1rem' : '2rem' }}
+            >
+              <div className={`flex ${isMobile ? 'flex-col gap-3' : 'flex-row'} items-center justify-center ${getFlexDirection()}`}>
+                {IconComponent && (
+                  <IconComponent
+                    className={isMobile ? 'text-3xl' : 'text-5xl mx-3'}
+                    style={{color: theme.colors.primary}}
+                  />
+                )}
+                <h1
+                  className={`font-bold ${isMobile ? 'text-2xl text-center' : 'text-4xl'}`}
+                  style={{
                     color: theme.colors.text.primary,
-                    fontFamily: service.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+                    fontFamily: getFontFamily(),
                   }}
                 >
-                  {service.title.text}
+                  {language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text}
                 </h1>
               </div>
-              <p 
+              <p
                 className="text-lg mt-4 max-w-3xl mx-auto"
-                style={{ 
+                style={{
                   color: theme.colors.text.secondary,
-                  fontFamily: service.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+                  fontFamily: getFontFamily(),
                 }}
               >
-                {service.shortDescription.text}
+                {language === "all" ? `${service.en.shortDescription.text} / ${service.ur.shortDescription.text}` : service[language].shortDescription.text}
               </p>
+
+              {/* Language Toggle Buttons */}
+              <div className="mt-6 flex justify-center">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setLanguage("en")}
+                    className={`px-4 py-2 rounded transition-colors duration-300 mr-4`}
+                    style={{
+                      backgroundColor: language === "en" ? theme.colors.primary : "transparent",
+                      color: language === "en" ? "white" : theme.colors.text.primary,
+                      border: `1px solid ${theme.colors.primary}`,
+                      fontFamily: theme.fonts.en.primary,
+                    }}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => setLanguage("ur")}
+                    className={`px-4 py-2 rounded transition-colors duration-300`}
+                    style={{
+                      backgroundColor: language === "ur" ? theme.colors.primary : "transparent",
+                      color: language === "ur" ? "white" : theme.colors.text.primary,
+                      border: `1px solid ${theme.colors.primary}`,
+                      fontFamily: theme.fonts.ur.primary,
+                    }}
+                  >
+                    اردو
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="mt-12">
-              <h2 
-                className={`text-2xl font-bold mb-6 ${service.language === 'ur' ? 'text-right' : 'text-left'}`}
-                style={{ 
+              <h2
+                className={`text-2xl font-bold mb-6 ${getTextAlign()}`}
+                style={{
                   color: theme.colors.text.primary,
-                  fontFamily: service.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+                  fontFamily: getFontFamily(),
                 }}
               >
-                {service.impactTitle.text}
+                {language === "all" ? `${service.en.impactTitle.text} / ${service.ur.impactTitle.text}` : service[language].impactTitle.text}
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-                {service.impact.map((item, index) => {
+                {(language === "all" ? [...(service.en.impact || []), ...(service.ur.impact || [])] : service[language].impact || []).map((item, index) => {
                   const ImpactIcon = Icons[item.iconName as keyof typeof Icons];
                   return (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="text-center p-6 bg-white rounded-lg shadow-md transform hover:scale-105 transition-transform"
                       style={{
-                        fontFamily: item.label.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+                        fontFamily: getFontFamily(),
                       }}
                     >
-                      {ImpactIcon && <ImpactIcon className="text-4xl mx-auto mb-4" style={{ color: theme.colors.primary }} />}
-                      <h3 className="text-3xl font-bold" style={{ color: theme.colors.primary }}>
+                      {ImpactIcon && <ImpactIcon className="text-4xl mx-auto mb-4" style={{color: theme.colors.primary}} />}
+                      <h3 className="text-3xl font-bold" style={{color: theme.colors.primary}}>
                         <CountUpNumber end={item.value} suffix={item.suffix} />
                       </h3>
-                      <p 
-                        className="mt-2"
-                        style={{ color: theme.colors.text.secondary,
-                        fontFamily: item.label.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
-
-                         }}
-                      >
+                      <p className="mt-2" style={{color: theme.colors.text.secondary, fontFamily: getFontFamily()}}>
                         {item.label.text}
                       </p>
                     </div>
@@ -250,40 +308,31 @@ export default function ServiceDetail() {
                 })}
               </div>
 
-              <h2 
-                className={`text-2xl font-bold mb-6 ${service.language === 'ur' ? 'text-right' : 'text-left'}`}
-                style={{ 
+              <h2
+                className={`text-2xl font-bold mb-6 ${getTextAlign()}`}
+                style={{
                   color: theme.colors.text.primary,
-                  fontFamily: service.language === 'ur' ? theme.fonts.ur.secondary : theme.fonts.en.secondary
+                  fontFamily: getFontFamily(),
                 }}
               >
-                {service.keyFeaturesTitle.text}
+                {language === "all" ? `${service.en.keyFeaturesTitle.text} / ${service.ur.keyFeaturesTitle.text}` : service[language].keyFeaturesTitle.text}
               </h2>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-                {service.keyFeatures.map((feature) => (
-                  <li 
-                    key={feature.id} 
-                    className={`flex items-center ${service.language === 'ur' ? 'flex-row-reverse text-right' : ''}`}
-                    style={{ color: theme.colors.text.secondary }}
-                  >
-                    <span className="w-2 h-2 rounded-full mx-3" style={{ backgroundColor: theme.colors.primary }}></span>
+                {(language === "all" ? [...(service.en.keyFeatures || []), ...(service.ur.keyFeatures || [])] : service[language].keyFeatures || []).map((feature) => (
+                  <li key={feature.id} className={`flex items-center ${getFlexDirection()} ${getTextAlign()}`} style={{color: theme.colors.text.secondary}}>
+                    <span className="w-2 h-2 rounded-full mx-3" style={{backgroundColor: theme.colors.primary}}></span>
                     <div>
-                      <h3 
+                      <h3
                         className="font-semibold"
-                        style={{ 
+                        style={{
                           color: theme.colors.text.primary,
-                          fontFamily: feature.title.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+                          fontFamily: getFontFamily(),
                         }}
                       >
                         {feature.title.text}
                       </h3>
                       {feature.description && (
-                        <p 
-                          className="text-sm mt-1"
-                          style={{ 
-                            fontFamily: feature.description.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
-                          }}
-                        >
+                        <p className="text-sm mt-1" style={{fontFamily: getFontFamily()}}>
                           {feature.description.text}
                         </p>
                       )}
@@ -293,23 +342,23 @@ export default function ServiceDetail() {
               </ul>
 
               <div className="bg-gray-50 p-8 rounded-lg">
-                <h2 
-                  className={`text-2xl font-bold mb-6 ${service.language === 'ur' ? 'text-right' : 'text-left'}`}
-                  style={{ 
+                <h2
+                  className={`text-2xl font-bold mb-6 ${getTextAlign()}`}
+                  style={{
                     color: theme.colors.text.primary,
-                    fontFamily: service.language === 'ur' ? theme.fonts.ur.secondary : theme.fonts.en.secondary
+                    fontFamily: getFontFamily(),
                   }}
                 >
-                  {service.overviewTitle.text}
+                  {language === "all" ? `${service.en.overviewTitle.text} / ${service.ur.overviewTitle.text}` : service[language].overviewTitle.text}
                 </h2>
-                <p 
-                  className={`text-lg leading-relaxed ${service.language === 'ur'? 'text-right' : 'text-left'}`}
-                  style={{ 
+                <p
+                  className={`text-lg leading-relaxed ${getTextAlign()}`}
+                  style={{
                     color: theme.colors.text.secondary,
-                    fontFamily: service.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+                    fontFamily: getFontFamily(),
                   }}
                 >
-                  {service.fullDescription.text}
+                  {language === "all" ? `${service.en.fullDescription.text} / ${service.ur.fullDescription.text}` : service[language].fullDescription.text}
                 </p>
               </div>
             </div>
@@ -317,58 +366,96 @@ export default function ServiceDetail() {
             {/* Add Social Share Component */}
             <div className="mt-8">
               <SocialShare
-                title={service.socialShare.title.text}
-                description={service.socialShare.description.text}
-                url={typeof window !== 'undefined' ? window.location.href : ''}
+                title={service.socialShare?.title?.text || (language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text)}
+                description={service.socialShare?.description?.text || (language === "all" ? `${service.en.shortDescription.text} / ${service.ur.shortDescription.text}` : service[language].shortDescription.text)}
+                url={typeof window !== "undefined" ? window.location.href : ""}
                 image={service.heroImage}
-                language={service.language}
-                hashtags={service.socialShare.hashtags}
-                twitterHandle={service.socialShare.twitterHandle}
-                ogType={service.socialShare.ogType}
+                language={language === "all" ? "en" : language}
+                hashtags={service.socialShare?.hashtags || []}
+                twitterHandle={service.socialShare?.twitterHandle || ""}
+                ogType={service.socialShare?.ogType || "article"}
               />
             </div>
 
             {/* Navigation Section */}
-            <div className="max-w-7xl mx-auto py-12">
-              <div className="flex justify-between items-center border-t border-gray-200 pt-8">
+            <div
+              className="max-w-7xl mx-auto border-t border-gray-200"
+              style={{
+                padding: isMobile ? '1rem' : '2rem 1rem',
+                paddingTop: isMobile ? '1.5rem' : '2rem'
+              }}
+            >
+              <div className={`flex ${isMobile ? 'flex-col gap-4' : 'flex-row'} justify-between items-stretch ${isMobile ? '' : 'items-center'}`}>
                 {navigation.prev ? (
                   <Link
                     href={`/services/${navigation.prev.slug}`}
-                    className="group flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-300"
+                    className="group flex items-center rounded-lg transition-colors duration-300"
                     style={{
                       backgroundColor: theme.colors.background.secondary,
                       color: theme.colors.text.primary,
-                      fontFamily: navigation.prev.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+                      fontFamily: getFontFamily(),
+                      padding: isMobile ? '0.75rem' : '1rem',
+                      gap: isMobile ? '0.5rem' : '0.75rem',
+                      width: isMobile ? '100%' : 'auto'
                     }}
                   >
-                    <FaArrowLeft className="group-hover:-translate-x-1 transition-transform duration-300" />
-                    <div>
-                      <div className="text-sm opacity-75">Previous Service</div>
-                      <div className="font-medium">{navigation.prev.title.text}</div>
+                    <FaArrowLeft
+                      className="group-hover:-translate-x-1 transition-transform duration-300 flex-shrink-0"
+                      style={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
+                    />
+                    <div className={isMobile ? 'min-w-0 flex-1' : ''}>
+                      <div
+                        className="opacity-75"
+                        style={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
+                      >
+                        Previous Service
+                      </div>
+                      <div
+                        className={`font-medium ${isMobile ? 'truncate' : ''}`}
+                        style={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
+                      >
+                        {language === "all" ? `${navigation.prev.en.title.text} / ${navigation.prev.ur.title.text}` : navigation.prev[language].title.text}
+                      </div>
                     </div>
                   </Link>
                 ) : (
-                  <div />
+                  <div style={{ width: isMobile ? '100%' : 'auto' }} />
                 )}
 
                 {navigation.next ? (
                   <Link
                     href={`/services/${navigation.next.slug}`}
-                    className="group flex items-center gap-2 px-4 py-2 rounded-lg text-right transition-colors duration-300"
+                    className="group flex items-center rounded-lg transition-colors duration-300"
                     style={{
                       backgroundColor: theme.colors.background.secondary,
                       color: theme.colors.text.primary,
-                      fontFamily: navigation.next.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
+                      fontFamily: getFontFamily(),
+                      padding: isMobile ? '0.75rem' : '1rem',
+                      gap: isMobile ? '0.5rem' : '0.75rem',
+                      width: isMobile ? '100%' : 'auto'
                     }}
                   >
-                    <div>
-                      <div className="text-sm opacity-75">Next Service</div>
-                      <div className="font-medium">{navigation.next.title.text}</div>
+                    <div className={`${isMobile ? 'min-w-0 flex-1 text-right' : 'text-left'}`}>
+                      <div
+                        className="opacity-75"
+                        style={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
+                      >
+                        Next Service
+                      </div>
+                      <div
+                        className={`font-medium ${isMobile ? 'truncate' : ''}`}
+                        style={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
+                      >
+                        {language === "all" ? `${navigation.next.en.title.text} / ${navigation.next.ur.title.text}` : navigation.next[language].title.text}
+                      </div>
                     </div>
-                    <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300" />
+                    <FaArrowRight
+                      className="group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0"
+                      style={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
+                    />
                   </Link>
                 ) : (
-                  <div />
+                  <div style={{ width: isMobile ? '100%' : 'auto' }} />
                 )}
               </div>
             </div>

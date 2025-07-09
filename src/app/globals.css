@@ -381,10 +381,11 @@ body {
 
   button, a {
     font-size: 0.9rem;
-    padding-inline: .8rem;
+    /* padding-inline: .8rem; */
     padding-block: 0.3rem;
   }
 
 
 
 }
+

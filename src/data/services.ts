@@ -32,6 +32,13 @@ export const services: Services = {
       showOnHomepage: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      socialShare: {
+        title: { text: "Sustainable Agriculture: Empowering Farmers with Modern Practices" },
+        description: { text: "Discover how we're empowering farmers with sustainable agricultural practices while preserving traditional knowledge. Join us in building a sustainable future for farming." },
+        hashtags: ["SustainableAgriculture", "FarmingPractices", "Sustainability", "ModernFarming"],
+        twitterHandle: "@YourOrganization",
+        ogType: "article"
+      },
       en: {
         title: { text: "Sustainable Agriculture" },
         shortDescription: { text: "Empowering farmers with sustainable practices" },
@@ -67,13 +74,7 @@ export const services: Services = {
             iconName: "FaGlobe",
           },
         ],
-        socialShare: {
-          title: { text: "Sustainable Agriculture: Empowering Farmers with Modern Practices" },
-          description: { text: "Discover how we're empowering farmers with sustainable agricultural practices while preserving traditional knowledge. Join us in building a sustainable future for farming." },
-          hashtags: ["SustainableAgriculture", "FarmingPractices", "Sustainability", "ModernFarming"],
-          twitterHandle: "@YourOrganization",
-          ogType: "article"
-        },
+
       },
       ur: {
         title: { text: "پائیدار زراعت" },
@@ -110,13 +111,6 @@ export const services: Services = {
             iconName: "FaGlobe",
           },
         ],
-        socialShare: {
-          title: { text: "پائیدار زراعت: کسانوں کو جدید طریقوں سے بااختیار بنانا" },
-          description: { text: "جانیں کہ ہم کیسے روایتی علم کو برقرار رکھتے ہوئے کسانوں کو پائیدار زرعی طریقوں سے آراستہ کر رہے ہیں۔ زراعت کے پائیدار مستقبل کی تعمیر میں ہمارے ساتھ شامل ہوں۔" },
-          hashtags: ["پائیدارزراعت", "زرعیترقی", "جدیدکاشتکاری", "کسان"],
-          twitterHandle: "@YourOrganization",
-          ogType: "article"
-        },
       }
     },
 
@@ -129,6 +123,19 @@ export const services: Services = {
       showOnHomepage: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      socialShare: {
+        title: {
+          text: "Education & Training: Building Community Capacity Through Knowledge",
+
+        },
+        description: {
+          text: "Explore our comprehensive educational programs and vocational training initiatives empowering communities with essential skills and knowledge for a better future.",
+
+        },
+        hashtags: ["Education", "VocationalTraining", "CommunityDevelopment", "SkillsDevelopment"],
+        twitterHandle: "@YourOrganization",
+        ogType: "article"
+      },
       en: {
         title: {
           text: "Education & Training"
@@ -292,19 +299,7 @@ export const services: Services = {
           },
         ],
 
-        socialShare: {
-          title: {
-            text: "Education & Training: Building Community Capacity Through Knowledge",
 
-          },
-          description: {
-            text: "Explore our comprehensive educational programs and vocational training initiatives empowering communities with essential skills and knowledge for a better future.",
-
-          },
-          hashtags: ["Education", "VocationalTraining", "CommunityDevelopment", "SkillsDevelopment"],
-          twitterHandle: "@YourOrganization",
-          ogType: "article"
-        },
       },
       ur: {
         title: {
@@ -477,19 +472,6 @@ export const services: Services = {
             },
           },
         ],
-        socialShare: {
-          title: {
-            text: "تعلیم و تربیت: علم کے ذریعے کمیونٹی کی صلاحیتوں کی تعمیر",
-
-          },
-          description: {
-            text: "بہتر مستقبل کے لیے ضروری مہارتوں اور علم کے ساتھ کمیونٹیز کو بااختیار بنانے والے ہمارے جامع تعلیمی پروگرامز اور پیشہ ورانہ تربیت کے اقدامات دریافت کریں۔",
-
-          },
-          hashtags: ["تعلیم", "پیشہورانہتربیت", "کمیونٹیترقی", "مہارتیںترقی"],
-          twitterHandle: "@YourOrganization",
-          ogType: "article"
-        },
       },
     },
 
@@ -502,6 +484,19 @@ export const services: Services = {
       showOnHomepage: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      socialShare: {
+        title: {
+          text: "Community Development: Building Resilient Communities Together",
+
+        },
+        description: {
+          text: "Learn about our community development initiatives focused on building resilient and self-sustaining communities through participatory approaches.",
+
+        },
+        hashtags: ["CommunityDevelopment", "Resilience", "SustainableDevelopment", "Community"],
+        twitterHandle: "@YourOrganization",
+        ogType: "article"
+      },
       en: {
         title: {
           text: "Community Development",
@@ -594,19 +589,7 @@ export const services: Services = {
             iconName: "FaPeopleCarry",
           },
         ],
-        socialShare: {
-          title: {
-            text: "Community Development: Building Resilient Communities Together",
 
-          },
-          description: {
-            text: "Learn about our community development initiatives focused on building resilient and self-sustaining communities through participatory approaches.",
-
-          },
-          hashtags: ["CommunityDevelopment", "Resilience", "SustainableDevelopment", "Community"],
-          twitterHandle: "@YourOrganization",
-          ogType: "article"
-        },
       },
       ur: {
         title: {
@@ -699,19 +682,6 @@ export const services: Services = {
             iconName: "FaPeopleCarry",
           },
         ],
-        socialShare: {
-          title: {
-            text: "کمیونٹی کی ترقی: مل کر مضبوط کمیونٹیز کی تعمیر",
-
-          },
-          description: {
-            text: "شراکت داری کے طریقوں کے ذریعے مضبوط اور خود انحصار کمیونٹیز کی تعمیر پر مرکوز ہماری کمیونٹی ترقی کے اقدامات کے بارے میں جانیں۔",
-
-          },
-          hashtags: ["کمیونٹیترقی", "استحکام", "پائیدارترقی", "کمیونٹی"],
-          twitterHandle: "@YourOrganization",
-          ogType: "article"
-        },
       }
     },
 
@@ -724,6 +694,19 @@ export const services: Services = {
       showOnHomepage: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      socialShare: {
+        title: {
+          text: "Infrastructure Support: Building Foundations for Better Lives",
+
+        },
+        description: {
+          text: "Discover how we're helping communities develop and maintain essential infrastructure for improved quality of life and sustainable development.",
+
+        },
+        hashtags: ["Infrastructure", "CommunityDevelopment", "SustainableDevelopment", "QualityOfLife"],
+        twitterHandle: "@YourOrganization",
+        ogType: "article"
+      },
       en: {
 
         title: {
@@ -818,19 +801,6 @@ export const services: Services = {
             iconName: "FaTools",
           },
         ],
-        socialShare: {
-          title: {
-            text: "Infrastructure Support: Building Foundations for Better Lives",
-
-          },
-          description: {
-            text: "Discover how we're helping communities develop and maintain essential infrastructure for improved quality of life and sustainable development.",
-
-          },
-          hashtags: ["Infrastructure", "CommunityDevelopment", "SustainableDevelopment", "QualityOfLife"],
-          twitterHandle: "@YourOrganization",
-          ogType: "article"
-        },
       },
       ur: {
         title: {
@@ -924,19 +894,6 @@ export const services: Services = {
             iconName: "FaTools",
           },
         ],
-        socialShare: {
-          title: {
-            text: "بنیادی ڈھانچہ: بہتر زندگی کی بنیادوں کی تعمیر",
-
-          },
-          description: {
-            text: "جانیں کہ ہم کیسے کمیونٹیز کو بہتر معیار زندگی اور پائیدار ترقی کے لیے ضروری بنیادی ڈھانچے کی تعمیر اور دیکھ بھال میں مدد کر رہے ہیں۔",
-
-          },
-          hashtags: ["بنیادیڈھانچہ", "کمیونٹیترقی", "پائیدارترقی", "معیارزندگی"],
-          twitterHandle: "@YourOrganization",
-          ogType: "article"
-        },
       }
     }
 

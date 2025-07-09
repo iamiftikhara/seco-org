@@ -25,6 +25,7 @@ export default function ImageSelector({
   const [showGallery, setShowGallery] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingImages, setIsLoadingImages] = useState(false); // New state for image loading
+  const [showSizeWarning, setShowSizeWarning] = useState(false); // New state for size warning popup
 
   const fetchImages = useCallback(async () => {
     setIsLoadingImages(true); // Set loading to true before fetching
@@ -54,6 +55,15 @@ export default function ImageSelector({
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Check file size (200KB = 200 * 1024 bytes)
+    const maxSizeInBytes = 200 * 1024; // 200KB
+    if (file.size > maxSizeInBytes) {
+      setShowSizeWarning(true);
+      // Reset the input value so the same file can be selected again after compression
+      event.target.value = '';
+      return;
+    }
 
     const formData = new FormData();
     formData.append('image', file);
@@ -159,10 +169,11 @@ export default function ImageSelector({
                 Select Image
               </h3>
               <button
+                type="button"
                 onClick={() => setShowGallery(false)}
                 className="p-2 rounded-lg hover:bg-gray-100"
               >
-                <FiX className="w-5 h-5" />
+                <FiX className="w-5 h-5 text-gray-700" />
               </button>
             </div>
 
@@ -221,6 +232,60 @@ export default function ImageSelector({
                 No images found. Upload a new one!
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Size Warning Popup */}
+      {showSizeWarning && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShowSizeWarning(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 max-w-md w-full mx-4"
+            style={{ backgroundColor: theme.colors.background.primary }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-red-600">
+                Image Too Large
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowSizeWarning(false)}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <FiX className="w-5 h-5 text-gray-700" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-gray-700 mb-3">
+                The selected image is larger than 200KB. Please compress your image before uploading.
+              </p>
+              <p className="text-sm text-gray-600 mb-4">
+                We recommend compressing your image to reduce file size while maintaining quality.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <a
+                href="https://imagecompressor.11zon.com/en/image-compressor/compress-image-to-20kb-online"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-center"
+              >
+                Compress Image Online
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowSizeWarning(false)}
+                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
