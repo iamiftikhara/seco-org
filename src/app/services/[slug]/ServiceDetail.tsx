@@ -104,6 +104,11 @@ export default function ServiceDetail() {
         console.log("API result:", result);
 
         if (!result.success) {
+          // Check if it's an empty state
+          if (result.isEmpty) {
+            setError(result.message || 'No services are currently available. Please check back later.');
+            return;
+          }
           throw new Error(result.error || result.details || "Failed to fetch services");
         }
         if (!result.data || !result.data.servicesList) {
@@ -199,9 +204,48 @@ export default function ServiceDetail() {
     <>
       {structuredData && <Script id="structured-data" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{__html: JSON.stringify(structuredData)}} />}
       <Navbar />
-      {!service ? (
+      {error ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center max-w-md mx-auto p-8">
+            <div className="mb-6">
+              <svg
+                className="mx-auto h-16 w-16 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6"
+                />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">
+              {error.includes('No services are currently available') ? 'Services Coming Soon' : 'Service Not Found'}
+            </h1>
+            <p className="text-gray-600 mb-6 leading-relaxed">{error}</p>
+            <div className="space-y-3">
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Refresh Page
+              </button>
+              <a
+                href="/"
+                className="block w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Go to Homepage
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : !service ? (
         <div className="min-h-screen flex flex-col items-center justify-center">
-          <p className="text-xl text-gray-600">Service not found</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-xl text-gray-600">Loading service...</p>
         </div>
       ) : (
         <div className="min-h-screen" style={{backgroundColor: theme.colors.background.primary}}>

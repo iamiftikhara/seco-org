@@ -718,7 +718,7 @@ export default function ServicesAdmin() {
     try {
       updateFormState({ isSaving: true });
       let response;
-      let payload = { ...formState.selectedService };
+      const payload = { ...formState.selectedService };
 
       const isNewService = !formState.selectedService.id || formState.selectedService.id === "";
 

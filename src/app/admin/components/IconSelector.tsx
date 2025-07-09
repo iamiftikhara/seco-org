@@ -260,7 +260,7 @@ export default function IconSelector({
 
             {getFilteredIcons().length === 0 && (
               <div className="text-center text-gray-500 py-8">
-                No icons found for "{searchTerm}"
+                No icons found for &ldquo;{searchTerm}&rdquo;
               </div>
             )}
           </div>
