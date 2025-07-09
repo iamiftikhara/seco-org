@@ -41,7 +41,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchUserProfile();
-  }, []);
+  }, [fetchUserProfile]);
 
   const fetchUserProfile = async () => {
     try {

@@ -28,7 +28,7 @@ export default function NavbarAdmin() {
 
   useEffect(() => {
     fetchNavbarData();
-  }, []);
+  }, [fetchNavbarData]);
 
   useEffect(() => {
     if (formData && originalData) {

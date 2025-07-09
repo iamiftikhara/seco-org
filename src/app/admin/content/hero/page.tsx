@@ -96,7 +96,7 @@ export default function HeroSection() {
     } catch (error) {
       handleErrorResponse(error as Response, 'get');
     }
-  }, [router]);
+  }, [router, handleErrorResponse]);
 
   useEffect(() => {
     fetchHeroData();

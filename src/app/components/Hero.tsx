@@ -41,7 +41,7 @@ export default function Hero() {
 
   useEffect(() => {
     fetchHeroData();
-  }, []);
+  }, [fetchHeroData]);
 
   useEffect(() => {
     const handleResize = () => {
