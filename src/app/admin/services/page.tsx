@@ -718,6 +718,7 @@ export default function ServicesAdmin() {
     try {
       updateFormState({ isSaving: true });
       let response;
+      // eslint-disable-next-line prefer-const
       let payload = { ...formState.selectedService };
 
       const isNewService = !formState.selectedService.id || formState.selectedService.id === "";

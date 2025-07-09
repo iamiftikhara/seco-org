@@ -233,12 +233,12 @@ export default function ServiceDetail() {
               >
                 Refresh Page
               </button>
-              <a
+              <Link
                 href="/"
                 className="block w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Go to Homepage
-              </a>
+              </Link>
             </div>
           </div>
         </div>

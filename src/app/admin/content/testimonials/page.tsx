@@ -85,7 +85,7 @@ export default function TestimonialsSection() {
     } catch (error) {
       handleErrorResponse(error as Response, "get");
     }
-  }, [router, handleErrorResponse]);
+  }, [handleErrorResponse]);
 
   useEffect(() => {
     fetchTestimonialsData();

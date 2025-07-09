@@ -1,6 +1,6 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useCallback} from "react";
 import Image from "next/image";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {Autoplay, Navigation, Pagination} from "swiper/modules";
@@ -19,7 +19,7 @@ export default function Hero() {
 
   const [heroData, setHeroData] = useState<HeroData | null>(null);
 
-  const fetchHeroData = async () => {
+  const fetchHeroData = useCallback(async () => {
     try {
       const response = await fetch("/api/hero");
 
@@ -37,7 +37,7 @@ export default function Hero() {
     } finally {
       setGlobalLoading(false);
     }
-  };
+  }, [setGlobalError, setGlobalLoading]);
 
   useEffect(() => {
     fetchHeroData();

@@ -9,8 +9,11 @@ const dbName = "seco_org";
 
 // Global variables for singleton pattern
 declare global {
+  // eslint-disable-next-line no-var
   var _mongoClient: MongoClient | undefined;
+  // eslint-disable-next-line no-var
   var _mongoDb: Db | undefined;
+  // eslint-disable-next-line no-var
   var _mongoPromise: Promise<MongoClient> | undefined;
 }
 

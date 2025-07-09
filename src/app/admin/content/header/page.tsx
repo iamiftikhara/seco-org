@@ -1,6 +1,6 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useCallback} from "react";
 import {theme} from "@/config/theme";
 import {FiEdit2, FiSave, FiX, FiImage, FiType} from "react-icons/fi";
 import {showAlert, showConfirmDialog} from "@/utils/alert";
@@ -25,16 +25,6 @@ export default function NavbarAdmin() {
     error: null as string | null,
     success: false,
   });
-
-  useEffect(() => {
-    fetchNavbarData();
-  }, [fetchNavbarData]);
-
-  useEffect(() => {
-    if (formData && originalData) {
-      setIsDirty(JSON.stringify(formData) !== JSON.stringify(originalData));
-    }
-  }, [formData, originalData]);
 
   const handleErrorResponse = async (response: Response, identifier: string = "default") => {
     setIsLoading(false);
@@ -64,7 +54,7 @@ export default function NavbarAdmin() {
     });
   };
 
-  const fetchNavbarData = async () => {
+  const fetchNavbarData = useCallback(async () => {
     try {
       const response = await fetch("/api/admin/navbar");
       const data = await response.json();
@@ -78,7 +68,17 @@ export default function NavbarAdmin() {
     } catch (error) {
       handleErrorResponse(error as Response, "get");
     }
-  };
+  }, [handleErrorResponse]);
+
+  useEffect(() => {
+    fetchNavbarData();
+  }, [fetchNavbarData]);
+
+  useEffect(() => {
+    if (formData && originalData) {
+      setIsDirty(JSON.stringify(formData) !== JSON.stringify(originalData));
+    }
+  }, [formData, originalData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
