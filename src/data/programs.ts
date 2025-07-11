@@ -1,356 +1,307 @@
-import {Program} from "@/types/programs";
+import { Programs } from "@/types/programs";
 
-export const programs: Program = {
-  programsPage: {
-    en: {
-      title: "Our Programs",
-      description: "Discover our initiatives that are making a difference in communities across Balochistan",
+export const programs: Programs = {
+  programPage: {
+    image: "/images/programs-hero2.jpg",
+    title: {
+      en: { text: "Our Programs" },
+      ur: { text: "ہمارے پروگرامز" }
     },
-    ur: {
-      title: "ہمارے پروگرامز",
-      description: "بلوچستان کی کمیونٹیز میں تبدیلی لانے والے ہمارے اقدامات کو جانیں",
-    },
-    hero: {
-      image: "/images/programs-hero2.jpg",
-      alt: "Our Programs",
-    },
-  },
-  HomePage: {
-    en: {
-      title: "Our Programs",
-      viewAll: "View All Programs",
-      switchLanguage: "اردو",
-    },
-    ur: {
-      title: "ہمارے پروگرامز",
-      viewAll: "تمام پروگرامز دیکھیں",
-      switchLanguage: "English",
-    },
+    description: {
+      en: { text: "Discover our initiatives that are making a difference in communities across Balochistan" },
+      ur: { text: "بلوچستان کی کمیونٹیز میں تبدیلی لانے والے ہمارے اقدامات کو جانیں" }
+    }
   },
   programsList: [
-    // English Programs
     {
       id: "1",
-      title: {text: "Sustainable Agriculture", language: "en"},
       slug: "sustainable-agriculture",
-      shortDescription: {text: "Empowering farmers with modern agricultural practices", language: "en"},
-      fullDescription: {text: "Our sustainable agriculture program focuses on empowering local farmers with modern farming techniques while preserving traditional knowledge...", language: "en"},
       featuredImage: "/images/project1.jpeg",
-      category: {text: "Agriculture", language: "en"},
-      impact: [
-        {label: {text: "Farmers Benefited", language: "en"}, value: "500", suffix: "+"},
-        {label: {text: "Hectares Covered", language: "en"}, value: "1000", suffix: "+"},
-        {label: {text: "Villages Reached", language: "en"}, value: "25", suffix: "+"},
-        {label: {text: "Training Sessions", language: "en"}, value: "100", suffix: "+"},
-      ],
-      iconStats: [
-        {icon: "FaSeedling", value: "12", label: {text: "Demonstration Farms", language: "en"}},
-        {icon: "FaHandHoldingWater", value: "15", label: {text: "Water Projects", language: "en"}},
-        {icon: "FaUsers", value: "50+", label: {text: "Community Groups", language: "en"}},
-        {icon: "FaLeaf", value: "8", label: {text: "Organic Farms", language: "en"}},
-      ],
-      partners: [
-        {name: {text: "Agricultural Research Institute", language: "en"}, logo: "/images/ari-logo.jpg"},
-        {name: {text: "FAO Pakistan", language: "en"}, logo: "/images/fao-logo.jpg"},
-        {name: {text: "Local Farmers Association", language: "en"}, logo: "/images/lfa-logo.jpg"},
-      ],
-      language: "en",
-      showOnHomepage: true,
       isActive: true,
+      showOnHomepage: true,
       createdAt: new Date(),
       updatedAt: new Date(),
-      duration: {text: "2 Years (2023-2025)", language: "en"},
-      coverage: {text: "5 Districts in Balochistan", language: "en"},
       socialShare: {
-        title: {text: "Sustainable Agriculture in Balochistan", language: "en"},
-        description: {text: "Empowering local farmers with modern agricultural practices while preserving traditional knowledge. Join us in transforming agriculture in Balochistan!", language: "en"},
+        title: { text: "Sustainable Agriculture in Balochistan" },
+        description: { text: "Empowering local farmers with modern agricultural practices while preserving traditional knowledge. Join us in transforming agriculture in Balochistan!" },
         hashtags: ["SustainableAgriculture", "FarmingPakistan", "BalochistanFarmers", "ModernFarming"],
         twitterHandle: "SECOPakistan",
         ogType: "article"
       },
-    },
-
-    // Urdu Programs
-    {
-      id: "1-ur",
-      title: {text: "پائیدار زراعت", language: "ur"},
-      slug: "sustainable-agriculture-ur",
-      shortDescription: {text: "جدید زرعی طریقوں کے ساتھ کسانوں کو بااختیار بنانا", language: "ur"},
-      fullDescription: {text: "ہمارا پائیدار زراعت پروگرام روایتی علم کو برقرار رکھتے ہوئے جدید کاشتکاری کی تکنیکوں کے ساتھ مقامی کسانوں کو بااختیار بنانے پر توجہ مرکوز کرتا ہے...", language: "ur"},
-      featuredImage: "/images/project1.jpeg",
-      category: {text: "زراعت", language: "ur"},
-      impact: [
-        {label: {text: "فائدہ اٹھانے والے کسان", language: "ur"}, value: "500", suffix: "+"},
-        {label: {text: "احاطہ کردہ ہیکٹر", language: "ur"}, value: "1000", suffix: "+"},
-        {label: {text: "متاثرہ دیہات", language: "ur"}, value: "25", suffix: "+"},
-        {label: {text: "تربیتی سیشنز", language: "ur"}, value: "100", suffix: "+"},
-      ],
-      iconStats: [
-        {icon: "FaSeedling", value: "12", label: {text: "مظاہرہ فارمز", language: "ur"}},
-        {icon: "FaHandHoldingWater", value: "15", label: {text: "پانی کے منصوبے", language: "ur"}},
-        {icon: "FaUsers", value: "50+", label: {text: "کمیونٹی گروپس", language: "ur"}},
-        {icon: "FaLeaf", value: "8", label: {text: "نباتاتی فارمز", language: "ur"}},
-      ],
-      partners: [
-        {name: {text: "زرعی تحقیقاتی ادارہ", language: "ur"}, logo: "/images/ari-logo.jpg"},
-        {name: {text: "ایف اے او پاکستان", language: "ur"}, logo: "/images/fao-logo.jpg"},
-        {name: {text: "مقامی کسان ایسوسی ایشن", language: "ur"}, logo: "/images/lfa-logo.jpg"},
-      ],
-      language: "ur",
-      showOnHomepage: true,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      duration: {text: "2 سال (2023-2025)", language: "ur"},
-      coverage: {text: "بلوچستان کے 5 اضلاع", language: "ur"},
-      socialShare: {
-        title: {text: "بلوچستان میں پائیدار زراعت", language: "ur"},
-        description: {text: "روایتی علم کو برقرار رکھتے ہوئے جدید زرعی طریقوں کے ساتھ مقامی کسانوں کو بااختیار بنانا۔ بلوچستان میں زراعت کی تبدیلی میں ہمارے ساتھ شامل ہوں!", language: "ur"},
-        hashtags: ["پائیدارزراعت", "زراعتپاکستان", "بلوچستانکسان", "جدیدکاشتکاری"],
-        twitterHandle: "SECOPakistan",
-        ogType: "article"
+      en: {
+        title: { text: "Sustainable Agriculture" },
+        shortDescription: { text: "Empowering farmers with modern agricultural practices" },
+        fullDescription: { text: "Our sustainable agriculture program focuses on empowering local farmers with modern farming techniques while preserving traditional knowledge. Through comprehensive training programs, demonstration farms, and community-based approaches, we're helping farmers increase productivity while maintaining environmental sustainability." },
+        category: { text: "Agriculture" },
+        duration: { text: "2 Years (2023-2025)" },
+        coverage: { text: "5 Districts in Balochistan" },
+        impactTitle: { text: "Program Impact" },
+        iconStatsTitle: { text: "Key Statistics" },
+        partnersTitle: { text: "Our Partners" },
+        impact: [
+          { id: "impact-1", label: { text: "Farmers Benefited" }, value: "500", suffix: "+", iconName: "FaUsers" },
+          { id: "impact-2", label: { text: "Hectares Covered" }, value: "1000", suffix: "+", iconName: "FaLeaf" },
+          { id: "impact-3", label: { text: "Villages Reached" }, value: "25", suffix: "+", iconName: "FaHome" },
+          { id: "impact-4", label: { text: "Training Sessions" }, value: "100", suffix: "+", iconName: "FaGraduationCap" }
+        ],
+        iconStats: [
+          { id: "stat-1", label: { text: "Demonstration Farms" }, value: "12", iconName: "FaSeedling" },
+          { id: "stat-2", label: { text: "Water Projects" }, value: "15", iconName: "FaHandHoldingWater" },
+          { id: "stat-3", label: { text: "Community Groups" }, value: "50+", iconName: "FaUsers" },
+          { id: "stat-4", label: { text: "Organic Farms" }, value: "8", iconName: "FaLeaf" }
+        ],
+        partners: [
+          { id: "partner-1", name: { text: "Agricultural Research Institute" }, logo: "/images/ari-logo.jpg" },
+          { id: "partner-2", name: { text: "FAO Pakistan" }, logo: "/images/fao-logo.jpg" },
+          { id: "partner-3", name: { text: "Local Farmers Association" }, logo: "/images/lfa-logo.jpg" }
+        ]
       },
+      ur: {
+        title: { text: "پائیدار زراعت" },
+        shortDescription: { text: "جدید زرعی طریقوں کے ساتھ کسانوں کو بااختیار بنانا" },
+        fullDescription: { text: "ہمارا پائیدار زراعت پروگرام روایتی علم کو برقرار رکھتے ہوئے جدید کاشتکاری کی تکنیکوں کے ساتھ مقامی کسانوں کو بااختیار بنانے پر توجہ مرکوز کرتا ہے۔ جامع تربیتی پروگرامز، مظاہرہ فارمز، اور کمیونٹی پر مبنی نقطہ نظر کے ذریعے، ہم کسانوں کو ماحولیاتی پائیداری برقرار رکھتے ہوئے پیداوار بڑھانے میں مدد کر رہے ہیں۔" },
+        category: { text: "زراعت" },
+        duration: { text: "2 سال (2023-2025)" },
+        coverage: { text: "بلوچستان کے 5 اضلاع" },
+        impactTitle: { text: "پروگرام کا اثر" },
+        iconStatsTitle: { text: "اہم اعداد و شمار" },
+        partnersTitle: { text: "ہمارے شراکت دار" },
+        impact: [
+          { id: "impact-1", label: { text: "فائدہ اٹھانے والے کسان" }, value: "500", suffix: "+", iconName: "FaUsers" },
+          { id: "impact-2", label: { text: "احاطہ کردہ ہیکٹر" }, value: "1000", suffix: "+", iconName: "FaLeaf" },
+          { id: "impact-3", label: { text: "متاثرہ دیہات" }, value: "25", suffix: "+", iconName: "FaHome" },
+          { id: "impact-4", label: { text: "تربیتی سیشنز" }, value: "100", suffix: "+", iconName: "FaGraduationCap" }
+        ],
+        iconStats: [
+          { id: "stat-1", label: { text: "مظاہرہ فارمز" }, value: "12", iconName: "FaSeedling" },
+          { id: "stat-2", label: { text: "پانی کے منصوبے" }, value: "15", iconName: "FaHandHoldingWater" },
+          { id: "stat-3", label: { text: "کمیونٹی گروپس" }, value: "50+", iconName: "FaUsers" },
+          { id: "stat-4", label: { text: "نباتاتی فارمز" }, value: "8", iconName: "FaLeaf" }
+        ],
+        partners: [
+          { id: "partner-1", name: { text: "زرعی تحقیقاتی ادارہ" }, logo: "/images/ari-logo.jpg" },
+          { id: "partner-2", name: { text: "ایف اے او پاکستان" }, logo: "/images/fao-logo.jpg" },
+          { id: "partner-3", name: { text: "مقامی کسان ایسوسی ایشن" }, logo: "/images/lfa-logo.jpg" }
+        ]
+      }
     },
     {
       id: "2",
-      title: {text: "Women Empowerment", language: "en"},
       slug: "women-empowerment",
-      shortDescription: {text: "Supporting women entrepreneurs in rural communities", language: "en"},
-      fullDescription: {text: "The Women Empowerment program is designed to create sustainable economic opportunities for women in rural communities. Through skills development, financial literacy training, and micro-enterprise support, we help women establish and grow their businesses. This program also addresses social barriers and promotes women's participation in community decision-making processes.", language: "en"},
       featuredImage: "/images/women-empowerment.jpg",
-      category: {text: "Social Development", language: "en"},
-      impact: [
-        {label: {text: "Businesses Started", language: "en"}, value: "200", suffix: "+"},
-        {label: {text: "Women Trained", language: "en"}, value: "500", suffix: "+"},
-        {label: {text: "Communities Impacted", language: "en"}, value: "30", suffix: "+"},
-        {label: {text: "Success Stories", language: "en"}, value: "150", suffix: "+"},
-      ],
-      iconStats: [
-        {icon: "FaStore", value: "200+", label: {text: "Active Businesses", language: "en"}},
-        {icon: "FaGraduationCap", value: "20", label: {text: "Training Centers", language: "en"}},
-        {icon: "FaHandHoldingUsd", value: "300+", label: {text: "Micro Loans", language: "en"}},
-        {icon: "FaUsers", value: "25", label: {text: "Women Groups", language: "en"}},
-      ],
-      partners: [
-        {name: {text: "UN Women Pakistan", language: "en"}, logo: "/images/unwomen-logo.jpg"},
-        {name: {text: "USAID", language: "en"}, logo: "/images/usaid-logo.png"},
-        {name: {text: "Local Women Council", language: "en"}, logo: "/images/lwc-logo.jpg"},
-      ],
-      language: "en",
-      showOnHomepage: true,
       isActive: true,
+      showOnHomepage: true,
       createdAt: new Date(),
       updatedAt: new Date(),
-      duration: {text: "3 Years (2023-2026)", language: "en"},
-      coverage: {text: "8 Districts in Balochistan", language: "en"},
       socialShare: {
-        title: {text: "Women Empowerment Initiative in Balochistan", language: "en"},
-        description: {text: "Creating sustainable economic opportunities for women in rural communities. Join our mission to empower women entrepreneurs in Balochistan!", language: "en"},
+        title: { text: "Women Empowerment Initiative in Balochistan" },
+        description: { text: "Creating sustainable economic opportunities for women in rural communities. Join our mission to empower women entrepreneurs in Balochistan!" },
         hashtags: ["WomenEmpowerment", "RuralWomen", "WomenEntrepreneurs", "BalochistanWomen"],
         twitterHandle: "SECOPakistan",
         ogType: "article"
       },
-    },
-    {
-      id: "2-ur",
-      title: {text: "خواتین کی ترقی", language: "ur"},
-      slug: "women-empowerment-ur",
-      shortDescription: {text: "دیہی علاقوں میں خواتین کاروباری افراد کی معاونت", language: "ur"},
-      fullDescription: {text: "خواتین کی ترقی کا پروگرام دیہی علاقوں میں خواتین کے لیے پائیدار معاشی مواقع پیدا کرنے کے لیے ڈیزائن کیا گیا ہے۔ ہم مہارت کی ترقی، مالی خواندگی کی تربیت، اور مائیکرو انٹرپرائز کی معاونت کے ذریعے، خواتین کو اپنا کاروبار قائم کرنے اور بڑھانے میں مدد کرتے ہیں۔", language: "ur"},
-      featuredImage: "/images/women-empowerment.jpg",
-      category: {text: "سماجی ترقی", language: "ur"},
-      impact: [
-        {label: {text: "شروع کیے گئے کاروبار", language: "ur"}, value: "200", suffix: "+"},
-        {label: {text: "تربیت یافتہ خواتین", language: "ur"}, value: "500", suffix: "+"},
-        {label: {text: "متاثر ہونے والی کمیونٹیز", language: "ur"}, value: "30", suffix: "+"},
-        {label: {text: "کامیابی کی کہانیاں", language: "ur"}, value: "150", suffix: "+"},
-      ],
-      iconStats: [
-        {icon: "FaStore", value: "200+", label: {text: "فعال کاروبار", language: "ur"}},
-        {icon: "FaGraduationCap", value: "20", label: {text: "تربیتی مراکز", language: "ur"}},
-        {icon: "FaHandHoldingUsd", value: "300+", label: {text: "مائیکرو لونز", language: "ur"}},
-        {icon: "FaUsers", value: "25", label: {text: "خواتین گروپس", language: "ur"}},
-      ],
-      partners: [
-        {name: {text: "اقوام متحدہ خواتین پاکستان", language: "ur"}, logo: "/images/unwomen-logo.jpg"},
-        {name: {text: "یو ایس ایڈ", language: "ur"}, logo: "/images/usaid-logo.png"},
-        {name: {text: "مقامی خواتین کونسل", language: "ur"}, logo: "/images/lwc-logo.jpg"},
-      ],
-      language: "ur",
-      showOnHomepage: true,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      duration: {text: "3 سال (2023-2026)", language: "ur"},
-      coverage: {text: "بلوچستان کے 8 اضلاع", language: "ur"},
-      socialShare: {
-        title: {text: "بلوچستان میں خواتین کی ترقی کا منصوبہ", language: "ur"},
-        description: {text: "دیہی علاقوں میں خواتین کے لیے پائیدار معاشی مواقع پیدا کرنا۔ بلوچستان میں خواتین کاروباری افراد کو بااختیار بنانے کی ہماری مہم میں شامل ہوں!", language: "ur"},
-        hashtags: ["خواتین_کی_ترقی", "دیہی_خواتین", "خواتین_کاروبار", "بلوچستان_خواتین"],
-        twitterHandle: "SECOPakistan",
-        ogType: "article"
+      en: {
+        title: { text: "Women Empowerment" },
+        shortDescription: { text: "Supporting women entrepreneurs in rural communities" },
+        fullDescription: { text: "The Women Empowerment program is designed to create sustainable economic opportunities for women in rural communities. Through skills development, financial literacy training, and micro-enterprise support, we help women establish and grow their businesses. This program also addresses social barriers and promotes women's participation in community decision-making processes." },
+        category: { text: "Social Development" },
+        duration: { text: "3 Years (2023-2026)" },
+        coverage: { text: "8 Districts in Balochistan" },
+        impactTitle: { text: "Program Impact" },
+        iconStatsTitle: { text: "Key Statistics" },
+        partnersTitle: { text: "Our Partners" },
+        impact: [
+          { id: "impact-1", label: { text: "Businesses Started" }, value: "200", suffix: "+", iconName: "FaStore" },
+          { id: "impact-2", label: { text: "Women Trained" }, value: "500", suffix: "+", iconName: "FaUsers" },
+          { id: "impact-3", label: { text: "Communities Impacted" }, value: "30", suffix: "+", iconName: "FaHome" },
+          { id: "impact-4", label: { text: "Success Stories" }, value: "150", suffix: "+", iconName: "FaStar" }
+        ],
+        iconStats: [
+          { id: "stat-1", label: { text: "Active Businesses" }, value: "200+", iconName: "FaStore" },
+          { id: "stat-2", label: { text: "Training Centers" }, value: "20", iconName: "FaGraduationCap" },
+          { id: "stat-3", label: { text: "Micro Loans" }, value: "300+", iconName: "FaHandHoldingUsd" },
+          { id: "stat-4", label: { text: "Women Groups" }, value: "25", iconName: "FaUsers" }
+        ],
+        partners: [
+          { id: "partner-1", name: { text: "UN Women Pakistan" }, logo: "/images/unwomen-logo.jpg" },
+          { id: "partner-2", name: { text: "USAID" }, logo: "/images/usaid-logo.png" },
+          { id: "partner-3", name: { text: "Local Women Council" }, logo: "/images/lwc-logo.jpg" }
+        ]
       },
+      ur: {
+        title: { text: "خواتین کی ترقی" },
+        shortDescription: { text: "دیہی علاقوں میں خواتین کاروباری افراد کی معاونت" },
+        fullDescription: { text: "خواتین کی ترقی کا پروگرام دیہی علاقوں میں خواتین کے لیے پائیدار معاشی مواقع پیدا کرنے کے لیے ڈیزائن کیا گیا ہے۔ ہم مہارت کی ترقی، مالی خواندگی کی تربیت، اور مائیکرو انٹرپرائز کی معاونت کے ذریعے، خواتین کو اپنا کاروبار قائم کرنے اور بڑھانے میں مدد کرتے ہیں۔" },
+        category: { text: "سماجی ترقی" },
+        duration: { text: "3 سال (2023-2026)" },
+        coverage: { text: "بلوچستان کے 8 اضلاع" },
+        impactTitle: { text: "پروگرام کا اثر" },
+        iconStatsTitle: { text: "اہم اعداد و شمار" },
+        partnersTitle: { text: "ہمارے شراکت دار" },
+        impact: [
+          { id: "impact-1", label: { text: "شروع کیے گئے کاروبار" }, value: "200", suffix: "+", iconName: "FaStore" },
+          { id: "impact-2", label: { text: "تربیت یافتہ خواتین" }, value: "500", suffix: "+", iconName: "FaUsers" },
+          { id: "impact-3", label: { text: "متاثر ہونے والی کمیونٹیز" }, value: "30", suffix: "+", iconName: "FaHome" },
+          { id: "impact-4", label: { text: "کامیابی کی کہانیاں" }, value: "150", suffix: "+", iconName: "FaStar" }
+        ],
+        iconStats: [
+          { id: "stat-1", label: { text: "فعال کاروبار" }, value: "200+", iconName: "FaStore" },
+          { id: "stat-2", label: { text: "تربیتی مراکز" }, value: "20", iconName: "FaGraduationCap" },
+          { id: "stat-3", label: { text: "مائیکرو لونز" }, value: "300+", iconName: "FaHandHoldingUsd" },
+          { id: "stat-4", label: { text: "خواتین گروپس" }, value: "25", iconName: "FaUsers" }
+        ],
+        partners: [
+          { id: "partner-1", name: { text: "اقوام متحدہ خواتین پاکستان" }, logo: "/images/unwomen-logo.jpg" },
+          { id: "partner-2", name: { text: "یو ایس ایڈ" }, logo: "/images/usaid-logo.png" },
+          { id: "partner-3", name: { text: "مقامی خواتین کونسل" }, logo: "/images/lwc-logo.jpg" }
+        ]
+      }
     },
+
     {
       id: "3",
-      title: {text: "Clean Water Initiative", language: "en"},
       slug: "clean-water-initiative",
-      shortDescription: {text: "Providing access to clean water in remote areas", language: "en"},
-      fullDescription: {text: "Our Clean Water Initiative aims to ensure sustainable access to safe drinking water in remote communities of Balochistan. Through innovative water management systems and community participation, we're creating lasting solutions to water scarcity challenges.", language: "en"},
       featuredImage: "/images/project3.jpg",
-      category: {text: "Infrastructure", language: "en"},
-      impact: [
-        {label: {text: "Water Systems Installed", language: "en"}, value: "100", suffix: "+"},
-        {label: {text: "Communities Served", language: "en"}, value: "50", suffix: "+"},
-        {label: {text: "People with Clean Water", language: "en"}, value: "10000", suffix: "+"},
-        {label: {text: "Water Quality Tests", language: "en"}, value: "500", suffix: "+"},
-      ],
-      iconStats: [
-        {icon: "FaWater", value: "25", label: {text: "Water Plants", language: "en"}},
-        {icon: "FaTint", value: "75", label: {text: "Water Sources", language: "en"}},
-        {icon: "FaHandsHelping", value: "40", label: {text: "Community Teams", language: "en"}},
-        {icon: "FaTools", value: "150", label: {text: "Maintenance Points", language: "en"}},
-      ],
-      partners: [
-        {name: {text: "UNICEF Water Program", language: "en"}, logo: "/images/unicef-logo.png"},
-        {name: {text: "Water Aid", language: "en"}, logo: "/images/wateraid-logo.png"},
-        {name: {text: "Local Water Board", language: "en"}, logo: "/images/lwb-logo.jpg"},
-      ],
-      language: "en",
-      showOnHomepage: true,
       isActive: true,
+      showOnHomepage: true,
       createdAt: new Date(),
       updatedAt: new Date(),
-      duration: {text: "2.5 Years (2023-2025)", language: "en"},
-      coverage: {text: "12 Districts in Balochistan", language: "en"},
       socialShare: {
-        title: {text: "Clean Water Access in Balochistan", language: "en"},
-        description: {text: "Ensuring sustainable access to safe drinking water in remote communities. Help us bring clean water to every corner of Balochistan!", language: "en"},
+        title: { text: "Clean Water Access in Balochistan" },
+        description: { text: "Ensuring sustainable access to safe drinking water in remote communities. Help us bring clean water to every corner of Balochistan!" },
         hashtags: ["CleanWater", "WaterAccess", "SafeDrinkingWater", "BalochistanWater"],
         twitterHandle: "SECOPakistan",
         ogType: "article"
       },
+      en: {
+        title: { text: "Clean Water Initiative" },
+        shortDescription: { text: "Providing access to clean water in remote areas" },
+        fullDescription: { text: "Our Clean Water Initiative aims to ensure sustainable access to safe drinking water in remote communities of Balochistan. Through innovative water management systems and community participation, we're creating lasting solutions to water scarcity challenges." },
+        category: { text: "Infrastructure" },
+        duration: { text: "2.5 Years (2023-2025)" },
+        coverage: { text: "12 Districts in Balochistan" },
+        impactTitle: { text: "Program Impact" },
+        iconStatsTitle: { text: "Key Statistics" },
+        partnersTitle: { text: "Our Partners" },
+        impact: [
+          { id: "impact-1", label: { text: "Water Systems Installed" }, value: "100", suffix: "+", iconName: "FaWater" },
+          { id: "impact-2", label: { text: "Communities Served" }, value: "50", suffix: "+", iconName: "FaHome" },
+          { id: "impact-3", label: { text: "People with Clean Water" }, value: "10000", suffix: "+", iconName: "FaUsers" },
+          { id: "impact-4", label: { text: "Water Quality Tests" }, value: "500", suffix: "+", iconName: "FaFlask" }
+        ],
+        iconStats: [
+          { id: "stat-1", label: { text: "Water Plants" }, value: "25", iconName: "FaWater" },
+          { id: "stat-2", label: { text: "Water Sources" }, value: "75", iconName: "FaTint" },
+          { id: "stat-3", label: { text: "Community Teams" }, value: "40", iconName: "FaHandsHelping" },
+          { id: "stat-4", label: { text: "Maintenance Points" }, value: "150", iconName: "FaTools" }
+        ],
+        partners: [
+          { id: "partner-1", name: { text: "UNICEF Water Program" }, logo: "/images/unicef-logo.png" },
+          { id: "partner-2", name: { text: "Water Aid" }, logo: "/images/wateraid-logo.png" },
+          { id: "partner-3", name: { text: "Local Water Board" }, logo: "/images/lwb-logo.jpg" }
+        ]
+      },
+      ur: {
+        title: { text: "صاف پانی کا منصوبہ" },
+        shortDescription: { text: "دور دراز علاقوں میں صاف پانی تک رسائی فراہم کرنا" },
+        fullDescription: { text: "ہمارا صاف پانی کا منصوبہ بلوچستان کی دور دراز کمیونٹیز میں محفوظ پینے کے پانی تک پائیدار رسائی کو یقینی بنانے کا ہدف رکھتا ہے۔ جدید پانی کے انتظام کے نظام اور کمیونٹی کی شرکت کے ذریعے، ہم پانی کی کمی کے چیلنجز کے لیے پائیدار حل تیار کر رہے ہیں۔" },
+        category: { text: "بنیادی ڈھانچہ" },
+        duration: { text: "2.5 سال (2023-2025)" },
+        coverage: { text: "بلوچستان کے 12 اضلاع" },
+        impactTitle: { text: "پروگرام کا اثر" },
+        iconStatsTitle: { text: "اہم اعداد و شمار" },
+        partnersTitle: { text: "ہمارے شراکت دار" },
+        impact: [
+          { id: "impact-1", label: { text: "نصب کردہ پانی کے نظام" }, value: "100", suffix: "+", iconName: "FaWater" },
+          { id: "impact-2", label: { text: "خدمت کی گئی کمیونٹیز" }, value: "50", suffix: "+", iconName: "FaHome" },
+          { id: "impact-3", label: { text: "صاف پانی والے لوگ" }, value: "10000", suffix: "+", iconName: "FaUsers" },
+          { id: "impact-4", label: { text: "پانی کے معیار کے ٹیسٹ" }, value: "500", suffix: "+", iconName: "FaFlask" }
+        ],
+        iconStats: [
+          { id: "stat-1", label: { text: "پانی کے پلانٹس" }, value: "25", iconName: "FaWater" },
+          { id: "stat-2", label: { text: "پانی کے ذرائع" }, value: "75", iconName: "FaTint" },
+          { id: "stat-3", label: { text: "کمیونٹی ٹیمیں" }, value: "40", iconName: "FaHandsHelping" },
+          { id: "stat-4", label: { text: "دیکھ بھال کے مقامات" }, value: "150", iconName: "FaTools" }
+        ],
+        partners: [
+          { id: "partner-1", name: { text: "یونیسیف واٹر پروگرام" }, logo: "/images/unicef-logo.png" },
+          { id: "partner-2", name: { text: "واٹر ایڈ" }, logo: "/images/wateraid-logo.png" },
+          { id: "partner-3", name: { text: "مقامی واٹر بورڈ" }, logo: "/images/lwb-logo.jpg" }
+        ]
+      }
     },
     {
-      id: "3-ur",
-      title: {text: "صاف پانی کا منصوبہ", language: "ur"},
-      slug: "clean-water-initiative-ur",
-      shortDescription: {text: "دور دراز علاقوں میں صاف پانی تک رسائی فراہم کرنا", language: "ur"},
-      fullDescription: {text: "ہمارا صاف پانی کا منصوبہ بلوچستان کی دور دراز کمیونٹیز میں محفوظ پینے کے پانی تک پائیدار رسائی کو یقینی بنانے کا ہدف رکھتا ہے۔ جدید پانی کے انتظام کے نظام اور کمیونٹی کی شرکت کے ذریعے، ہم پانی کی کمی کے چیلنجز کے لیے پائیدار حل تیار کر رہے ہیں۔", language: "ur"},
-      featuredImage: "/images/project3.jpg",
-      category: {text: "بنیادی ڈھانچہ", language: "ur"},
-      impact: [
-        {label: {text: "نصب کردہ پانی کے نظام", language: "ur"}, value: "100", suffix: "+"},
-        {label: {text: "خدمت کی گئی کمیونٹیز", language: "ur"}, value: "50", suffix: "+"},
-        {label: {text: "صاف پانی والے لوگ", language: "ur"}, value: "10000", suffix: "+"},
-        {label: {text: "پانی کے معیار کے ٹیسٹ", language: "ur"}, value: "500", suffix: "+"},
-      ],
-      iconStats: [
-        {icon: "FaWater", value: "25", label: {text: "پانی کے پلانٹس", language: "ur"}},
-        {icon: "FaTint", value: "75", label: {text: "پانی کے ذرائع", language: "ur"}},
-        {icon: "FaHandsHelping", value: "40", label: {text: "کمیونٹی ٹیمیں", language: "ur"}},
-        {icon: "FaTools", value: "150", label: {text: "دیکھ بھال کے مقامات", language: "ur"}},
-      ],
-      partners: [
-        {name: {text: "یونیسیف واٹر پروگرام", language: "ur"}, logo: "/images/unicef-logo.png"},
-        {name: {text: "واٹر ایڈ", language: "ur"}, logo: "/images/wateraid-logo.png"},
-        {name: {text: "مقامی واٹر بورڈ", language: "ur"}, logo: "/images/lwb-logo.jpg"},
-      ],
-      language: "ur",
-      showOnHomepage: true,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      duration: {text: "2.5 سال (2023-2025)", language: "ur"},
-      coverage: {text: "بلوچستان کے 12 اضلاع", language: "ur"},
-      socialShare: {
-        title: {text: "بلوچستان میں صاف پانی تک رسائی", language: "ur"},
-        description: {text: "دور دراز کمیونٹیز میں محفوظ پینے کے پانی تک پائیدار رسائی کو یقینی بنانا۔ بلوچستان کے ہر کونے میں صاف پانی پہنچانے میں ہماری مدد کریں!", language: "ur"},
-        hashtags: ["صاف_پانی", "پانی_تک_رسائی", "محفوظ_پینے_کا_پانی", "بلوچستان_پانی"],
-        twitterHandle: "SECOPakistan",
-        ogType: "article"
-      },
+    id: "4",
+    slug: "youth-education",
+    featuredImage: "/images/youth-education-1.jpg",
+    isActive: true,
+    showOnHomepage: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    socialShare: {
+      title: { text: "Youth Education Program in Balochistan" },
+      description: { text: "Providing quality education and skill development opportunities to young people. Join us in shaping the future of Balochistan's youth!" },
+      hashtags: ["YouthEducation", "SkillDevelopment", "BalochistanYouth", "QualityEducation"],
+      twitterHandle: "SECOPakistan",
+      ogType: "article"
     },
-    {
-      id: "4",
-      title: {text: "Youth Education", language: "en"},
-      slug: "youth-education",
-      shortDescription: {text: "Creating opportunities through education", language: "en"},
-      fullDescription: {text: "The Youth Education program focuses on providing quality education and skill development opportunities to young people in Balochistan. We combine traditional education with modern learning techniques to prepare students for future challenges.", language: "en"},
-      featuredImage: "/images/youth-education-1.jpg",
-      category: {text: "Education", language: "en"},
+    en: {
+      title: { text: "Youth Education" },
+      shortDescription: { text: "Creating opportunities through education" },
+      fullDescription: { text: "The Youth Education program focuses on providing quality education and skill development opportunities to young people in Balochistan. We combine traditional education with modern learning techniques to prepare students for future challenges and empower them with the knowledge and skills needed for success." },
+      category: { text: "Education" },
+      duration: { text: "4 Years (2023-2027)" },
+      coverage: { text: "15 Districts in Balochistan" },
+      impactTitle: { text: "Program Impact" },
+      iconStatsTitle: { text: "Key Statistics" },
+      partnersTitle: { text: "Our Partners" },
       impact: [
-        {label: {text: "Students Enrolled", language: "en"}, value: "1000", suffix: "+"},
-        {label: {text: "Schools Supported", language: "en"}, value: "25", suffix: "+"},
-        {label: {text: "Teachers Trained", language: "en"}, value: "150", suffix: "+"},
-        {label: {text: "Digital Labs Created", language: "en"}, value: "10", suffix: "+"},
+        { id: "impact-1", label: { text: "Students Enrolled" }, value: "1000", suffix: "+", iconName: "FaGraduationCap" },
+        { id: "impact-2", label: { text: "Schools Supported" }, value: "25", suffix: "+", iconName: "FaSchool" },
+        { id: "impact-3", label: { text: "Teachers Trained" }, value: "150", suffix: "+", iconName: "FaChalkboardTeacher" },
+        { id: "impact-4", label: { text: "Digital Labs Created" }, value: "10", suffix: "+", iconName: "FaLaptop" }
       ],
       iconStats: [
-        {icon: "FaGraduationCap", value: "15", label: {text: "Learning Centers", language: "en"}},
-        {icon: "FaLaptop", value: "5", label: {text: "Computer Labs", language: "en"}},
-        {icon: "FaBook", value: "1000+", label: {text: "Books Distributed", language: "en"}},
-        {icon: "FaChalkboardTeacher", value: "50+", label: {text: "Expert Teachers", language: "en"}},
+        { id: "stat-1", label: { text: "Learning Centers" }, value: "15", iconName: "FaGraduationCap" },
+        { id: "stat-2", label: { text: "Computer Labs" }, value: "5", iconName: "FaLaptop" },
+        { id: "stat-3", label: { text: "Books Distributed" }, value: "1000+", iconName: "FaBook" },
+        { id: "stat-4", label: { text: "Expert Teachers" }, value: "50+", iconName: "FaChalkboardTeacher" }
       ],
       partners: [
-        {name: {text: "Education Department", language: "en"}, logo: "/images/edu-logo.jpg"},
-        {name: {text: "British Council", language: "en"}, logo: "/images/bc-logo.jpg"},
-        {name: {text: "Local Education Trust", language: "en"}, logo: "/images/let-logo.jpg"},
+        { id: "partner-1", name: { text: "Education Department" }, logo: "/images/edu-logo.jpg" },
+        { id: "partner-2", name: { text: "British Council" }, logo: "/images/bc-logo.jpg" },
+        { id: "partner-3", name: { text: "Local Education Trust" }, logo: "/images/let-logo.jpg" }
+      ]
+    },
+    ur: {
+      title: { text: "نوجوانوں کی تعلیم" },
+      shortDescription: { text: "تعلیم کے ذریعے مواقع پیدا کرنا" },
+      fullDescription: { text: "نوجوانوں کی تعلیم کا پروگرام بلوچستان کے نوجوانوں کو معیاری تعلیم اور مہارت کی ترقی کے مواقع فراہم کرنے پر توجہ مرکوز کرتا ہے۔ ہم روایتی تعلیم کو جدید تعلیمی تکنیکوں کے ساتھ ملاتے ہیں تاکہ طلباء کو مستقبل کے چیلنجز کے لیے تیار کیا جا سکے اور انہیں کامیابی کے لیے ضروری علم اور مہارت سے آراستہ کیا جا سکے۔" },
+      category: { text: "تعلیم" },
+      duration: { text: "4 سال (2023-2027)" },
+      coverage: { text: "بلوچستان کے 15 اضلاع" },
+      impactTitle: { text: "پروگرام کا اثر" },
+      iconStatsTitle: { text: "اہم اعداد و شمار" },
+      partnersTitle: { text: "ہمارے شراکت دار" },
+      impact: [
+        { id: "impact-1", label: { text: "داخل شدہ طلباء" }, value: "1000", suffix: "+", iconName: "FaGraduationCap" },
+        { id: "impact-2", label: { text: "معاونت شدہ اسکول" }, value: "25", suffix: "+", iconName: "FaSchool" },
+        { id: "impact-3", label: { text: "تربیت یافتہ اساتذہ" }, value: "150", suffix: "+", iconName: "FaChalkboardTeacher" },
+        { id: "impact-4", label: { text: "قائم کردہ ڈیجیٹل لیبز" }, value: "10", suffix: "+", iconName: "FaLaptop" }
       ],
-      language: "en",
-      showOnHomepage: true,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      duration: {text: "4 Years (2023-2027)", language: "en"},
-      coverage: {text: "15 Districts in Balochistan", language: "en"},
-      socialShare: {
-        title: {text: "Youth Education Program in Balochistan", language: "en"},
-        description: {text: "Providing quality education and skill development opportunities to young people. Join us in shaping the future of Balochistan's youth!", language: "en"},
-        hashtags: ["YouthEducation", "SkillDevelopment", "BalochistanYouth", "QualityEducation"],
-        twitterHandle: "SECOPakistan",
-        ogType: "article"
-      },
+      iconStats: [
+        { id: "stat-1", label: { text: "تعلیمی مراکز" }, value: "15", iconName: "FaGraduationCap" },
+        { id: "stat-2", label: { text: "کمپیوٹر لیبز" }, value: "5", iconName: "FaLaptop" },
+        { id: "stat-3", label: { text: "تقسیم کردہ کتابیں" }, value: "1000+", iconName: "FaBook" },
+        { id: "stat-4", label: { text: "ماہر اساتذہ" }, value: "50+", iconName: "FaChalkboardTeacher" }
+      ],
+      partners: [
+        { id: "partner-1", name: { text: "محکمہ تعلیم" }, logo: "/images/edu-logo.jpg" },
+        { id: "partner-2", name: { text: "برٹش کونسل" }, logo: "/images/bc-logo.jpg" },
+        { id: "partner-3", name: { text: "مقامی تعلیمی ٹرسٹ" }, logo: "/images/let-logo.jpg" }
+      ]
+    }
+  }
 
-    },
-    {
-      id: "4-ur",
-      title: {text: "نوجوانوں کی تعلیم", language: "ur"},
-      slug: "youth-education-ur",
-      shortDescription: {text: "تعلیم کے ذریعے مواقع پیدا کرنا", language: "ur"},
-      fullDescription: {text: "نوجوانوں کی تعلیم کا پروگرام بلوچستان کے نوجوانوں کو معیاری تعلیم اور مہارت کی ترقی کے مواقع فراہم کرنا۔ بلوچستان کے نوجوانوں کے مستقبل کو شکل دینے میں ہمارے ساتھ شامل ہوں!", language: "ur"},
-      featuredImage: "/images/youth-education-1.jpg",
-      category: {text: "تعلیم", language: "ur"},
-      impact: [
-        {label: {text: "داخل شدہ طلباء", language: "ur"}, value: "1000", suffix: "+"},
-        {label: {text: "معاونت شدہ اسکول", language: "ur"}, value: "25", suffix: "+"},
-        {label: {text: "تربیت یافتہ اساتذہ", language: "ur"}, value: "150", suffix: "+"},
-        {label: {text: "قائم کردہ ڈیجیٹل لیبز", language: "ur"}, value: "10", suffix: "+"},
-      ],
-      iconStats: [
-        {icon: "FaGraduationCap", value: "15", label: {text: "تعلیمی مراکز", language: "ur"}},
-        {icon: "FaLaptop", value: "5", label: {text: "کمپیوٹر لیبز", language: "ur"}},
-        {icon: "FaBook", value: "1000+", label: {text: "تقسیم کردہ کتابیں", language: "ur"}},
-        {icon: "FaChalkboardTeacher", value: "50+", label: {text: "ماہر اساتذہ", language: "ur"}},
-      ],
-      partners: [
-        {name: {text: "محکمہ تعلیم", language: "ur"}, logo: "/images/edu-logo.jpg"},
-        {name: {text: "برٹش کونسل", language: "ur"}, logo: "/images/bc-logo.jpg"},
-        {name: {text: "مقامی تعلیمی ٹرسٹ", language: "ur"}, logo: "/images/let-logo.jpg"},
-      ],
-      language: "ur",
-      showOnHomepage: true,
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      duration: {text: "4 سال (2023-2027)", language: "ur"},
-      coverage: {text: "بلوچستان کے 15 اضلاع", language: "ur"},
-      socialShare: {
-        title: {text: "بلوچستان میں نوجوانوں کی تعلیم کا پروگرام", language: "ur"},
-        description: {text: "نوجوانوں کو معیاری تعلیم اور مہارت کی ترقی کے مواقع فراہم کرنا۔ بلوچستان کے نوجوانوں کے مستقبل کو شکل دینے میں ہمارے ساتھ شامل ہوں!", language: "ur"},
-        hashtags: ["نوجوانوں_کی_تعلیم", "مہارت_کی_ترقی", "بلوچستان_نوجوان", "معیاری_تعلیم"],
-        twitterHandle: "SECOPakistan",
-        ogType: "article"
-      },
-    },
   ],
 };

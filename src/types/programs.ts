@@ -1,73 +1,137 @@
-export interface LocalizedText {
+export interface TextWithLanguage {
   text: string;
-  language: "en" | "ur";
+  language?: 'en' | 'ur';
 }
 
-interface SocialShare {
-  title: LocalizedText;
-  description: LocalizedText;
+export interface BilingualImpact {
+  id: string;
+  en: { label: { text: string } };
+  ur: { label: { text: string } };
+  value: string;
+  iconName: string;
+  prefix?: string;
+  suffix?: string;
+}
+
+export interface BilingualIconStat {
+  id: string;
+  en: { label: { text: string } };
+  ur: { label: { text: string } };
+  value: string;
+  iconName: string;
+}
+
+export interface BilingualPartner {
+  id: string;
+  en: { name: { text: string } };
+  ur: { name: { text: string } };
+  logo: string;
+}
+
+export interface ImpactMetric {
+  id: string;
+  label: TextWithLanguage;
+  value: string;
+  suffix?: string;
+  prefix?: string;
+  iconName: string;
+}
+
+export interface IconStat {
+  id: string;
+  label: TextWithLanguage;
+  value: string;
+  iconName: string;
+}
+
+export interface Partner {
+  id: string;
+  name: TextWithLanguage;
+  logo: string;
+}
+
+export interface SocialShare {
+  title: TextWithLanguage;
+  description: TextWithLanguage;
   hashtags: string[];
   twitterHandle: string;
   ogType: string;
 }
 
-export interface ProgramItem {
+export interface ProgramDetail {
   id: string;
-  title: LocalizedText;
   slug: string;
-  shortDescription: LocalizedText;
-  fullDescription: LocalizedText;
   featuredImage: string;
-  category: LocalizedText;
-  impact: {
-    label: LocalizedText;
-    value: string;
-    suffix?: string;
-  }[];
-  iconStats: {
-    icon: string;
-    value: string;
-    label: LocalizedText;
-  }[];
-  partners: {
-    name: LocalizedText;
-    logo: string;
-  }[];
-  language: "en" | "ur";
-  showOnHomepage: boolean;
   isActive: boolean;
+  showOnHomepage: boolean;
   createdAt: Date;
   updatedAt: Date;
-  duration: LocalizedText;
-  coverage: LocalizedText;
   socialShare: SocialShare;
+  en: {
+    title: { text: string };
+    shortDescription: { text: string };
+    fullDescription: { text: string };
+    category: { text: string };
+    duration: { text: string };
+    coverage: { text: string };
+    impactTitle: { text: string };
+    iconStatsTitle: { text: string };
+    partnersTitle: { text: string };
+    impact?: ImpactMetric[];
+    iconStats?: IconStat[];
+    partners?: Partner[];
+  };
+  ur: {
+    title: { text: string };
+    shortDescription: { text: string };
+    fullDescription: { text: string };
+    category: { text: string };
+    duration: { text: string };
+    coverage: { text: string };
+    impactTitle: { text: string };
+    iconStatsTitle: { text: string };
+    partnersTitle: { text: string };
+    impact?: ImpactMetric[];
+    iconStats?: IconStat[];
+    partners?: Partner[];
+  };
 }
 
-interface ProgramsPageContent {
-  title: string;
-  description: string;
+export interface ProgramPageContent {
+  image: string;
+  title: {
+    en: { text: string };
+    ur: { text: string };
+  };
+  description: {
+    en: { text: string };
+    ur: { text: string };
+  };
 }
 
-export interface Program {
-  programsPage: {
-    en: ProgramsPageContent;
-    ur: ProgramsPageContent;
-    hero: {
-      image: string;
-      alt: string;
+export interface Programs {
+  programPage: {
+    image: string;
+    title: {
+      en: { text: string };
+      ur: { text: string };
+    };
+    description: {
+      en: { text: string };
+      ur: { text: string };
     };
   };
-  HomePage: {
-    en: {
-      title: string;
-      viewAll: string;
-      switchLanguage: string;
-    };
-    ur: {
-      title: string;
-      viewAll: string;
-      switchLanguage: string;
-    };
-  };
-  programsList: ProgramItem[];
+  programsList: ProgramDetail[];
+}
+
+export interface ProgramResponse {
+  success: boolean;
+  data: ProgramDetail | null;
+  error?: string;
+}
+
+export interface ProgramsListResponse {
+  success: boolean;
+  data: ProgramDetail[];
+  error?: string;
 }

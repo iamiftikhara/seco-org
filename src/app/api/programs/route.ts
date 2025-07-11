@@ -1,50 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Program, ProgramItem } from '@/types/programs';
-import { programs } from '@/data/programs';
+import { getCollection } from '@/lib/mongodb';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
-    // Get query parameters
-    const limit = searchParams.get('limit');
-    const status = searchParams.get('status');
-    const language = searchParams.get('language');
-    const category = searchParams.get('category');
     const showOnHome = searchParams.get('showOnHome');
-    
-    let filteredPrograms = [...programs.programsList];
 
-    // Apply filters
-    if (status === 'active') {
-      filteredPrograms = filteredPrograms.filter(program => program.isActive);
-    }
-    
-    if (language) {
-      filteredPrograms = filteredPrograms.filter(program => program.language === language);
-    }
-    
-    if (category) {
-      filteredPrograms = filteredPrograms.filter(program => program.category.text.toLowerCase() === category.toLowerCase());
+    const collection = await getCollection('programs');
+    const programsData = await collection.findOne({});
+
+    if (!programsData || !programsData.programsList) {
+      return NextResponse.json({
+        success: false,
+        error: 'No programs available',
+        message: 'Programs are currently being set up. Please check back later or contact the administrator.',
+        isEmpty: true
+      }, { status: 404 });
     }
 
+    let programsList = programsData.programsList;
+
+    // Filter active programs
+    programsList = programsList.filter((program: any) => program.isActive);
+
+    // Filter for homepage if requested
     if (showOnHome === 'true') {
-      filteredPrograms = filteredPrograms.filter(program => program.showOnHomepage);
+      programsList = programsList.filter((program: any) => program.showOnHomepage);
     }
-
-    // Apply limit if specified and not 0
-    if (limit && parseInt(limit) > 0) {
-      filteredPrograms = filteredPrograms.slice(0, parseInt(limit));
-    }
-
-    // Log the count of programs being returned
-    console.log(`Returning ${filteredPrograms.length} programs`);
 
     return NextResponse.json({
       success: true,
       data: {
-        programPage: programs.programsPage,
-        programsList: filteredPrograms
+        programPage: programsData.programPage,
+        programsList: programsList
       }
     });
   } catch (error) {
@@ -58,8 +46,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as ProgramItem;
-    
+    const body = await request.json();
+
     // Here you would typically validate the body and save to a database
     // For now, we'll just return a success response with the provided data
     return NextResponse.json({
@@ -74,4 +62,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
