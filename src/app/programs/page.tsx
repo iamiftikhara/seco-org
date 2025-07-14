@@ -7,10 +7,11 @@ import {ProgramDetail} from "@/types/programs";
 import {theme} from "@/config/theme";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
+import DynamicError from "@/app/components/DynamicError";
 
 export default function Programs() {
   const [currentLanguage, setCurrentLanguage] = useState<"en" | "ur">("en");
-  const [programsData, setProgramsData] = useState<any>(null);
+  const [programsData, setProgramsData] = useState<{ title: { en: { text: string }, ur: { text: string } }, description: { en: { text: string }, ur: { text: string } }, image: string } | null>(null);
   const [programs, setPrograms] = useState<ProgramDetail[]>([]);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -41,17 +42,23 @@ export default function Programs() {
       if (!result.success) {
         // Check if it's an empty state
         if (result.isEmpty) {
-          setError(result.message || 'No programs are currently available. Please check back later.');
+          // Handle empty state as valid - show empty programs list
+          setProgramsData(result.data?.programPage || null);
+          setPrograms([]);
+          setError(null);
           return;
         }
         throw new Error(result.error || 'Failed to fetch programs');
       }
-      if (!result.data || !result.data.programsList) {
+
+      if (!result.data) {
         throw new Error('No programs data received');
       }
 
-      setProgramsData(result.data.programPage);
-      setPrograms(result.data.programsList);
+      // Set the data even if programsList is empty
+      setProgramsData(result.data.programPage || null);
+      setPrograms(result.data.programsList || []);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -87,43 +94,17 @@ export default function Programs() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center max-w-md mx-auto p-8">
-            <div className="mb-6">
-              <svg
-                className="mx-auto h-16 w-16 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6"
-                />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">
-              {error.includes('No programs are currently available') ? 'Programs Coming Soon' : 'Unable to Load Programs'}
-            </h1>
-            <p className="text-gray-600 mb-6 leading-relaxed">{error}</p>
-            <div className="space-y-3">
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Refresh Page
-              </button>
-              <Link
-                href="/"
-                className="block w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Go to Homepage
-              </Link>
-            </div>
-          </div>
-        </div>
+        <DynamicError
+          title={error.includes('No programs are currently available')
+            ? (currentLanguage === "ur" ? "پروگرامز جلد آ رہے ہیں" : "Programs Coming Soon")
+            : (currentLanguage === "ur" ? "پروگرامز لوڈ نہیں ہو سکے" : "Unable to Load Programs")
+          }
+          message={error}
+          onRetry={fetchPrograms}
+          showBackButton={false}
+          language={currentLanguage}
+          sectionName={currentLanguage === "ur" ? "پروگرامز" : "Programs"}
+        />
         <Footer />
       </>
     );
@@ -132,89 +113,54 @@ export default function Programs() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen" style={{backgroundColor: theme.colors.background.primary}}>
-        {/* Hero Section */}
-        <div
-          className="relative overflow-hidden"
-          style={{ height: isMobile ? 'calc(100vh - 400px)' : 'calc(100vh - 20rem)' }}
-        >
+      <div className={`${isMobile ? 'h-[calc(100vh-40rem)]' : 'h-[calc(100vh-15rem)]'} relative overflow-hidden`}>
+        {programsData && (
           <Image
-            src={programsData?.image || "/images/programs-hero2.jpg"}
-            alt="Our Programs"
+            src={programsData.image}
+            alt={programsData.title[currentLanguage]?.text || "Our Programs"}
             fill
-            className={`object-cover transition-transform duration-[30s] ${isImageLoaded ? "scale-110" : "scale-100"}`}
-            onLoadingComplete={() => setIsImageLoaded(true)}
+            className={`object-cover transition-transform duration-[20s] ${isImageLoaded ? "scale-110" : "scale-100"}`}
             priority
+            onLoadingComplete={() => setIsImageLoaded(true)}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        </div>
-
-        {/* Title Section */}
-        <div
-          className="max-w-7xl mx-auto"
-          style={{
-            padding: isMobile ? '2rem 1rem' : '3rem 1rem',
-            direction: getDirection()
-          }}
-        >
-          <h1
-            style={{
-              color: theme.colors.text.primary,
-              fontFamily: getFontFamily(),
-              fontSize: isMobile ? '2rem' : '2.5rem'
-            }}
-            className={`font-bold mb-4 ${getTextAlign()}`}
-          >
-            {programsData?.title?.[currentLanguage]?.text || (currentLanguage === "ur" ? "ہمارے پروگرامز" : "Our Programs")}
-          </h1>
+        )}
+        <div className="absolute inset-0 flex items-end pb-8 justify-center" style={{background: "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5))"}}>
           <div
-            style={{backgroundColor: theme.colors.secondary}}
-            className={`w-20 h-1 mb-6 ${currentLanguage === "ur" ? "mr-0 ml-auto" : "ml-0 mr-auto"}`}
-          ></div>
-          <p
-            style={{
-              color: theme.colors.text.secondary,
-              fontFamily: getFontFamily(),
-              fontSize: isMobile ? '1rem' : '1.125rem'
-            }}
-            className={`max-w-3xl ${getTextAlign()} ${currentLanguage === "ur" ? "mr-0 ml-auto" : "ml-0 mr-auto"}`}
+            className="text-center text-white"
+            style={{ fontFamily: getFontFamily() }}
           >
-            {programsData?.description?.[currentLanguage]?.text || ""}
-          </p>
-        </div>
-
-        {/* Language buttons outside of direction container */}
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-center gap-4 mb-8" style={{ direction: 'ltr' }}>
-            <button
-              onClick={() => setCurrentLanguage("en")}
-              className="px-4 py-1 rounded-lg transition-colors duration-300 cursor-pointer"
-              style={{
-                backgroundColor: currentLanguage === "en" ? theme.colors.primary : "transparent",
-                color: currentLanguage === "en" ? "white" : theme.colors.primary,
-                border: `1px solid ${theme.colors.primary}`,
-                fontFamily: theme.fonts.en.primary,
-              }}
+            <h1
+              className="text-5xl font-bold mb-4"
+              style={{ fontFamily: getFontFamily() }}
             >
-              English
-            </button>
-            <button
-              onClick={() => setCurrentLanguage("ur")}
-              className="px-4 py-1 rounded-lg transition-colors duration-300 cursor-pointer"
-              style={{
-                backgroundColor: currentLanguage === "ur" ? theme.colors.primary : "transparent",
-                color: currentLanguage === "ur" ? "white" : theme.colors.primary,
-                border: `1px solid ${theme.colors.primary}`,
-                fontFamily: theme.fonts.ur.primary,
-              }}
+              {programsData && (
+                programsData.title[currentLanguage]?.text || (currentLanguage === "ur" ? "ہمارے پروگرامز" : "Our Programs")
+              )}
+            </h1>
+            <p
+              className="text-xl max-w-3xl mx-auto px-4"
+              style={{ fontFamily: getFontFamily() }}
             >
-              اردو
-            </button>
+              {programsData && (
+                programsData.description[currentLanguage]?.text || (currentLanguage === "ur" ? "ہمارے پروگرامز کے ذریعے ہم کمیونٹی کی بہتری کے لیے کام کرتے ہیں۔" : "Through our programs, we work towards community betterment and sustainable development.")
+              )}
+            </p>
+            <div className="mt-6">
+              <button onClick={() => setCurrentLanguage('en')} className={`mx-2 px-4 py-2 rounded cursor-pointer ${currentLanguage === 'en' ? `bg-white text-[${theme.colors.primary}]` : 'bg-transparent text-white border border-white'}`}>
+                English
+              </button>
+              <button onClick={() => setCurrentLanguage('ur')} className={`mx-2 px-4 py-2 rounded cursor-pointer ${currentLanguage === 'ur' ? `bg-white text-[${theme.colors.primary}]` : 'bg-transparent text-white border border-white'}`}
+                 style={{ fontFamily: theme.fonts.ur.primary }}>
+                اردو
+              </button>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Programs Grid Section */}
-        <div className="max-w-7xl mx-auto px-4 pb-16">
+      <div className={`${isMobile ? 'py-8' : 'py-16'} min-h-screen bg-white`}>
+        <div className="max-w-7xl mx-auto px-4">
+          {/* Programs Grid Section */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" dir={currentLanguage === "ur" ? "rtl" : "ltr"}>
             {programs.map((program) => (
               <Link href={`/programs/${program.slug}`} key={program.id}>

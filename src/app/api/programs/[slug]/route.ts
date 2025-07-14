@@ -21,7 +21,7 @@ export async function GET(
     }
 
     // Find the program by slug
-    const program = programsData.programsList.find((p: any) => p.slug === slug);
+    const program = programsData.programsList.find((p: { slug: string }) => p.slug === slug);
     
     if (!program) {
       return NextResponse.json(

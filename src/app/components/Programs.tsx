@@ -1,6 +1,6 @@
 "use client";
 
-import {useState, useEffect, useCallback} from "react";
+import {useState, useEffect, useCallback, useRef} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {ProgramDetail} from "@/types/programs";
@@ -25,8 +25,9 @@ export default function ProgramsShowcase() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [programsList, setProgramsList] = useState<ProgramDetail[]>([]);
-  const [programPage, setProgramPage] = useState<any>(null);
+  const [programPage, setProgramPage] = useState<{ title: { en: { text: string }, ur: { text: string } }, description: { en: { text: string }, ur: { text: string } }, image: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   const loadPrograms = useCallback(async () => {
     try {
@@ -59,6 +60,74 @@ export default function ProgramsShowcase() {
     return () => window.removeEventListener('resize', handleResize);
   }, [loadPrograms]);
 
+  // Auto-scroll functionality for mobile slider
+  useEffect(() => {
+    if (!isMobile || !sliderRef.current || programsList.length === 0) return;
+
+    const slider = sliderRef.current;
+    const cardWidth = 280 + 24; // card width + gap
+    const totalWidth = cardWidth * programsList.length;
+    let currentPosition = 0;
+    let intervalId: NodeJS.Timeout;
+
+    const autoScroll = () => {
+      currentPosition += cardWidth;
+
+      // Reset to beginning when reaching the end
+      if (currentPosition >= totalWidth) {
+        currentPosition = 0;
+      }
+
+      // Always scroll left to right regardless of language direction
+      slider.scrollTo({
+        left: currentPosition,
+        behavior: 'smooth'
+      });
+    };
+
+    const startAutoScroll = () => {
+      intervalId = setInterval(autoScroll, 3000);
+    };
+
+    const stopAutoScroll = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+
+    // Start auto-scroll immediately
+    startAutoScroll();
+
+    // Pause auto-scroll when user interacts with slider
+    const handleInteractionStart = () => {
+      stopAutoScroll();
+    };
+
+    const handleInteractionEnd = () => {
+      // Resume auto-scroll after 5 seconds of no interaction
+      setTimeout(() => {
+        if (slider && isMobile) {
+          startAutoScroll();
+        }
+      }, 5000);
+    };
+
+    slider.addEventListener('touchstart', handleInteractionStart, { passive: true });
+    slider.addEventListener('touchend', handleInteractionEnd, { passive: true });
+    slider.addEventListener('mousedown', handleInteractionStart);
+    slider.addEventListener('mouseup', handleInteractionEnd);
+
+    return () => {
+      stopAutoScroll();
+      if (slider) {
+        slider.removeEventListener('touchstart', handleInteractionStart);
+        slider.removeEventListener('touchend', handleInteractionEnd);
+        slider.removeEventListener('mousedown', handleInteractionStart);
+        slider.removeEventListener('mouseup', handleInteractionEnd);
+      }
+    };
+  }, [isMobile, programsList.length, language]); // Added language to dependencies
+
   const displayPrograms = programsList.slice(0, 4);
 
   // Helper for font family and direction
@@ -76,9 +145,14 @@ export default function ProgramsShowcase() {
               <div className="w-20 h-1 bg-gray-200 mx-auto"></div>
             </div>
           </div>
-          <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'}`}>
+          <div className={isMobile
+            ? "flex overflow-x-auto gap-6 pb-4 scrollbar-hide"
+            : "grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          }>
             {[...Array(4)].map((_, index) => (
-              <ProgramSkeleton key={index} />
+              <div key={index} className={isMobile ? 'min-w-[280px] flex-shrink-0' : ''}>
+                <ProgramSkeleton />
+              </div>
             ))}
           </div>
         </div>
@@ -159,10 +233,19 @@ export default function ProgramsShowcase() {
           </div>
         </div>
 
-        <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'}`}>
+        <div
+          ref={isMobile ? sliderRef : null}
+          className={isMobile
+            ? "flex overflow-x-auto gap-6 pb-4 scrollbar-hide"
+            : "grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          }
+          style={isMobile ? { direction: 'ltr' } : {}}
+        >
           {displayPrograms.map((program) => (
             <Link href={`/programs/${program.slug}`} key={program.id}>
-              <div className="group relative overflow-hidden rounded-lg shadow-lg h-[400px]">
+              <div className={`group relative overflow-hidden rounded-lg shadow-lg h-[400px] ${
+                isMobile ? 'min-w-[280px] flex-shrink-0' : ''
+              }`}>
                 <div className="relative h-full">
                   <Image
                     src={program.featuredImage}

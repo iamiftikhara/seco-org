@@ -14,6 +14,7 @@ import SocialShare from "@/app/components/SocialShare";
 import Script from 'next/script';
 import UniversalError from "@/app/components/UniversalError";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
+import DynamicError from "@/app/components/DynamicError";
 
 
 export default function ProgramDetailPage() {
@@ -108,10 +109,15 @@ export default function ProgramDetailPage() {
     return (
       <>
         <Navbar />
-        <UniversalError
-          error={error}
+        <DynamicError
+          title={currentLanguage === "ur" ? "خرابی ہوئی" : "Something Went Wrong"}
+          message={error}
           onRetry={fetchProgram}
-          sectionName="Program"
+          showBackButton={true}
+          backUrl="/programs"
+          backLabel={currentLanguage === "ur" ? "پروگرامز کی فہرست میں واپس" : "Back to Programs"}
+          language={currentLanguage}
+          sectionName={currentLanguage === "ur" ? "پروگرامز" : "Programs"}
         />
         <Footer />
       </>
@@ -122,18 +128,15 @@ export default function ProgramDetailPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center max-w-md mx-auto p-8">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Program Not Found</h1>
-            <p className="text-gray-600 mb-6">The program you're looking for doesn't exist or has been removed.</p>
-            <Link
-              href="/programs"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              View All Programs
-            </Link>
-          </div>
-        </div>
+        <DynamicError
+          title={currentLanguage === "ur" ? "پروگرام نہیں ملا" : "Program Not Found"}
+          message={currentLanguage === "ur" ? "آپ جو پروگرام تلاش کر رہے ہیں وہ موجود نہیں یا ہٹا دیا گیا ہے۔" : "The program you're looking for doesn't exist or has been removed."}
+          showBackButton={true}
+          backUrl="/programs"
+          backLabel={currentLanguage === "ur" ? "پروگرامز کی فہرست میں واپس" : "Back to Programs"}
+          language={currentLanguage}
+          sectionName={currentLanguage === "ur" ? "پروگرامز" : "Programs"}
+        />
         <Footer />
       </>
     );
@@ -154,9 +157,9 @@ export default function ProgramDetailPage() {
     "areaServed": program[currentLanguage].coverage.text,
     "duration": program[currentLanguage].duration.text,
     "category": program[currentLanguage].category.text,
-    "partner": program.partners?.map(partner => ({
+    "partner": program[currentLanguage]?.partners?.map(partner => ({
       "@type": "Organization",
-      "name": partner[currentLanguage].name.text,
+      "name": partner.name.text,
       "image": partner.logo
     }))
   };
@@ -182,7 +185,7 @@ export default function ProgramDetailPage() {
         {/* Hero Section */}
         <div
           className="relative overflow-hidden"
-          style={{ height: isMobile ? 'calc(100vh - 35rem)' : 'calc(100vh - 20rem)' }}
+          style={{ height: isMobile ? 'calc(100vh - 35rem)' : 'calc(100vh - 15rem)' }}
         >
           <Image
             src={program.featuredImage}

@@ -21,11 +21,11 @@ export async function GET(request: NextRequest) {
     let programsList = programsData.programsList;
 
     // Filter active programs
-    programsList = programsList.filter((program: any) => program.isActive);
+    programsList = programsList.filter((program: { isActive: boolean }) => program.isActive);
 
     // Filter for homepage if requested
     if (showOnHome === 'true') {
-      programsList = programsList.filter((program: any) => program.showOnHomepage);
+      programsList = programsList.filter((program: { showOnHomepage: boolean }) => program.showOnHomepage);
     }
 
     return NextResponse.json({

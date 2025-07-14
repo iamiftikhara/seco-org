@@ -11,6 +11,7 @@ import type {ServiceDetail} from "@/types/services";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
+import DynamicError from "@/app/components/DynamicError";
 import Link from "next/link";
 import {FaArrowLeft, FaArrowRight} from "react-icons/fa";
 import SocialShare from "@/app/components/SocialShare";
@@ -92,42 +93,54 @@ export default function ServiceDetail() {
       setLoading(true);
       setError(null);
       try {
-        console.log("Fetching services data...");
-        const response = await fetch("/api/services");
-        console.log("Response status:", response.status);
+        console.log("Fetching service data for slug:", params.slug);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        // Fetch individual service and all services for navigation in parallel
+        const [serviceResponse, allServicesResponse] = await Promise.all([
+          fetch(`/api/services/${params.slug}`),
+          fetch("/api/services")
+        ]);
+
+        console.log("Service response status:", serviceResponse.status);
+        console.log("All services response status:", allServicesResponse.status);
+
+        if (!serviceResponse.ok) {
+          throw new Error(`HTTP error! status: ${serviceResponse.status}`);
         }
 
-        const result = await response.json();
-        console.log("API result:", result);
+        const serviceResult = await serviceResponse.json();
+        console.log("Service API result:", serviceResult);
 
-        if (!result.success) {
+        if (!serviceResult.success) {
           // Check if it's an empty state
-          if (result.isEmpty) {
-            setError(result.message || 'No services are currently available. Please check back later.');
+          if (serviceResult.isEmpty) {
+            setError(serviceResult.message || 'Service not found or not available.');
             return;
           }
-          throw new Error(result.error || result.details || "Failed to fetch services");
-        }
-        if (!result.data || !result.data.servicesList) {
-          throw new Error("No services data received");
+          throw new Error(serviceResult.error || "Failed to fetch service");
         }
 
-        console.log("Services received:", result.data.servicesList.length);
-        setServicesList(result.data.servicesList);
+        if (!serviceResult.data) {
+          throw new Error("No service data received");
+        }
 
-        const found = result.data.servicesList.find((s: ServiceDetail) => s.slug === params.slug);
-        console.log("Service found for slug:", params.slug, !!found);
+        console.log("Service found:", serviceResult.data.slug);
+        setService(serviceResult.data);
 
-        setService(found || null);
-        if (found) {
-          const currentIndex = result.data.servicesList.findIndex((s: ServiceDetail) => s.slug === params.slug);
-          setNavigation({
-            prev: currentIndex > 0 ? result.data.servicesList[currentIndex - 1] : null,
-            next: currentIndex < result.data.servicesList.length - 1 ? result.data.servicesList[currentIndex + 1] : null,
-          });
+        // Set up navigation if all services were fetched successfully
+        if (allServicesResponse.ok) {
+          const allServicesResult = await allServicesResponse.json();
+          if (allServicesResult.success && allServicesResult.data?.servicesList) {
+            setServicesList(allServicesResult.data.servicesList);
+
+            const currentIndex = allServicesResult.data.servicesList.findIndex((s: ServiceDetail) => s.slug === params.slug);
+            if (currentIndex !== -1) {
+              setNavigation({
+                prev: currentIndex > 0 ? allServicesResult.data.servicesList[currentIndex - 1] : null,
+                next: currentIndex < allServicesResult.data.servicesList.length - 1 ? allServicesResult.data.servicesList[currentIndex + 1] : null,
+              });
+            }
+          }
         }
       } catch (err) {
         console.error("Error fetching service data:", err);
@@ -205,43 +218,19 @@ export default function ServiceDetail() {
       {structuredData && <Script id="structured-data" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{__html: JSON.stringify(structuredData)}} />}
       <Navbar />
       {error ? (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center max-w-md mx-auto p-8">
-            <div className="mb-6">
-              <svg
-                className="mx-auto h-16 w-16 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1}
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6"
-                />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">
-              {error.includes('No services are currently available') ? 'Services Coming Soon' : 'Service Not Found'}
-            </h1>
-            <p className="text-gray-600 mb-6 leading-relaxed">{error}</p>
-            <div className="space-y-3">
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Refresh Page
-              </button>
-              <Link
-                href="/"
-                className="block w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Go to Homepage
-              </Link>
-            </div>
-          </div>
-        </div>
+        <DynamicError
+          title={error.includes('No services are currently available')
+            ? (language === "ur" ? "خدمات جلد آ رہی ہیں" : "Services Coming Soon")
+            : (language === "ur" ? "خدمت نہیں ملی" : "Service Not Found")
+          }
+          message={error}
+          onRetry={() => window.location.reload()}
+          showBackButton={true}
+          backUrl="/services"
+          backLabel={language === "ur" ? "خدمات کی فہرست میں واپس" : "Back to Services"}
+          language={language === "ur" ? "ur" : "en"}
+          sectionName={language === "ur" ? "خدمات" : "Services"}
+        />
       ) : !service ? (
         <div className="min-h-screen flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
@@ -251,7 +240,7 @@ export default function ServiceDetail() {
         <div className="min-h-screen" style={{backgroundColor: theme.colors.background.primary}}>
           <div
             className="relative overflow-hidden"
-            style={{ height: isMobile ? 'calc(100vh - 40rem)' : 'calc(100vh - 20rem)' }}
+            style={{ height: isMobile ? 'calc(100vh - 40rem)' : 'calc(100vh - 15rem)' }}
           >
             <Image src={service.heroImage} alt={language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text} fill className={`object-cover transition-transform duration-[30s] ${isImageLoaded ? "scale-110" : "scale-100"}`} onLoadingComplete={() => setIsImageLoaded(true)} priority />
           </div>
