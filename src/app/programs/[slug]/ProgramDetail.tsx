@@ -4,6 +4,8 @@ import {useEffect, useState, useCallback} from "react";
 import {useParams} from "next/navigation";
 import Image from "next/image";
 import {FaRegClock, FaMapMarkerAlt, FaArrowLeft, FaArrowRight} from "react-icons/fa";
+import * as FaIcons from "react-icons/fa";
+import * as FaIconsSolid from "react-icons/fa6";
 import {ProgramDetail} from "@/types/programs";
 import {theme} from "@/config/theme";
 import Navbar from "@/app/components/Navbar";
@@ -93,6 +95,49 @@ export default function ProgramDetailPage() {
 
   // Universal helpers for font, direction, and alignment
   const getFontFamily = () => (currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary);
+
+  // Helper function to get React icon component from icon name
+  const getIconComponent = (iconName: string) => {
+    if (!iconName) return null;
+
+    // Icon name mappings for common icons that might have different names
+    const iconMappings: { [key: string]: string } = {
+      'FaHandHoldingWater': 'FaHandHoldingDroplet',
+      'FaWater': 'FaTint',
+      'FaHandHoldingUsd': 'FaHandHoldingDollar',
+    };
+
+    // Use mapping if available
+    const mappedIconName = iconMappings[iconName] || iconName;
+
+    // If iconName already starts with "Fa", use it directly (e.g., "FaUsers")
+    if (mappedIconName.startsWith('Fa')) {
+      // Try FA5 first
+      let IconComponent = (FaIcons as any)[mappedIconName];
+      if (IconComponent) return IconComponent;
+
+      // Try FA6 if not found in FA5
+      IconComponent = (FaIconsSolid as any)[mappedIconName];
+      if (IconComponent) return IconComponent;
+
+      return null;
+    }
+
+    // Otherwise, convert from FontAwesome class name (e.g., "fa-users" -> "FaUsers")
+    const iconKey = mappedIconName
+      .replace(/^fa-/, '') // Remove fa- prefix
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+
+    // Try FA5 first
+    let IconComponent = (FaIcons as any)[`Fa${iconKey}`];
+    if (IconComponent) return IconComponent;
+
+    // Try FA6 if not found in FA5
+    IconComponent = (FaIconsSolid as any)[`Fa${iconKey}`];
+    return IconComponent || null;
+  };
   const getDirection = () => (currentLanguage === "ur" ? "rtl" : "ltr");
   const getTextAlign = () => (currentLanguage === "ur" ? "right" : "left");
 
@@ -255,12 +300,21 @@ export default function ProgramDetailPage() {
               {/* Impact Stats */}
               {program[currentLanguage]?.impact && program[currentLanguage].impact.map((stat, index) => {
                 const numericValue = parseInt(stat.value?.replace(/[^0-9]/g, "") || "0");
+                const IconComponent = getIconComponent(stat.iconName);
 
                 return (
                   <div key={`impact-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg">
-                    <div className="text-2xl font-bold text-[#FFD700] mb-1">
-                      <CountUp end={numericValue} duration={5} separator="," />
-                      {stat.suffix || ""}
+                    {/* Icon with Value - Big Display */}
+                    <div className="flex flex-col items-center mb-2">
+                      {IconComponent ? (
+                        <IconComponent className="text-3xl text-[#FFD700] mb-2" />
+                      ) : (
+                        <span className="text-3xl mb-2">📈</span>
+                      )}
+                      <div className="text-2xl font-bold text-[#FFD700]">
+                        <CountUp end={numericValue} duration={5} separator="," />
+                        {stat.suffix || ""}
+                      </div>
                     </div>
                     <div
                       className="text-xs text-gray-200"
@@ -275,17 +329,21 @@ export default function ProgramDetailPage() {
               {/* Icon Stats */}
               {program[currentLanguage]?.iconStats && program[currentLanguage].iconStats.map((stat, index) => {
                 const numericValue = parseInt(stat.value?.replace(/[^0-9]/g, "") || "0");
+                const IconComponent = getIconComponent(stat.iconName);
 
                 return (
                   <div key={`icon-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg">
-                    <div className="flex justify-center mb-2">
-                      <i
-                        className={`${stat.iconName} text-2xl text-[#FFD700]`}
-                        style={{ fontFamily: 'FontAwesome' }}
-                      ></i>
-                    </div>
-                    <div className="text-2xl font-bold text-[#FFD700] mb-1">
-                      <CountUp end={numericValue} duration={5} separator="," />
+                    {/* Icon with Value - Horizontal Layout */}
+                    <div className={`flex items-center justify-center gap-3 mb-2 ${currentLanguage === "ur" ? "flex-row-reverse" : "flex-row"}`}>
+                      {IconComponent ? (
+                        <IconComponent className="text-2xl text-[#FFD700]" />
+                      ) : (
+                        <span className="text-2xl">📊</span>
+                      )}
+                      <div className="text-2xl font-bold text-[#FFD700]">
+                        <CountUp end={numericValue} duration={5} separator="," />
+                        {(stat as any).suffix || ""}
+                      </div>
                     </div>
                     <div
                       className="text-xs text-gray-200"

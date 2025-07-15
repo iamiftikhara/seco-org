@@ -170,7 +170,50 @@ async function updateProgram(request: Request) {
   }
 }
 
+// Delete program
+async function deleteProgram(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'Program ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const collection = await getCollection('programs');
+    const result = await collection.updateOne(
+      { 'programsList.id': id },
+      { $pull: { programsList: { id } } }
+    );
+
+    if (result.matchedCount === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Program not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Program deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting program:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to delete program'
+      },
+      { status: 500 }
+    );
+  }
+}
+
 // Export the protected routes
 export const GET = withAdminAuth(getProgramsData);
 export const POST = withAdminAuth(addProgram);
 export const PUT = withAdminAuth(updateProgram);
+export const DELETE = withAdminAuth(deleteProgram);
