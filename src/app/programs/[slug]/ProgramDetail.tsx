@@ -293,74 +293,93 @@ export default function ProgramDetailPage() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-[#4B0082] to-[#6B238E] text-white py-12">
-          <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-2xl font-bold text-center mb-2">{currentLanguage === "ur" ? "پروگرام کا اثر" : "Program Impact"}</h2>
-            <div className={`grid gap-4 mt-8 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'}`}>
-              {/* Impact Stats */}
-              {program[currentLanguage]?.impact && program[currentLanguage].impact.map((stat, index) => {
-                const numericValue = parseInt(stat.value?.replace(/[^0-9]/g, "") || "0");
-                const IconComponent = getIconComponent(stat.iconName);
+        {/* Impact and Icon Stats Section - Only show if data exists */}
+        {((program[currentLanguage]?.impact && program[currentLanguage].impact.length > 0) ||
+          (program[currentLanguage]?.iconStats && program[currentLanguage].iconStats.length > 0)) && (
+          <div className="bg-gradient-to-r from-[#4B0082] to-[#6B238E] text-white py-12">
+            <div className="max-w-7xl mx-auto px-4">
+              <h2 className="text-2xl font-bold text-center mb-8">{currentLanguage === "ur" ? "پروگرام کا اثر" : "Program Impact"}</h2>
 
-                return (
-                  <div key={`impact-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg">
-                    {/* Icon with Value - Big Display */}
-                    <div className="flex flex-col items-center mb-2">
-                      {IconComponent ? (
-                        <IconComponent className="text-3xl text-[#FFD700] mb-2" />
-                      ) : (
-                        <span className="text-3xl mb-2">📈</span>
-                      )}
-                      <div className="text-2xl font-bold text-[#FFD700]">
-                        <CountUp end={numericValue} duration={5} separator="," />
-                        {stat.suffix || ""}
-                      </div>
-                    </div>
-                    <div
-                      className="text-xs text-gray-200"
-                      style={{ fontFamily: getFontFamily() }}
-                    >
-                      {stat.label.text}
+              {/* Impact Stats Row */}
+              {program[currentLanguage]?.impact && program[currentLanguage].impact.length > 0 && (
+                <div className="mb-8">
+                  <div className="flex justify-center">
+                    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${program[currentLanguage].impact.length}, minmax(0, 1fr))` }}>
+                      {program[currentLanguage].impact.map((stat, index) => {
+                        const numericValue = parseInt(stat.value?.replace(/[^0-9]/g, "") || "0");
+                        const IconComponent = getIconComponent(stat.iconName);
+
+                        return (
+                          <div key={`impact-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg min-w-[150px]">
+                            {/* Icon with Value - Big Display */}
+                            <div className="flex flex-col items-center mb-2">
+                              {IconComponent ? (
+                                <IconComponent className="text-3xl text-[#FFD700] mb-2" />
+                              ) : (
+                                <span className="text-3xl mb-2">📈</span>
+                              )}
+                              <div className="text-2xl font-bold text-[#FFD700]">
+                                <CountUp end={numericValue} duration={5} separator="," />
+                                {stat.suffix || ""}
+                              </div>
+                            </div>
+                            <div
+                              className="text-xs text-gray-200"
+                              style={{ fontFamily: getFontFamily() }}
+                            >
+                              {stat.label.text}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              )}
 
-              {/* Icon Stats */}
-              {program[currentLanguage]?.iconStats && program[currentLanguage].iconStats.map((stat, index) => {
-                const numericValue = parseInt(stat.value?.replace(/[^0-9]/g, "") || "0");
-                const IconComponent = getIconComponent(stat.iconName);
+              {/* Icon Stats Row */}
+              {program[currentLanguage]?.iconStats && program[currentLanguage].iconStats.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex justify-center">
+                    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${program[currentLanguage].iconStats.length}, minmax(0, 1fr))` }}>
+                      {program[currentLanguage].iconStats.map((stat, index) => {
+                        const numericValue = parseInt(stat.value?.replace(/[^0-9]/g, "") || "0");
+                        const IconComponent = getIconComponent(stat.iconName);
 
-                return (
-                  <div key={`icon-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg">
-                    {/* Icon with Value - Horizontal Layout */}
-                    <div className={`flex items-center justify-center gap-3 mb-2 ${currentLanguage === "ur" ? "flex-row-reverse" : "flex-row"}`}>
-                      {IconComponent ? (
-                        <IconComponent className="text-2xl text-[#FFD700]" />
-                      ) : (
-                        <span className="text-2xl">📊</span>
-                      )}
-                      <div className="text-2xl font-bold text-[#FFD700]">
-                        <CountUp end={numericValue} duration={5} separator="," />
-                        {(stat as any).suffix || ""}
-                      </div>
-                    </div>
-                    <div
-                      className="text-xs text-gray-200"
-                      style={{ fontFamily: getFontFamily() }}
-                    >
-                      {stat.label.text}
+                        return (
+                          <div key={`icon-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg min-w-[150px]">
+                            {/* Icon with Value - Horizontal Layout */}
+                            <div className={`flex items-center justify-center gap-3 mb-2 ${currentLanguage === "ur" ? "flex-row-reverse" : "flex-row"}`}>
+                              {IconComponent ? (
+                                <IconComponent className="text-2xl text-[#FFD700]" />
+                              ) : (
+                                <span className="text-2xl">📊</span>
+                              )}
+                              <div className="text-2xl font-bold text-[#FFD700]">
+                                <CountUp end={numericValue} duration={5} separator="," />
+                                {(stat as any).suffix || ""}
+                              </div>
+                            </div>
+                            <div
+                              className="text-xs text-gray-200"
+                              style={{ fontFamily: getFontFamily() }}
+                            >
+                              {stat.label.text}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        )}
 
         <div className={`max-w-7xl mx-auto px-4 ${isMobile ? 'py-6' : 'py-16'}`}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <div className="lg:col-span-2">
+          <div className={`grid grid-cols-1 gap-12 ${program[currentLanguage]?.partners && program[currentLanguage].partners.length > 0 ? 'lg:grid-cols-3' : 'lg:grid-cols-1'}`}>
+            <div className={program[currentLanguage]?.partners && program[currentLanguage].partners.length > 0 ? "lg:col-span-2" : ""}>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">{currentLanguage === "ur" ? "پروگرام کے بارے میں" : "About the Program"}</h2>
               <div className="prose max-w-none">
                 <p
@@ -389,26 +408,29 @@ export default function ProgramDetailPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-1">
-              <div className="bg-gray-50 p-8 rounded-xl">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">{currentLanguage === "ur" ? "ہمارے پارٹنرز" : "Our Partners"}</h2>
-                <div className="space-y-6">
-                  {program[currentLanguage]?.partners?.map((partner, index) => (
-                    <div key={index} className={`flex items-center ${currentLanguage === "ur" ? "space-x-reverse" : ""} space-x-4`}>
-                      <div className="relative w-16 h-16">
-                        <Image src={partner.logo} alt={partner.name.text} fill className="object-contain" />
+            {/* Partners Section - Only show if partners exist */}
+            {program[currentLanguage]?.partners && program[currentLanguage].partners.length > 0 && (
+              <div className="lg:col-span-1">
+                <div className="bg-gray-50 p-8 rounded-xl">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">{currentLanguage === "ur" ? "ہمارے پارٹنرز" : "Our Partners"}</h2>
+                  <div className="space-y-6">
+                    {program[currentLanguage].partners.map((partner, index) => (
+                      <div key={index} className={`flex items-center ${currentLanguage === "ur" ? "space-x-reverse" : ""} space-x-4`}>
+                        <div className="relative w-16 h-16">
+                          <Image src={partner.logo} alt={partner.name.text} fill className="object-contain" />
+                        </div>
+                        <span
+                          className="text-gray-700 font-medium"
+                          style={{ fontFamily: getFontFamily() }}
+                        >
+                          {partner.name.text}
+                        </span>
                       </div>
-                      <span
-                        className="text-gray-700 font-medium"
-                        style={{ fontFamily: getFontFamily() }}
-                      >
-                        {partner.name.text}
-                      </span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

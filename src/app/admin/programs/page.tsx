@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FaPlus, FaEdit, FaTrash, FaImage, FaTimes } from "react-icons/fa";
-import { FiEdit2, FiSave, FiX, FiImage, FiType, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FaPlus, FaEdit, FaTrash, FaImage, FaTimes, FaHome } from "react-icons/fa";
+import { FiEdit2, FiSave, FiX, FiImage, FiType, FiPlus, FiTrash2, FiEye } from "react-icons/fi";
 import { theme } from "@/config/theme";
 import { ProgramDetail } from "@/types/programs";
 import ImageSelector from '@/app/admin/components/ImageSelector';
@@ -212,26 +212,30 @@ export default function ProgramsAdmin() {
   const getIconComponent = (iconName: string) => {
     if (!iconName) return null;
 
-    // Icon name mappings for common icons that might have different names
-    const iconMappings: { [key: string]: string } = {
-      'FaHandHoldingWater': 'FaHandHoldingDroplet',
-      'FaWater': 'FaTint',
-      'FaHandHoldingUsd': 'FaHandHoldingDollar',
-    };
+    try {
+      // Icon name mappings for common icons that might have different names
+      const iconMappings: { [key: string]: string } = {
+        'FaHandHoldingWater': 'FaHandHoldingDroplet',
+        'FaWater': 'FaTint',
+        'FaHandHoldingUsd': 'FaHandHoldingDollar',
+      };
 
-    // Use mapping if available
-    const mappedIconName = iconMappings[iconName] || iconName;
+      // Use mapping if available
+      const mappedIconName = iconMappings[iconName] || iconName;
 
-    // If iconName already starts with "Fa", use it directly
-    if (mappedIconName.startsWith('Fa')) {
-      // Try FA5 first
-      const IconComponent = (require('react-icons/fa') as any)[mappedIconName];
-      if (IconComponent) return IconComponent;
+      // If iconName already starts with "Fa", use it directly
+      if (mappedIconName.startsWith('Fa')) {
+        // Import all FA icons dynamically
+        const FaIcons = require('react-icons/fa');
+        const IconComponent = FaIcons[mappedIconName];
+        if (IconComponent) return IconComponent;
+      }
 
       return null;
+    } catch (error) {
+      console.error('Error loading icon:', iconName, error);
+      return null;
     }
-
-    return null;
   };
 
   const generateSlug = (title: string) => {
@@ -626,42 +630,44 @@ export default function ProgramsAdmin() {
   const handleSaveImpact = () => {
     if (!modalState.editingImpact?.label?.text || !modalState.editingImpact?.value || !modalState.editingImpact?.iconName) return;
 
-    const currentImpact = formData[uiState.miniModalLanguage]?.impact || [];
-    let updatedImpact;
+    const currentLang = uiState.miniModalLanguage;
+    const oppositeLang = currentLang === 'en' ? 'ur' : 'en';
+
+    // Update current language
+    const currentImpact = formData[currentLang]?.impact || [];
+    let updatedCurrentImpact;
 
     if (modalState.editingImpactIndex !== null) {
       // Edit existing
-      updatedImpact = currentImpact.map((item: any, index: number) =>
+      updatedCurrentImpact = currentImpact.map((item: any, index: number) =>
         index === modalState.editingImpactIndex ? modalState.editingImpact : item
       );
     } else {
       // Add new
-      updatedImpact = [...currentImpact, modalState.editingImpact];
+      updatedCurrentImpact = [...currentImpact, modalState.editingImpact];
     }
 
-    updateImpact(updatedImpact);
+    updateImpact(updatedCurrentImpact);
 
-    // Check if this impact exists in the opposite language
-    const oppositeLang = uiState.miniModalLanguage === 'en' ? 'ur' : 'en';
+    // Check if opposite language data exists for this ID
     const oppositeImpact = formData[oppositeLang]?.impact || [];
-    const impactExistsInOpposite = oppositeImpact.some((item: any) => item.id === modalState.editingImpact?.id);
+    const oppositeItem = oppositeImpact.find((item: any) => item.id === modalState.editingImpact?.id);
 
-    // If impact doesn't exist in opposite language, keep modal open and switch language
-    if (!impactExistsInOpposite) {
+    if (!oppositeItem?.label?.text) {
       // Switch to opposite language and show required validation
       updateUIState({ miniModalLanguage: oppositeLang });
       updatePromptState({
         impactRequiredInOpposite: true
       });
-      // Set up editing for the opposite language with same ID
+      // Set up editing for the opposite language with same ID, value, iconName, suffix
       updateModalState({
         editingImpact: {
           id: modalState.editingImpact?.id || Date.now().toString(),
           label: { text: '' },
-          value: '',
-          iconName: '',
-          prefix: '',
-          suffix: ''
+          value: modalState.editingImpact.value, // Copy value
+          iconName: modalState.editingImpact.iconName, // Copy iconName
+          prefix: modalState.editingImpact.prefix || '',
+          suffix: modalState.editingImpact.suffix || '' // Copy suffix
         }
       });
       // Keep modal open - don't close it
@@ -1329,6 +1335,11 @@ export default function ProgramsAdmin() {
                   }`}>
                     {program.isActive ? 'Active' : 'Inactive'}
                   </span>
+                  {program.showOnHomepage && (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800" title="Shown on Homepage">
+                      <FaHome className="inline w-3 h-3" />
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -1393,6 +1404,15 @@ export default function ProgramsAdmin() {
                     >
                       <FaTrash />
                     </button>
+                    <a
+                      href={`/programs/${program.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="View Program"
+                    >
+                      <FiEye />
+                    </a>
                   </div>
                 </div>
               </div>
@@ -2072,8 +2092,20 @@ export default function ProgramsAdmin() {
                                   <FiEdit2 className="w-4 h-4" />
                                 </button>
                                 <button type="button" onClick={() => {
-                                  const impact = (formData[uiState.modalLanguage]?.impact || []).filter((f: any) => f.id !== imp.id);
-                                  updateImpact(impact);
+                                  // Delete from BOTH languages simultaneously
+                                  const updatedFormData = { ...formData };
+
+                                  // Remove from English
+                                  if (updatedFormData.en?.impact) {
+                                    updatedFormData.en.impact = updatedFormData.en.impact.filter((f: any) => f.id !== imp.id);
+                                  }
+
+                                  // Remove from Urdu
+                                  if (updatedFormData.ur?.impact) {
+                                    updatedFormData.ur.impact = updatedFormData.ur.impact.filter((f: any) => f.id !== imp.id);
+                                  }
+
+                                  setFormData(updatedFormData);
                                 }} className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 cursor-pointer" style={{ color: theme.colors.status.error }}>
                                   <FiTrash2 className="w-4 h-4" />
                                 </button>
@@ -2149,8 +2181,20 @@ export default function ProgramsAdmin() {
                                   <FiEdit2 className="w-4 h-4" />
                                 </button>
                                 <button type="button" onClick={() => {
-                                  const iconStats = (formData[uiState.modalLanguage]?.iconStats || []).filter((f: any) => f.id !== stat.id);
-                                  updateIconStats(iconStats);
+                                  // Delete from BOTH languages simultaneously
+                                  const updatedFormData = { ...formData };
+
+                                  // Remove from English
+                                  if (updatedFormData.en?.iconStats) {
+                                    updatedFormData.en.iconStats = updatedFormData.en.iconStats.filter((f: any) => f.id !== stat.id);
+                                  }
+
+                                  // Remove from Urdu
+                                  if (updatedFormData.ur?.iconStats) {
+                                    updatedFormData.ur.iconStats = updatedFormData.ur.iconStats.filter((f: any) => f.id !== stat.id);
+                                  }
+
+                                  setFormData(updatedFormData);
                                 }} className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 cursor-pointer" style={{ color: theme.colors.status.error }}>
                                   <FiTrash2 className="w-4 h-4" />
                                 </button>
@@ -2182,17 +2226,37 @@ export default function ProgramsAdmin() {
                     <table className="min-w-full divide-y" style={{ borderColor: theme.colors.border.default, direction: uiState.modalLanguage === 'ur' ? 'rtl' : 'ltr' }}>
                       <thead>
                         <tr>
+                          <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts[uiState.modalLanguage].primary, width: '80px' }}>Logo</th>
                           <th className={`px-6 py-3 ${uiState.modalLanguage === 'ur' ? 'text-right' : 'text-left'} text-xs font-medium uppercase tracking-wider`} style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts[uiState.modalLanguage].primary }}>{labels.name[uiState.modalLanguage]}</th>
-                          <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts[uiState.modalLanguage].primary }}>Actions</th>
+                          <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts[uiState.modalLanguage].primary, width: '120px' }}>Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y" style={{ borderColor: theme.colors.border.default }}>
                         {(formData[uiState.modalLanguage]?.partners || []).map((partner: any, idx: number) => (
                           <tr key={partner.id || idx} className="hover:bg-gray-50" style={{ backgroundColor: theme.colors.background.secondary }}>
+                            <td className="px-6 py-4 text-center" style={{ width: '80px' }}>
+                              <div className="flex items-center justify-center">
+                                {partner.logo ? (
+                                  <div className="relative w-12 h-12 flex-shrink-0">
+                                    <Image
+                                      src={partner.logo}
+                                      alt={partner.name?.text || 'Partner logo'}
+                                      fill
+                                      className="object-contain rounded border border-gray-200"
+                                      sizes="48px"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center flex-shrink-0 border border-gray-300">
+                                    <FaImage className="text-gray-400 text-lg" />
+                                  </div>
+                                )}
+                              </div>
+                            </td>
                             <td className={`px-6 py-4 ${uiState.modalLanguage === 'ur' ? 'text-right' : 'text-left'}`} style={{ color: theme.colors.text.primary, fontFamily: theme.fonts[uiState.modalLanguage].primary }}>
                               <div className="max-w-[180px] truncate" title={partner.name?.text || '--'}>{partner.name?.text || '--'}</div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <td className="px-6 py-4 whitespace-nowrap text-center" style={{ width: '120px' }}>
                               <div className="flex items-center justify-center gap-2">
                                 <button type="button" onClick={() => {
                                   // Set the editing partner with the current item's data
@@ -2207,8 +2271,20 @@ export default function ProgramsAdmin() {
                                   <FiEdit2 className="w-4 h-4" />
                                 </button>
                                 <button type="button" onClick={() => {
-                                  const partners = (formData[uiState.modalLanguage]?.partners || []).filter((f: any) => f.id !== partner.id);
-                                  updatePartners(partners);
+                                  // Delete from BOTH languages simultaneously
+                                  const updatedFormData = { ...formData };
+
+                                  // Remove from English
+                                  if (updatedFormData.en?.partners) {
+                                    updatedFormData.en.partners = updatedFormData.en.partners.filter((f: any) => f.id !== partner.id);
+                                  }
+
+                                  // Remove from Urdu
+                                  if (updatedFormData.ur?.partners) {
+                                    updatedFormData.ur.partners = updatedFormData.ur.partners.filter((f: any) => f.id !== partner.id);
+                                  }
+
+                                  setFormData(updatedFormData);
                                 }} className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 cursor-pointer" style={{ color: theme.colors.status.error }}>
                                   <FiTrash2 className="w-4 h-4" />
                                 </button>
@@ -2387,6 +2463,36 @@ export default function ProgramsAdmin() {
               <button type="button" onClick={() => updateModalState({ impactModalOpen: false, editingImpact: null, editingImpactIndex: null })} className="px-4 py-2 rounded bg-gray-200" style={{ color: theme.colors.text.primary }}>{labels.cancel[uiState.miniModalLanguage]}</button>
               {promptState.impactRequiredInOpposite && (
                 <button type="button" onClick={() => {
+                  // Get the original language data (the one that was saved first)
+                  const currentLang = uiState.miniModalLanguage; // Current language we're in (the one missing data)
+                  const originalLang = currentLang === 'en' ? 'ur' : 'en'; // The language that has the data
+
+                  // Find the original impact data from the language that has it
+                  const originalImpact = formData[originalLang]?.impact?.find((item: any) => item.id === modalState.editingImpact?.id);
+
+                  if (originalImpact) {
+                    // Copy the original data to current language (copy the label text from original)
+                    const copiedImpact = {
+                      ...originalImpact, // Copy all fields (value, iconName, suffix, etc.)
+                      label: { text: originalImpact.label.text } // Copy the same label text
+                    };
+
+                    // Update current language impact
+                    const updatedFormData = { ...formData };
+                    if (!updatedFormData[currentLang]) updatedFormData[currentLang] = createEmptyProgram()[currentLang];
+                    if (!updatedFormData[currentLang].impact) updatedFormData[currentLang].impact = [];
+
+                    // Check if item already exists in current language
+                    const existingIndex = updatedFormData[currentLang].impact.findIndex((item: any) => item.id === copiedImpact.id);
+                    if (existingIndex !== -1) {
+                      updatedFormData[currentLang].impact[existingIndex] = copiedImpact;
+                    } else {
+                      updatedFormData[currentLang].impact.push(copiedImpact);
+                    }
+
+                    setFormData(updatedFormData);
+                  }
+
                   updatePromptState({ impactRequiredInOpposite: false });
                   updateModalState({
                     impactModalOpen: false,
@@ -2394,7 +2500,7 @@ export default function ProgramsAdmin() {
                     editingImpactIndex: null,
                   });
                 }} className="px-4 py-2 rounded bg-yellow-500 text-white">
-                  Skip Translation
+                  Skip Translation (Copy Same)
                 </button>
               )}
               <button type="button" onClick={handleSaveImpact} className="px-4 py-2 rounded bg-blue-600 text-white">{labels.save[uiState.miniModalLanguage]}</button>
@@ -2481,6 +2587,36 @@ export default function ProgramsAdmin() {
               <button type="button" onClick={() => updateModalState({ iconStatsModalOpen: false, editingIconStats: null, editingIconStatsIndex: null })} className="px-4 py-2 rounded bg-gray-200" style={{ color: theme.colors.text.primary }}>{labels.cancel[uiState.miniModalLanguage]}</button>
               {promptState.iconStatsRequiredInOpposite && (
                 <button type="button" onClick={() => {
+                  // Get the original language data (the one that was saved first)
+                  const currentLang = uiState.miniModalLanguage; // Current language we're in (the one missing data)
+                  const originalLang = currentLang === 'en' ? 'ur' : 'en'; // The language that has the data
+
+                  // Find the original icon stats data from the language that has it
+                  const originalIconStats = formData[originalLang]?.iconStats?.find((item: any) => item.id === modalState.editingIconStats?.id);
+
+                  if (originalIconStats) {
+                    // Copy the original data to current language (copy the label text from original)
+                    const copiedIconStats = {
+                      ...originalIconStats, // Copy all fields (value, iconName, suffix, etc.)
+                      label: { text: originalIconStats.label.text } // Copy the same label text
+                    };
+
+                    // Update current language icon stats
+                    const updatedFormData = { ...formData };
+                    if (!updatedFormData[currentLang]) updatedFormData[currentLang] = createEmptyProgram()[currentLang];
+                    if (!updatedFormData[currentLang].iconStats) updatedFormData[currentLang].iconStats = [];
+
+                    // Check if item already exists in current language
+                    const existingIndex = updatedFormData[currentLang].iconStats.findIndex((item: any) => item.id === copiedIconStats.id);
+                    if (existingIndex !== -1) {
+                      updatedFormData[currentLang].iconStats[existingIndex] = copiedIconStats;
+                    } else {
+                      updatedFormData[currentLang].iconStats.push(copiedIconStats);
+                    }
+
+                    setFormData(updatedFormData);
+                  }
+
                   updatePromptState({ iconStatsRequiredInOpposite: false });
                   updateModalState({
                     iconStatsModalOpen: false,
@@ -2488,7 +2624,7 @@ export default function ProgramsAdmin() {
                     editingIconStatsIndex: null,
                   });
                 }} className="px-4 py-2 rounded bg-yellow-500 text-white">
-                  Skip Translation
+                  Skip Translation (Copy Same)
                 </button>
               )}
               <button type="button" onClick={handleSaveIconStats} className="px-4 py-2 rounded bg-blue-600 text-white">{labels.save[uiState.miniModalLanguage]}</button>
@@ -2557,6 +2693,36 @@ export default function ProgramsAdmin() {
               <button type="button" onClick={() => updateModalState({ partnersModalOpen: false, editingPartners: null, editingPartnersIndex: null })} className="px-4 py-2 rounded bg-gray-200" style={{ color: theme.colors.text.primary }}>{labels.cancel[uiState.miniModalLanguage]}</button>
               {promptState.partnersRequiredInOpposite && (
                 <button type="button" onClick={() => {
+                  // Get the original language data (the one that was saved first)
+                  const currentLang = uiState.miniModalLanguage; // Current language we're in (the one missing data)
+                  const originalLang = currentLang === 'en' ? 'ur' : 'en'; // The language that has the data
+
+                  // Find the original partner data from the language that has it
+                  const originalPartner = formData[originalLang]?.partners?.find((item: any) => item.id === modalState.editingPartners?.id);
+
+                  if (originalPartner) {
+                    // Copy the original data to current language (copy the name text from original)
+                    const copiedPartner = {
+                      ...originalPartner, // Copy all fields (logo, etc.)
+                      name: { text: originalPartner.name.text } // Copy the same name text
+                    };
+
+                    // Update current language partners
+                    const updatedFormData = { ...formData };
+                    if (!updatedFormData[currentLang]) updatedFormData[currentLang] = createEmptyProgram()[currentLang];
+                    if (!updatedFormData[currentLang].partners) updatedFormData[currentLang].partners = [];
+
+                    // Check if item already exists in current language
+                    const existingIndex = updatedFormData[currentLang].partners.findIndex((item: any) => item.id === copiedPartner.id);
+                    if (existingIndex !== -1) {
+                      updatedFormData[currentLang].partners[existingIndex] = copiedPartner;
+                    } else {
+                      updatedFormData[currentLang].partners.push(copiedPartner);
+                    }
+
+                    setFormData(updatedFormData);
+                  }
+
                   updatePromptState({ partnersRequiredInOpposite: false });
                   updateModalState({
                     partnersModalOpen: false,
@@ -2564,7 +2730,7 @@ export default function ProgramsAdmin() {
                     editingPartnersIndex: null,
                   });
                 }} className="px-4 py-2 rounded bg-yellow-500 text-white">
-                  Skip Translation
+                  Skip Translation (Copy Same)
                 </button>
               )}
               <button type="button" onClick={handleSavePartners} className="px-4 py-2 rounded bg-blue-600 text-white">{labels.save[uiState.miniModalLanguage]}</button>

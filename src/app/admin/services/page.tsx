@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { FiEdit2, FiSave, FiX, FiPlus, FiTrash2, FiImage, FiType, FiEye } from "react-icons/fi";
+import { FaEdit, FaTrash, FaHome } from "react-icons/fa";
 import { showAlert, showConfirmDialog } from "@/utils/alert";
 import Loader from "../components/Loader";
 import DashboardLoader from "../components/DashboardLoader";
@@ -11,6 +12,7 @@ import AdminError from "../errors/error";
 import type { ServiceDetail, KeyFeature, ImpactMetric, ServicePageContent } from '@/types/services';
 import ImageSelector from '@/app/admin/components/ImageSelector';
 import IconSelector from '@/app/admin/components/IconSelector';
+import Image from "next/image";
 
 // Types for better type safety
 interface ServiceFormState {
@@ -103,6 +105,7 @@ export default function ServicesAdmin() {
 
   // Legacy state variables for backward compatibility (will be removed gradually)
   const [showUrduTable, setShowUrduTable] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ur'>('en');
   const router = useRouter();
 
   // Labels for UI text in both languages
@@ -150,6 +153,23 @@ export default function ServicesAdmin() {
   const updatePromptState = (updates: Partial<PromptState>) => {
     setPromptState(prev => ({ ...prev, ...updates }));
   };
+
+  // Helper functions for cards view
+  const getFontFamily = () => {
+    return currentLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary;
+  };
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // API functions
   const fetchServices = useCallback(async () => {
@@ -350,7 +370,6 @@ export default function ServicesAdmin() {
   };
 
   // Font/layout helpers
-  const getFontFamily = () => uiState.language === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary;
   const getDirection = () => uiState.language === 'ur' ? 'rtl' : 'ltr';
   const getTextAlign = () => uiState.language === 'ur' ? 'text-right' : 'text-left';
 
@@ -1038,63 +1057,131 @@ export default function ServicesAdmin() {
           Add Service
         </button>
       </div>
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden" style={{ backgroundColor: theme.colors.background.primary }}>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y" style={{ borderColor: theme.colors.border.default }}>
-            <thead>
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts.en.primary }}>Preview</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts.en.primary }}>Title (EN)</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts.en.primary }}>Title (UR)</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts.en.primary }}>Show on Homepage</th>
-                <th className="px-6 py-3 text-center text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts.en.primary }}>View</th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style={{ color: theme.colors.text.secondary, fontFamily: theme.fonts.en.primary }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y" style={{ borderColor: theme.colors.border.default }}>
-              {formState.services.map((service, index) => (
-                <tr key={service.id || index} className="hover:bg-gray-50" style={{ backgroundColor: theme.colors.background.secondary }}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-16 h-16 rounded-lg overflow-hidden">
-                        <img src={service.heroImage} alt={service.en?.title?.text || ''} className="w-full h-full object-cover" />
+      {/* Language Toggle */}
+      <div className="flex justify-center mb-6">
+        <div className="flex bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setCurrentLanguage('en')}
+            className={`px-4 py-2 rounded-md transition-colors ${
+              currentLanguage === 'en'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+            style={{ fontFamily: theme.fonts.en.primary }}
+          >
+            English
+          </button>
+          <button
+            onClick={() => setCurrentLanguage('ur')}
+            className={`px-4 py-2 rounded-md transition-colors ${
+              currentLanguage === 'ur'
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+            style={{ fontFamily: theme.fonts.ur.primary }}
+          >
+            اردو
+          </button>
+        </div>
+      </div>
+
+      {/* Services Cards Grid */}
+      <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+        {formState.services.map((service, index) => (
+          <div key={service.id || index} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200" style={{ backgroundColor: theme.colors.background.primary }}>
+            {/* Service Image */}
+            <div className="relative h-48 overflow-hidden">
+              <Image
+                src={service.heroImage}
+                alt={service[currentLanguage]?.title?.text || 'Service image'}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+
+              {/* Status Indicators */}
+              <div className="absolute top-2 right-2 flex gap-2">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  service.isActive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {service.isActive ? 'Active' : 'Inactive'}
+                </span>
+                {service.showOnHomepage && (
+                  <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800" title="Shown on Homepage">
+                    <FaHome className="inline w-3 h-3" />
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Service Content */}
+            <div className={`p-4 ${currentLanguage === 'ur' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ur' ? 'rtl' : 'ltr'}>
+              <h3
+                className={`font-semibold text-gray-900 mb-2 line-clamp-2 ${currentLanguage === 'ur' ? 'text-right' : 'text-left'}`}
+                style={{ fontFamily: getFontFamily() }}
+              >
+                {service[currentLanguage]?.title?.text || '--'}
+              </h3>
+
+              <p
+                className={`text-sm text-gray-600 mb-4 line-clamp-3 ${currentLanguage === 'ur' ? 'text-right' : 'text-left'}`}
+                style={{ fontFamily: getFontFamily() }}
+              >
+                {service[currentLanguage]?.shortDescription?.text || '--'}
+              </p>
+
+              {/* Impact Stats */}
+              {service[currentLanguage]?.impact && service[currentLanguage].impact.length > 0 && (
+                <div className={`flex gap-4 mb-4 ${currentLanguage === 'ur' ? 'justify-start' : 'justify-start'}`}>
+                  {service[currentLanguage].impact.slice(0, 2).map((stat, index) => (
+                    <div key={index} className={`text-center ${currentLanguage === 'ur' ? 'text-right' : 'text-center'}`}>
+                      <div className="text-lg font-bold text-blue-600">
+                        {stat.value}{stat.suffix || ""}
+                      </div>
+                      <div
+                        className={`text-xs text-gray-500 ${currentLanguage === 'ur' ? 'text-right' : 'text-center'}`}
+                        style={{ fontFamily: getFontFamily() }}
+                      >
+                        {stat.label.text}
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4" style={{ color: theme.colors.text.primary }}>
-                    <div className="max-w-[180px] truncate" title={service.en?.title?.text || ''} style={{ fontFamily: theme.fonts.en.primary }}>{service.en?.title?.text || <span className="text-gray-400 italic">No title</span>}</div>
-                  </td>
-                  <td className="px-6 py-4" style={{ color: theme.colors.text.primary }}>
-                    <div className="max-w-[180px] truncate" title={service.ur?.title?.text || ''} style={{ fontFamily: theme.fonts.ur.primary, direction: "rtl", textAlign: "right" }}>{service.ur?.title?.text || <span className="text-gray-400 italic">No title</span>}</div>
-                  </td>
-                  <td className="px-6 py-4" style={{ color: theme.colors.text.primary }}>{service.showOnHomepage ? "Yes" : "No"}</td>
-                  <td className="px-6 py-4 text-center">
-                    <a
-                      href={`/services/${service.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title="View Service"
-                      className="inline-flex items-center justify-center p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100"
-                      style={{ color: theme.colors.primary }}
-                    >
-                      <FiEye className="w-5 h-5" />
-                    </a>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => handleEditService(index)} title="Click to edit." className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 cursor-pointer" style={{ color: theme.colors.primary }}>
-                        <FiEdit2 className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => handleDeleteService(index)} title="Click to delete." className="p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 cursor-pointer" style={{ color: theme.colors.status.error }}>
-                        <FiTrash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className={`flex items-center pt-4 border-t border-gray-100 ${currentLanguage === 'ur' ? 'justify-start' : 'justify-between'}`}>
+                <div className={`flex gap-2 ${currentLanguage === 'ur' ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <button
+                    onClick={() => handleEditService(index)}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Edit Service"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteService(index)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Delete Service"
+                  >
+                    <FaTrash />
+                  </button>
+                  <a
+                    href={`/services/${service.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    title="View Service"
+                  >
+                    <FiEye />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
       {/* Edit/Add Modal */}
       {uiState.isModalOpen && formState.selectedService && (
@@ -1496,7 +1583,7 @@ export default function ServicesAdmin() {
       {modalState.keyFeatureModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold mb-4" style={{ color: theme.colors.text.primary, fontFamily: getFontFamily() }}>{modalState.editingKeyFeature ? labels.edit[uiState.miniModalLanguage] : labels.add[uiState.miniModalLanguage]} {labels.keyFeatures[uiState.miniModalLanguage]}</h3>
+            <h3 className="text-lg font-bold mb-4" style={{ color: theme.colors.text.primary, fontFamily: uiState.miniModalLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary }}>{modalState.editingKeyFeature ? labels.edit[uiState.miniModalLanguage] : labels.add[uiState.miniModalLanguage]} {labels.keyFeatures[uiState.miniModalLanguage]}</h3>
             {/* Language Switcher */}
             <div className="flex justify-center gap-4 mb-4">
               <button
@@ -1574,7 +1661,7 @@ export default function ServicesAdmin() {
       {modalState.impactModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold mb-4" style={{ color: theme.colors.text.primary, fontFamily: getFontFamily() }}>{modalState.editingImpactIndex !== null ? labels.edit[uiState.miniModalLanguage] : labels.add[uiState.miniModalLanguage]} {labels.impact[uiState.miniModalLanguage]}</h3>
+            <h3 className="text-lg font-bold mb-4" style={{ color: theme.colors.text.primary, fontFamily: uiState.miniModalLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary }}>{modalState.editingImpactIndex !== null ? labels.edit[uiState.miniModalLanguage] : labels.add[uiState.miniModalLanguage]} {labels.impact[uiState.miniModalLanguage]}</h3>
             {/* Language Switcher */}
             <div className="flex justify-center gap-4 mb-4">
               <button

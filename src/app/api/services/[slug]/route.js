@@ -3,7 +3,8 @@ import { getCollection } from '@/lib/mongodb';
 
 export async function GET(request, { params }) {
   try {
-    console.log('Fetching service with slug:', params.slug);
+    // Await params to fix Next.js 15 requirement
+    const { slug } = await params;
 
     // Get services from MongoDB
     const collection = await getCollection('services');
@@ -17,14 +18,12 @@ export async function GET(request, { params }) {
       );
     }
 
-    console.log('Found services data, searching for slug:', params.slug);
-    console.log('Available services:', servicesData.servicesList.map(s => s.slug));
 
     // Find service by slug in the new data structure
-    const service = servicesData.servicesList.find(s => s.slug === params.slug);
+    const service = servicesData.servicesList.find(s => s.slug === slug);
 
     if (!service) {
-      console.log('Service not found with slug:', params.slug);
+      console.log('Service not found with slug:', slug);
       return NextResponse.json(
         { success: false, message: 'Service not found' },
         { status: 404 }
