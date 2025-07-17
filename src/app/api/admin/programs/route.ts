@@ -186,7 +186,7 @@ async function deleteProgram(request: NextRequest) {
     const collection = await getCollection('programs');
     const result = await collection.updateOne(
       { 'programsList.id': id },
-      { $pull: { programsList: { id: id } } } as any
+      { $pull: { programsList: { id: id } } } as unknown as UpdateFilter<Document>
     );
 
     if (result.matchedCount === 0) {
