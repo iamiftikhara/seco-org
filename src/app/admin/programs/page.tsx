@@ -1516,7 +1516,9 @@ export default function ProgramsAdmin() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Featured Image */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Featured Image <span className="text-red-500">*</span>
+                      </label>
                       <ImageSelector selectedPath={formData.featuredImage || ""} onSelect={(imageUrl: string) => handleFormChange("featuredImage", imageUrl)} size="small" />
                       {validationState.missingFields.includes("featuredImage") && <p className="text-xs text-red-600 mt-1">This field is required.</p>}
                     </div>
@@ -1565,7 +1567,7 @@ export default function ProgramsAdmin() {
                     {/* Title */}
                     <div className="space-y-2" style={{direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr", textAlign: uiState.modalLanguage === "ur" ? "right" : "left", fontFamily: theme.fonts[uiState.modalLanguage].primary}}>
                       <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                        {labels.title[uiState.modalLanguage]}
+                        {labels.title[uiState.modalLanguage]} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -1589,7 +1591,7 @@ export default function ProgramsAdmin() {
                     {/* Category */}
                     <div className="space-y-2" style={{direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr", textAlign: uiState.modalLanguage === "ur" ? "right" : "left", fontFamily: theme.fonts[uiState.modalLanguage].primary}}>
                       <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                        {labels.category[uiState.modalLanguage]}
+                        {labels.category[uiState.modalLanguage]} <span className="text-red-500">*</span>
                       </label>
                       <select
                         value={formData[uiState.modalLanguage]?.category?.text || ""}
@@ -1664,7 +1666,7 @@ export default function ProgramsAdmin() {
                     {/* Short Description */}
                     <div className="space-y-2" style={{direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr", textAlign: uiState.modalLanguage === "ur" ? "right" : "left", fontFamily: theme.fonts[uiState.modalLanguage].primary}}>
                       <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                        {labels.shortDescription[uiState.modalLanguage]}
+                        {labels.shortDescription[uiState.modalLanguage]} <span className="text-red-500">*</span>
                       </label>
                       <textarea
                         value={formData[uiState.modalLanguage]?.shortDescription?.text || ""}
@@ -1688,7 +1690,7 @@ export default function ProgramsAdmin() {
                     {/* Full Description */}
                     <div className="space-y-2" style={{direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr", textAlign: uiState.modalLanguage === "ur" ? "right" : "left", fontFamily: theme.fonts[uiState.modalLanguage].primary}}>
                       <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                        {labels.fullDescription[uiState.modalLanguage]}
+                        {labels.fullDescription[uiState.modalLanguage]} <span className="text-red-500">*</span>
                       </label>
                       <textarea
                         value={formData[uiState.modalLanguage]?.fullDescription?.text || ""}
@@ -1737,6 +1739,28 @@ export default function ProgramsAdmin() {
                       >
                         {labels.add[uiState.modalLanguage]}
                       </button>
+                    </div>
+
+                    {/* Impact Title */}
+                    <div className="mb-4" style={{ direction: uiState.modalLanguage === 'ur' ? 'rtl' : 'ltr', textAlign: uiState.modalLanguage === 'ur' ? 'right' : 'left', fontFamily: theme.fonts[uiState.modalLanguage].primary }}>
+                      <label className="block text-sm font-medium mb-2" style={{ color: theme.colors.text.secondary }}>
+                        {labels.impactTitle[uiState.modalLanguage]}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData[uiState.modalLanguage]?.impactTitle?.text || ''}
+                        onChange={e => handleLanguageChange(uiState.modalLanguage, 'impactTitle', { text: e.target.value })}
+                        className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+                        style={{
+                          borderColor: theme.colors.border.default,
+                          color: theme.colors.text.primary,
+                          backgroundColor: theme.colors.background.primary,
+                          fontFamily: theme.fonts[uiState.modalLanguage].primary,
+                          direction: uiState.modalLanguage === 'ur' ? 'rtl' : 'ltr',
+                          textAlign: uiState.modalLanguage === 'ur' ? 'right' : 'left'
+                        }}
+                        placeholder={uiState.modalLanguage === 'en' ? 'Enter impact title' : 'اثرات کا عنوان درج کریں'}
+                      />
                     </div>
                     <table className="min-w-full divide-y" style={{borderColor: theme.colors.border.default, direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr"}}>
                       <thead>
@@ -1861,6 +1885,28 @@ export default function ProgramsAdmin() {
                         {labels.add[uiState.modalLanguage]}
                       </button>
                     </div>
+
+                    {/* Icon Stats Title */}
+                    <div className="mb-4" style={{ direction: uiState.modalLanguage === 'ur' ? 'rtl' : 'ltr', textAlign: uiState.modalLanguage === 'ur' ? 'right' : 'left', fontFamily: theme.fonts[uiState.modalLanguage].primary }}>
+                      <label className="block text-sm font-medium mb-2" style={{ color: theme.colors.text.secondary }}>
+                        {labels.iconStatsTitle[uiState.modalLanguage]}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData[uiState.modalLanguage]?.iconStatsTitle?.text || ''}
+                        onChange={e => handleLanguageChange(uiState.modalLanguage, 'iconStatsTitle', { text: e.target.value })}
+                        className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+                        style={{
+                          borderColor: theme.colors.border.default,
+                          color: theme.colors.text.primary,
+                          backgroundColor: theme.colors.background.primary,
+                          fontFamily: theme.fonts[uiState.modalLanguage].primary,
+                          direction: uiState.modalLanguage === 'ur' ? 'rtl' : 'ltr',
+                          textAlign: uiState.modalLanguage === 'ur' ? 'right' : 'left'
+                        }}
+                        placeholder={uiState.modalLanguage === 'en' ? 'Enter icon stats title' : 'آئیکن اعداد و شمار کا عنوان درج کریں'}
+                      />
+                    </div>
                     <table className="min-w-full divide-y" style={{borderColor: theme.colors.border.default, direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr"}}>
                       <thead>
                         <tr>
@@ -1976,6 +2022,28 @@ export default function ProgramsAdmin() {
                         {labels.add[uiState.modalLanguage]}
                       </button>
                     </div>
+
+                    {/* Partners Title */}
+                    <div className="mb-4" style={{ direction: uiState.modalLanguage === 'ur' ? 'rtl' : 'ltr', textAlign: uiState.modalLanguage === 'ur' ? 'right' : 'left', fontFamily: theme.fonts[uiState.modalLanguage].primary }}>
+                      <label className="block text-sm font-medium mb-2" style={{ color: theme.colors.text.secondary }}>
+                        {labels.partnersTitle[uiState.modalLanguage]}
+                      </label>
+                      <input
+                        type="text"
+                        value={formData[uiState.modalLanguage]?.partnersTitle?.text || ''}
+                        onChange={e => handleLanguageChange(uiState.modalLanguage, 'partnersTitle', { text: e.target.value })}
+                        className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
+                        style={{
+                          borderColor: theme.colors.border.default,
+                          color: theme.colors.text.primary,
+                          backgroundColor: theme.colors.background.primary,
+                          fontFamily: theme.fonts[uiState.modalLanguage].primary,
+                          direction: uiState.modalLanguage === 'ur' ? 'rtl' : 'ltr',
+                          textAlign: uiState.modalLanguage === 'ur' ? 'right' : 'left'
+                        }}
+                        placeholder={uiState.modalLanguage === 'en' ? 'Enter partners title' : 'شراکت داروں کا عنوان درج کریں'}
+                      />
+                    </div>
                     <table className="min-w-full divide-y" style={{borderColor: theme.colors.border.default, direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr"}}>
                       <thead>
                         <tr>
@@ -2072,7 +2140,7 @@ export default function ProgramsAdmin() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                          Social Title
+                          Social Title <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -2092,7 +2160,7 @@ export default function ProgramsAdmin() {
                       </div>
                       <div className="space-y-2">
                         <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                          Social Description
+                          Social Description <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -2114,7 +2182,7 @@ export default function ProgramsAdmin() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                       <div className="space-y-2">
                         <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                          Hashtags (comma separated)
+                          Hashtags (comma separated) <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -2137,7 +2205,7 @@ export default function ProgramsAdmin() {
                       </div>
                       <div className="space-y-2">
                         <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                          Twitter Handle
+                          Twitter Handle <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
@@ -2159,7 +2227,7 @@ export default function ProgramsAdmin() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                       <div className="space-y-2">
                         <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
-                          OG Type
+                          OG Type <span className="text-red-500">*</span>
                         </label>
                         <select
                           value={formData.socialShare?.ogType || "article"}

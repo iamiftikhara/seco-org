@@ -298,25 +298,25 @@ export default function ProgramDetailPage() {
           (program[currentLanguage]?.iconStats && program[currentLanguage].iconStats.length > 0)) && (
           <div className="bg-gradient-to-r from-[#4B0082] to-[#6B238E] text-white py-12">
             <div className="max-w-7xl mx-auto px-4">
-              <h2 className="text-2xl font-bold text-center mb-8">{currentLanguage === "ur" ? "پروگرام کا اثر" : "Program Impact"}</h2>
+              <h2 className="text-2xl font-bold text-center mb-4">{currentLanguage === "ur" ? "پروگرام کا اثر" : "Program Impact"}</h2>
 
               {/* Impact Stats Row */}
               {program[currentLanguage]?.impact && program[currentLanguage].impact.length > 0 && (
                 <div className="mb-8">
-                  <div className="flex justify-center">
-                    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${program[currentLanguage].impact.length}, minmax(0, 1fr))` }}>
+                  <div className="w-full">
+                    <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
                       {program[currentLanguage].impact.map((stat, index) => {
                         const numericValue = parseInt(stat.value?.replace(/[^0-9]/g, "") || "0");
                         const IconComponent = getIconComponent(stat.iconName);
 
                         return (
-                          <div key={`impact-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg min-w-[150px]">
-                            {/* Icon with Value - Big Display */}
-                            <div className="flex flex-col items-center mb-2">
+                          <div key={`impact-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg w-full">
+                            {/* Icon with Value - Horizontal Layout */}
+                            <div className={`flex items-center justify-center gap-3 mb-3 ${currentLanguage === "ur" ? "flex-row-reverse" : "flex-row"}`}>
                               {IconComponent ? (
-                                <IconComponent className="text-3xl text-[#FFD700] mb-2" />
+                                <IconComponent className="text-2xl text-[#FFD700]" />
                               ) : (
-                                <span className="text-3xl mb-2">📈</span>
+                                <span className="text-2xl">📈</span>
                               )}
                               <div className="text-2xl font-bold text-[#FFD700]">
                                 <CountUp end={numericValue} duration={5} separator="," />
@@ -324,7 +324,7 @@ export default function ProgramDetailPage() {
                               </div>
                             </div>
                             <div
-                              className="text-xs text-gray-200"
+                              className="text-base text-gray-200"
                               style={{ fontFamily: getFontFamily() }}
                             >
                               {stat.label.text}
@@ -340,16 +340,16 @@ export default function ProgramDetailPage() {
               {/* Icon Stats Row */}
               {program[currentLanguage]?.iconStats && program[currentLanguage].iconStats.length > 0 && (
                 <div className="mb-4">
-                  <div className="flex justify-center">
-                    <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${program[currentLanguage].iconStats.length}, minmax(0, 1fr))` }}>
+                  <div className="w-full">
+                    <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
                       {program[currentLanguage].iconStats.map((stat, index) => {
                         const numericValue = parseInt(stat.value?.replace(/[^0-9]/g, "") || "0");
                         const IconComponent = getIconComponent(stat.iconName);
 
                         return (
-                          <div key={`icon-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg min-w-[150px]">
+                          <div key={`icon-${index}`} className="text-center p-4 backdrop-blur-sm bg-white/5 rounded-lg w-full">
                             {/* Icon with Value - Horizontal Layout */}
-                            <div className={`flex items-center justify-center gap-3 mb-2 ${currentLanguage === "ur" ? "flex-row-reverse" : "flex-row"}`}>
+                            <div className={`flex items-center justify-center gap-3 mb-3 ${currentLanguage === "ur" ? "flex-row-reverse" : "flex-row"}`}>
                               {IconComponent ? (
                                 <IconComponent className="text-2xl text-[#FFD700]" />
                               ) : (
@@ -361,7 +361,7 @@ export default function ProgramDetailPage() {
                               </div>
                             </div>
                             <div
-                              className="text-xs text-gray-200"
+                              className="text-base text-gray-200"
                               style={{ fontFamily: getFontFamily() }}
                             >
                               {stat.label.text}
@@ -390,22 +390,32 @@ export default function ProgramDetailPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
-                <div className="bg-gray-50 p-6 rounded-xl">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{currentLanguage === "ur" ? "دورانیہ" : "Duration"}</h3>
-                  <div className="flex items-center text-gray-600">
-                    <FaRegClock className={`text-[#4B0082] ${currentLanguage === "ur" ? "ml-2" : "mr-2"}`} />
-                    <span style={{ fontFamily: getFontFamily() }}>{program[currentLanguage].duration.text}</span>
-                  </div>
+              {/* Duration and Coverage - Only show if data exists */}
+              {(program[currentLanguage].duration?.text || program[currentLanguage].coverage?.text) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                  {/* Duration - Only show if exists */}
+                  {program[currentLanguage].duration?.text && (
+                    <div className="bg-gray-50 p-6 rounded-xl">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{currentLanguage === "ur" ? "دورانیہ" : "Duration"}</h3>
+                      <div className="flex items-center text-gray-600">
+                        <FaRegClock className={`text-[#4B0082] ${currentLanguage === "ur" ? "ml-2" : "mr-2"}`} />
+                        <span style={{ fontFamily: getFontFamily() }}>{program[currentLanguage].duration.text}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Coverage - Only show if exists */}
+                  {program[currentLanguage].coverage?.text && (
+                    <div className="bg-gray-50 p-6 rounded-xl">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">{currentLanguage === "ur" ? "علاقہ جات" : "Coverage"}</h3>
+                      <div className="flex items-start text-gray-600">
+                        <FaMapMarkerAlt className={`text-[#4B0082] mt-1 ${currentLanguage === "ur" ? "ml-2" : "mr-2"}`} />
+                        <span style={{ fontFamily: getFontFamily() }}>{program[currentLanguage].coverage.text}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="bg-gray-50 p-6 rounded-xl">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{currentLanguage === "ur" ? "علاقہ جات" : "Coverage"}</h3>
-                  <div className="flex items-start text-gray-600">
-                    <FaMapMarkerAlt className={`text-[#4B0082] mt-1 ${currentLanguage === "ur" ? "ml-2" : "mr-2"}`} />
-                    <span style={{ fontFamily: getFontFamily() }}>{program[currentLanguage].coverage.text}</span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Partners Section - Only show if partners exist */}
