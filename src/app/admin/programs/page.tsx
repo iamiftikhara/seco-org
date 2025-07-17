@@ -5,7 +5,7 @@ import {useState, useEffect, useCallback} from "react";
 import {useRouter} from "next/navigation";
 import Image from "next/image";
 import {FaPlus, FaEdit, FaTrash, FaImage, FaTimes, FaHome} from "react-icons/fa";
-import {FiEdit2, FiSave, FiX, FiImage, FiType, FiPlus, FiTrash2, FiEye} from "react-icons/fi";
+import {FiEdit2, FiSave, FiX, FiImage, FiType, FiTrash2, FiEye} from "react-icons/fi";
 import {theme} from "@/config/theme";
 import {ProgramDetail, ImpactMetric, IconStat, Partner} from "@/types/programs";
 import ImageSelector from "@/app/admin/components/ImageSelector";
@@ -15,11 +15,6 @@ import Loader from "../components/Loader";
 import {showAlert, showConfirmDialog} from "@/utils/alert";
 
 // Additional type definitions for admin functionality
-interface ValidationState {
-  missingFields: string[];
-  missingEnglish: string[];
-  missingUrdu: string[];
-}
 
 interface ProgramPageData {
   title: {
@@ -504,10 +499,7 @@ export default function ProgramsAdmin() {
     setShowProgramModal(true);
   };
 
-  const editProgramPage = () => {
-    setEditingPageData(programPage);
-    setShowPageModal(true);
-  };
+
 
   const handleProgramPageChange = (field: string, value: string) => {
     setProgramPage((prev: ProgramPageData | null) => ({
@@ -517,13 +509,17 @@ export default function ProgramsAdmin() {
   };
 
   const handleProgramPageLangChange = (field: string, lang: "en" | "ur", value: string) => {
-    setProgramPage((prev: ProgramPageData | null) => ({
-      ...prev,
-      [field]: {
-        ...prev[field],
-        [lang]: {text: value},
-      },
-    } as ProgramPageData));
+    setProgramPage((prev: ProgramPageData | null) => {
+      if (!prev) return prev;
+      const currentField = prev[field as keyof ProgramPageData] as any;
+      return {
+        ...prev,
+        [field]: {
+          ...currentField,
+          [lang]: {text: value},
+        },
+      } as ProgramPageData;
+    });
   };
 
   const handleProgramPageSave = async () => {
@@ -616,13 +612,13 @@ export default function ProgramsAdmin() {
   };
 
   const handleSaveImpact = () => {
-    if (!modalState.editingImpact?.label?.text || !modalState.editingImpact?.value || !modalState.editingImpact?.iconName) return;
+    if (!modalState.editingImpact?.label?.text || !modalState.editingImpact?.value || !modalState.editingImpact?.iconName || !formData) return;
 
     const currentLang = uiState.miniModalLanguage;
     const oppositeLang = currentLang === "en" ? "ur" : "en";
 
     // Update current language
-    const currentImpact = formData[currentLang]?.impact || [];
+    const currentImpact = (formData[currentLang as 'en' | 'ur'] as any)?.impact || [];
     let updatedCurrentImpact;
 
     if (modalState.editingImpactIndex !== null) {
@@ -636,7 +632,7 @@ export default function ProgramsAdmin() {
     updateImpact(updatedCurrentImpact);
 
     // Check if opposite language data exists for this ID
-    const oppositeImpact = formData[oppositeLang]?.impact || [];
+    const oppositeImpact = (formData[oppositeLang as 'en' | 'ur'] as any)?.impact || [];
     const oppositeItem = oppositeImpact.find((item: any) => item.id === modalState.editingImpact?.id);
 
     if (!oppositeItem?.label?.text) {
@@ -682,9 +678,9 @@ export default function ProgramsAdmin() {
   };
 
   const handleSaveIconStats = () => {
-    if (!modalState.editingIconStats?.label?.text || !modalState.editingIconStats?.value) return;
+    if (!modalState.editingIconStats?.label?.text || !modalState.editingIconStats?.value || !formData) return;
 
-    const currentIconStats = formData[uiState.miniModalLanguage]?.iconStats || [];
+    const currentIconStats = (formData[uiState.miniModalLanguage as 'en' | 'ur'] as any)?.iconStats || [];
     let updatedIconStats;
 
     if (modalState.editingIconStatsIndex !== null) {
@@ -699,7 +695,7 @@ export default function ProgramsAdmin() {
 
     // Check if this icon stat exists in the opposite language
     const oppositeLang = uiState.miniModalLanguage === "en" ? "ur" : "en";
-    const oppositeIconStats = formData[oppositeLang]?.iconStats || [];
+    const oppositeIconStats = (formData[oppositeLang as 'en' | 'ur'] as any)?.iconStats || [];
     const iconStatsExistsInOpposite = oppositeIconStats.some((item: any) => item.id === modalState.editingIconStats?.id);
 
     // If icon stats doesn't exist in opposite language, keep modal open and switch language
@@ -716,8 +712,6 @@ export default function ProgramsAdmin() {
           label: {text: ""},
           value: "",
           iconName: "",
-          prefix: "",
-          suffix: "",
         },
       });
       // Keep modal open - don't close it
@@ -746,9 +740,9 @@ export default function ProgramsAdmin() {
   };
 
   const handleSavePartners = () => {
-    if (!modalState.editingPartners?.name?.text) return;
+    if (!modalState.editingPartners?.name?.text || !formData) return;
 
-    const currentPartners = formData[uiState.miniModalLanguage]?.partners || [];
+    const currentPartners = (formData[uiState.miniModalLanguage as 'en' | 'ur'] as any)?.partners || [];
     let updatedPartners;
 
     if (modalState.editingPartnersIndex !== null) {
@@ -763,7 +757,7 @@ export default function ProgramsAdmin() {
 
     // Check if this partner exists in the opposite language
     const oppositeLang = uiState.miniModalLanguage === "en" ? "ur" : "en";
-    const oppositePartners = formData[oppositeLang]?.partners || [];
+    const oppositePartners = (formData[oppositeLang as 'en' | 'ur'] as any)?.partners || [];
     const partnersExistsInOpposite = oppositePartners.some((item: any) => item.id === modalState.editingPartners?.id);
 
     // If partner doesn't exist in opposite language, keep modal open and switch language
@@ -1581,7 +1575,7 @@ export default function ProgramsAdmin() {
                       </label>
                       <input
                         type="text"
-                        value={formData[uiState.modalLanguage]?.title?.text || ""}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.title?.text || ""}
                         onChange={(e) => handleLanguageChange(uiState.modalLanguage, "title", {text: e.target.value})}
                         className={`w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50 ${validationState.missingFields.includes(`${uiState.modalLanguage}.title`) ? "border-red-500" : ""}`}
                         style={{
@@ -1604,7 +1598,7 @@ export default function ProgramsAdmin() {
                         {labels.category[uiState.modalLanguage]} <span className="text-red-500">*</span>
                       </label>
                       <select
-                        value={formData[uiState.modalLanguage]?.category?.text || ""}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.category?.text || ""}
                         onChange={(e) => handleLanguageChange(uiState.modalLanguage, "category", {text: e.target.value})}
                         className={`w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50 ${validationState.missingFields.includes(`${uiState.modalLanguage}.category`) ? "border-red-500" : ""}`}
                         style={{
@@ -1634,7 +1628,7 @@ export default function ProgramsAdmin() {
                       </label>
                       <input
                         type="text"
-                        value={formData[uiState.modalLanguage]?.duration?.text || ""}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.duration?.text || ""}
                         onChange={(e) => handleLanguageChange(uiState.modalLanguage, "duration", {text: e.target.value})}
                         className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                         style={{
@@ -1656,7 +1650,7 @@ export default function ProgramsAdmin() {
                       </label>
                       <input
                         type="text"
-                        value={formData[uiState.modalLanguage]?.coverage?.text || ""}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.coverage?.text || ""}
                         onChange={(e) => handleLanguageChange(uiState.modalLanguage, "coverage", {text: e.target.value})}
                         className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                         style={{
@@ -1679,7 +1673,7 @@ export default function ProgramsAdmin() {
                         {labels.shortDescription[uiState.modalLanguage]} <span className="text-red-500">*</span>
                       </label>
                       <textarea
-                        value={formData[uiState.modalLanguage]?.shortDescription?.text || ""}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.shortDescription?.text || ""}
                         onChange={(e) => handleLanguageChange(uiState.modalLanguage, "shortDescription", {text: e.target.value})}
                         rows={3}
                         className={`w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50 ${validationState.missingFields.includes(`${uiState.modalLanguage}.shortDescription`) ? "border-red-500" : ""}`}
@@ -1703,7 +1697,7 @@ export default function ProgramsAdmin() {
                         {labels.fullDescription[uiState.modalLanguage]} <span className="text-red-500">*</span>
                       </label>
                       <textarea
-                        value={formData[uiState.modalLanguage]?.fullDescription?.text || ""}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.fullDescription?.text || ""}
                         onChange={(e) => handleLanguageChange(uiState.modalLanguage, "fullDescription", {text: e.target.value})}
                         rows={6}
                         className={`w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50 ${validationState.missingFields.includes(`${uiState.modalLanguage}.fullDescription`) ? "border-red-500" : ""}`}
@@ -1758,7 +1752,7 @@ export default function ProgramsAdmin() {
                       </label>
                       <input
                         type="text"
-                        value={formData[uiState.modalLanguage]?.impactTitle?.text || ''}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.impactTitle?.text || ''}
                         onChange={e => handleLanguageChange(uiState.modalLanguage, 'impactTitle', { text: e.target.value })}
                         className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                         style={{
@@ -1793,7 +1787,7 @@ export default function ProgramsAdmin() {
                         </tr>
                       </thead>
                       <tbody className="divide-y" style={{borderColor: theme.colors.border.default}}>
-                        {(formData[uiState.modalLanguage]?.impact || []).map((imp: any, idx: number) => (
+                        {((formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.impact || []).map((imp: any, idx: number) => (
                           <tr key={imp.id || idx} className="hover:bg-gray-50" style={{backgroundColor: theme.colors.background.secondary}}>
                             <td className={`px-6 py-4 ${uiState.modalLanguage === "ur" ? "text-right" : "text-left"}`} style={{color: theme.colors.text.primary, fontFamily: theme.fonts[uiState.modalLanguage].primary}}>
                               <div className="max-w-[180px] truncate" title={imp.label?.text || "--"}>
@@ -1883,7 +1877,7 @@ export default function ProgramsAdmin() {
                         type="button"
                         onClick={() => {
                           updateModalState({
-                            editingIconStats: {id: Date.now().toString(), label: {text: ""}, value: "", iconName: "", prefix: "", suffix: ""},
+                            editingIconStats: {id: Date.now().toString(), label: {text: ""}, value: "", iconName: ""},
                             editingIconStatsIndex: null,
                           });
                           // Set mini modal language to current main modal language
@@ -1903,7 +1897,7 @@ export default function ProgramsAdmin() {
                       </label>
                       <input
                         type="text"
-                        value={formData[uiState.modalLanguage]?.iconStatsTitle?.text || ''}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.iconStatsTitle?.text || ''}
                         onChange={e => handleLanguageChange(uiState.modalLanguage, 'iconStatsTitle', { text: e.target.value })}
                         className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                         style={{
@@ -1935,7 +1929,7 @@ export default function ProgramsAdmin() {
                         </tr>
                       </thead>
                       <tbody className="divide-y" style={{borderColor: theme.colors.border.default}}>
-                        {(formData[uiState.modalLanguage]?.iconStats || []).map((stat: any, idx: number) => (
+                        {((formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.iconStats || []).map((stat: any, idx: number) => (
                           <tr key={stat.id || idx} className="hover:bg-gray-50" style={{backgroundColor: theme.colors.background.secondary}}>
                             <td className={`px-6 py-4 ${uiState.modalLanguage === "ur" ? "text-right" : "text-left"}`} style={{color: theme.colors.text.primary, fontFamily: theme.fonts[uiState.modalLanguage].primary}}>
                               <div className="max-w-[180px] truncate" title={stat.label?.text || "--"}>
@@ -2040,7 +2034,7 @@ export default function ProgramsAdmin() {
                       </label>
                       <input
                         type="text"
-                        value={formData[uiState.modalLanguage]?.partnersTitle?.text || ''}
+                        value={(formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.partnersTitle?.text || ''}
                         onChange={e => handleLanguageChange(uiState.modalLanguage, 'partnersTitle', { text: e.target.value })}
                         className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                         style={{
@@ -2069,7 +2063,7 @@ export default function ProgramsAdmin() {
                         </tr>
                       </thead>
                       <tbody className="divide-y" style={{borderColor: theme.colors.border.default}}>
-                        {(formData[uiState.modalLanguage]?.partners || []).map((partner: any, idx: number) => (
+                        {((formData[uiState.modalLanguage as 'en' | 'ur'] as any)?.partners || []).map((partner: any, idx: number) => (
                           <tr key={partner.id || idx} className="hover:bg-gray-50" style={{backgroundColor: theme.colors.background.secondary}}>
                             <td className="px-6 py-4 text-center" style={{width: "80px"}}>
                               <div className="flex items-center justify-center">
@@ -2436,7 +2430,7 @@ export default function ProgramsAdmin() {
                     const originalLang = currentLang === "en" ? "ur" : "en"; // The language that has the data
 
                     // Find the original impact data from the language that has it
-                    const originalImpact = formData[originalLang]?.impact?.find((item: any) => item.id === modalState.editingImpact?.id);
+                    const originalImpact = (formData[originalLang as 'en' | 'ur'] as any)?.impact?.find((item: any) => item.id === modalState.editingImpact?.id);
 
                     if (originalImpact) {
                       // Copy the original data to current language (copy the label text from original)
@@ -2447,18 +2441,18 @@ export default function ProgramsAdmin() {
 
                       // Update current language impact
                       const updatedFormData = {...formData};
-                      if (!updatedFormData[currentLang]) updatedFormData[currentLang] = createEmptyProgram()[currentLang];
-                      if (!updatedFormData[currentLang].impact) updatedFormData[currentLang].impact = [];
+                      if (!(updatedFormData as any)[currentLang]) (updatedFormData as any)[currentLang] = (createEmptyProgram() as any)[currentLang];
+                      if (!(updatedFormData as any)[currentLang].impact) (updatedFormData as any)[currentLang].impact = [];
 
                       // Check if item already exists in current language
-                      const existingIndex = updatedFormData[currentLang].impact.findIndex((item: any) => item.id === copiedImpact.id);
+                      const existingIndex = (updatedFormData as any)[currentLang].impact.findIndex((item: any) => item.id === copiedImpact.id);
                       if (existingIndex !== -1) {
-                        updatedFormData[currentLang].impact[existingIndex] = copiedImpact;
+                        (updatedFormData as any)[currentLang].impact[existingIndex] = copiedImpact;
                       } else {
-                        updatedFormData[currentLang].impact.push(copiedImpact);
+                        (updatedFormData as any)[currentLang].impact.push(copiedImpact);
                       }
 
-                      setFormData(updatedFormData);
+                      setFormData(updatedFormData as ProgramDetail);
                     }
 
                     updatePromptState({impactRequiredInOpposite: false});
@@ -2505,7 +2499,7 @@ export default function ProgramsAdmin() {
                 selectedIcon={modalState.editingIconStats?.iconName || ""}
                 onSelect={(icon: string) =>
                   updateModalState({
-                    editingIconStats: modalState.editingIconStats ? {...modalState.editingIconStats, iconName: icon} : {id: Date.now().toString(), label: {text: ""}, value: "", iconName: icon, prefix: "", suffix: ""},
+                    editingIconStats: modalState.editingIconStats ? {...modalState.editingIconStats, iconName: icon} : {id: Date.now().toString(), label: {text: ""}, value: "", iconName: icon},
                   })
                 }
                 size="small"
@@ -2521,7 +2515,7 @@ export default function ProgramsAdmin() {
                 value={modalState.editingIconStats?.label?.text || ""}
                 onChange={(e) =>
                   updateModalState({
-                    editingIconStats: modalState.editingIconStats ? {...modalState.editingIconStats, label: {text: e.target.value}} : {id: Date.now().toString(), label: {text: e.target.value}, value: "", iconName: "", prefix: "", suffix: ""},
+                    editingIconStats: modalState.editingIconStats ? {...modalState.editingIconStats, label: {text: e.target.value}} : {id: Date.now().toString(), label: {text: e.target.value}, value: "", iconName: ""},
                   })
                 }
                 className={`w-full p-2 border rounded ${promptState.iconStatsRequiredInOpposite && !modalState.editingIconStats?.label?.text ? "border-red-500" : ""}`}
@@ -2539,7 +2533,7 @@ export default function ProgramsAdmin() {
                 value={modalState.editingIconStats?.value || ""}
                 onChange={(e) =>
                   updateModalState({
-                    editingIconStats: modalState.editingIconStats ? {...modalState.editingIconStats, value: e.target.value} : {id: Date.now().toString(), label: {text: ""}, value: e.target.value, iconName: "", prefix: "", suffix: ""},
+                    editingIconStats: modalState.editingIconStats ? {...modalState.editingIconStats, value: e.target.value} : {id: Date.now().toString(), label: {text: ""}, value: e.target.value, iconName: ""},
                   })
                 }
                 className={`w-full p-2 border rounded ${promptState.iconStatsRequiredInOpposite && !modalState.editingIconStats?.value ? "border-red-500" : ""}`}
@@ -2560,7 +2554,7 @@ export default function ProgramsAdmin() {
                     const originalLang = currentLang === "en" ? "ur" : "en"; // The language that has the data
 
                     // Find the original icon stats data from the language that has it
-                    const originalIconStats = formData[originalLang]?.iconStats?.find((item: any) => item.id === modalState.editingIconStats?.id);
+                    const originalIconStats = (formData[originalLang as 'en' | 'ur'] as any)?.iconStats?.find((item: any) => item.id === modalState.editingIconStats?.id);
 
                     if (originalIconStats) {
                       // Copy the original data to current language (copy the label text from original)
@@ -2571,18 +2565,18 @@ export default function ProgramsAdmin() {
 
                       // Update current language icon stats
                       const updatedFormData = {...formData};
-                      if (!updatedFormData[currentLang]) updatedFormData[currentLang] = createEmptyProgram()[currentLang];
-                      if (!updatedFormData[currentLang].iconStats) updatedFormData[currentLang].iconStats = [];
+                      if (!(updatedFormData as any)[currentLang]) (updatedFormData as any)[currentLang] = (createEmptyProgram() as any)[currentLang];
+                      if (!(updatedFormData as any)[currentLang].iconStats) (updatedFormData as any)[currentLang].iconStats = [];
 
                       // Check if item already exists in current language
-                      const existingIndex = updatedFormData[currentLang].iconStats.findIndex((item: any) => item.id === copiedIconStats.id);
+                      const existingIndex = (updatedFormData as any)[currentLang].iconStats.findIndex((item: any) => item.id === copiedIconStats.id);
                       if (existingIndex !== -1) {
-                        updatedFormData[currentLang].iconStats[existingIndex] = copiedIconStats;
+                        (updatedFormData as any)[currentLang].iconStats[existingIndex] = copiedIconStats;
                       } else {
-                        updatedFormData[currentLang].iconStats.push(copiedIconStats);
+                        (updatedFormData as any)[currentLang].iconStats.push(copiedIconStats);
                       }
 
-                      setFormData(updatedFormData);
+                      setFormData(updatedFormData as ProgramDetail);
                     }
 
                     updatePromptState({iconStatsRequiredInOpposite: false});
@@ -2666,7 +2660,7 @@ export default function ProgramsAdmin() {
                     const originalLang = currentLang === "en" ? "ur" : "en"; // The language that has the data
 
                     // Find the original partner data from the language that has it
-                    const originalPartner = formData[originalLang]?.partners?.find((item: any) => item.id === modalState.editingPartners?.id);
+                    const originalPartner = (formData[originalLang as 'en' | 'ur'] as any)?.partners?.find((item: any) => item.id === modalState.editingPartners?.id);
 
                     if (originalPartner) {
                       // Copy the original data to current language (copy the name text from original)
@@ -2677,18 +2671,18 @@ export default function ProgramsAdmin() {
 
                       // Update current language partners
                       const updatedFormData = {...formData};
-                      if (!updatedFormData[currentLang]) updatedFormData[currentLang] = createEmptyProgram()[currentLang];
-                      if (!updatedFormData[currentLang].partners) updatedFormData[currentLang].partners = [];
+                      if (!(updatedFormData as any)[currentLang]) (updatedFormData as any)[currentLang] = (createEmptyProgram() as any)[currentLang];
+                      if (!(updatedFormData as any)[currentLang].partners) (updatedFormData as any)[currentLang].partners = [];
 
                       // Check if item already exists in current language
-                      const existingIndex = updatedFormData[currentLang].partners.findIndex((item: any) => item.id === copiedPartner.id);
+                      const existingIndex = (updatedFormData as any)[currentLang].partners.findIndex((item: any) => item.id === copiedPartner.id);
                       if (existingIndex !== -1) {
-                        updatedFormData[currentLang].partners[existingIndex] = copiedPartner;
+                        (updatedFormData as any)[currentLang].partners[existingIndex] = copiedPartner;
                       } else {
-                        updatedFormData[currentLang].partners.push(copiedPartner);
+                        (updatedFormData as any)[currentLang].partners.push(copiedPartner);
                       }
 
-                      setFormData(updatedFormData);
+                      setFormData(updatedFormData as ProgramDetail);
                     }
 
                     updatePromptState({partnersRequiredInOpposite: false});
