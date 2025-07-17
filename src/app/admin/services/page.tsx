@@ -113,6 +113,7 @@ export default function ServicesAdmin() {
     title: {en: "Title", ur: "عنوان"},
     shortDescription: {en: "Short Description", ur: "مختصر وضاحت"},
     fullDescription: {en: "Full Description", ur: "مکمل وضاحت"},
+    overviewTitle: {en: "Overview Title", ur: "جائزے کا عنوان"},
     heroImage: {en: "Hero Image", ur: "ہیرو تصویر"},
     iconName: {en: "Icon Name", ur: "آئیکن نام"},
     slug: {en: "Slug", ur: "سلگ"},
@@ -1092,7 +1093,7 @@ export default function ServicesAdmin() {
       </div>
 
       {/* Services Cards Grid */}
-      <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"}`}>
+      <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"}`}>
         {formState.services.map((service, index) => (
           <div key={service.id || index} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200" style={{backgroundColor: theme.colors.background.primary}}>
             {/* Service Image */}
@@ -1383,7 +1384,7 @@ export default function ServicesAdmin() {
                     {/* Overview Title */}
                     <div className="space-y-2" style={{ direction: uiState.modalLanguage === 'ur' ? 'rtl' : 'ltr', textAlign: uiState.modalLanguage === 'ur' ? 'right' : 'left', fontFamily: theme.fonts[uiState.modalLanguage].primary }}>
                       <label className="block text-sm font-medium" style={{ color: theme.colors.text.secondary }}>
-                        Overview Title <span className="text-red-500">*</span>
+                        {labels.overviewTitle[uiState.modalLanguage]} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"

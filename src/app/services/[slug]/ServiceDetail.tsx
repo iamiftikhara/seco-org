@@ -96,10 +96,7 @@ export default function ServiceDetail() {
         console.log("Fetching service data for slug:", params.slug);
 
         // Fetch individual service and all services for navigation in parallel
-        const [serviceResponse, allServicesResponse] = await Promise.all([
-          fetch(`/api/services/${params.slug}`),
-          fetch("/api/services")
-        ]);
+        const [serviceResponse, allServicesResponse] = await Promise.all([fetch(`/api/services/${params.slug}`), fetch("/api/services")]);
 
         console.log("Service response status:", serviceResponse.status);
         console.log("All services response status:", allServicesResponse.status);
@@ -114,7 +111,7 @@ export default function ServiceDetail() {
         if (!serviceResult.success) {
           // Check if it's an empty state
           if (serviceResult.isEmpty) {
-            setError(serviceResult.message || 'Service not found or not available.');
+            setError(serviceResult.message || "Service not found or not available.");
             return;
           }
           throw new Error(serviceResult.error || "Failed to fetch service");
@@ -218,19 +215,7 @@ export default function ServiceDetail() {
       {structuredData && <Script id="structured-data" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{__html: JSON.stringify(structuredData)}} />}
       <Navbar />
       {error ? (
-        <DynamicError
-          title={error.includes('No services are currently available')
-            ? (language === "ur" ? "خدمات جلد آ رہی ہیں" : "Services Coming Soon")
-            : (language === "ur" ? "خدمت نہیں ملی" : "Service Not Found")
-          }
-          message={error}
-          onRetry={() => window.location.reload()}
-          showBackButton={true}
-          backUrl="/services"
-          backLabel={language === "ur" ? "خدمات کی فہرست میں واپس" : "Back to Services"}
-          language={language === "ur" ? "ur" : "en"}
-          sectionName={language === "ur" ? "خدمات" : "Services"}
-        />
+        <DynamicError title={error.includes("No services are currently available") ? (language === "ur" ? "خدمات جلد آ رہی ہیں" : "Services Coming Soon") : language === "ur" ? "خدمت نہیں ملی" : "Service Not Found"} message={error} onRetry={() => window.location.reload()} showBackButton={true} backUrl="/services" backLabel={language === "ur" ? "خدمات کی فہرست میں واپس" : "Back to Services"} language={language === "ur" ? "ur" : "en"} sectionName={language === "ur" ? "خدمات" : "Services"} />
       ) : !service ? (
         <div className="min-h-screen flex flex-col items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
@@ -238,27 +223,16 @@ export default function ServiceDetail() {
         </div>
       ) : (
         <div className="min-h-screen" style={{backgroundColor: theme.colors.background.primary}}>
-          <div
-            className="relative overflow-hidden"
-            style={{ height: isMobile ? 'calc(100vh - 40rem)' : 'calc(100vh - 15rem)' }}
-          >
+          <div className="relative overflow-hidden" style={{height: isMobile ? "calc(100vh - 40rem)" : "calc(100vh - 15rem)"}}>
             <Image src={service.heroImage} alt={language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text} fill className={`object-cover transition-transform duration-[30s] ${isImageLoaded ? "scale-110" : "scale-100"}`} onLoadingComplete={() => setIsImageLoaded(true)} priority />
           </div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
-            <div
-              className="bg-white rounded-lg shadow-xl text-center"
-              style={{ padding: isMobile ? '1rem' : '2rem' }}
-            >
-              <div className={`flex ${isMobile ? 'flex-col gap-3' : 'flex-row'} items-center justify-center ${getFlexDirection()}`}>
-                {IconComponent && (
-                  <IconComponent
-                    className={isMobile ? 'text-3xl' : 'text-5xl mx-3'}
-                    style={{color: theme.colors.primary}}
-                  />
-                )}
+            <div className="bg-white rounded-lg shadow-xl text-center" style={{padding: isMobile ? "1rem" : "2rem"}}>
+              <div className={`flex ${isMobile ? "flex-col gap-3" : "flex-row"} items-center justify-center ${getFlexDirection()}`}>
+                {IconComponent && <IconComponent className={isMobile ? "text-3xl" : "text-5xl mx-3"} style={{color: theme.colors.primary}} />}
                 <h1
-                  className={`font-bold ${isMobile ? 'text-2xl text-center' : 'text-4xl'}`}
+                  className={`font-bold ${isMobile ? "text-2xl text-center" : "text-4xl"}`}
                   style={{
                     color: theme.colors.text.primary,
                     fontFamily: getFontFamily(),
@@ -308,73 +282,9 @@ export default function ServiceDetail() {
               </div>
             </div>
 
-            <div className="mt-12">
-              <h2
-                className={`text-2xl font-bold mb-6 ${getTextAlign()}`}
-                style={{
-                  color: theme.colors.text.primary,
-                  fontFamily: getFontFamily(),
-                }}
-              >
-                {language === "all" ? `${service.en.impactTitle.text} / ${service.ur.impactTitle.text}` : service[language].impactTitle.text}
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-                {(language === "all" ? [...(service.en.impact || []), ...(service.ur.impact || [])] : service[language].impact || []).map((item, index) => {
-                  const ImpactIcon = Icons[item.iconName as keyof typeof Icons];
-                  return (
-                    <div
-                      key={index}
-                      className="text-center p-6 bg-white rounded-lg shadow-md transform hover:scale-105 transition-transform"
-                      style={{
-                        fontFamily: getFontFamily(),
-                      }}
-                    >
-                      {ImpactIcon && <ImpactIcon className="text-4xl mx-auto mb-4" style={{color: theme.colors.primary}} />}
-                      <h3 className="text-3xl font-bold" style={{color: theme.colors.primary}}>
-                        <CountUpNumber end={item.value} suffix={item.suffix} />
-                      </h3>
-                      <p className="mt-2" style={{color: theme.colors.text.secondary, fontFamily: getFontFamily()}}>
-                        {item.label.text}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <h2
-                className={`text-2xl font-bold mb-6 ${getTextAlign()}`}
-                style={{
-                  color: theme.colors.text.primary,
-                  fontFamily: getFontFamily(),
-                }}
-              >
-                {language === "all" ? `${service.en.keyFeaturesTitle.text} / ${service.ur.keyFeaturesTitle.text}` : service[language].keyFeaturesTitle.text}
-              </h2>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-                {(language === "all" ? [...(service.en.keyFeatures || []), ...(service.ur.keyFeatures || [])] : service[language].keyFeatures || []).map((feature) => (
-                  <li key={feature.id} className={`flex items-center ${getFlexDirection()} ${getTextAlign()}`} style={{color: theme.colors.text.secondary}}>
-                    <span className="w-2 h-2 rounded-full mx-3" style={{backgroundColor: theme.colors.primary}}></span>
-                    <div>
-                      <h3
-                        className="font-semibold"
-                        style={{
-                          color: theme.colors.text.primary,
-                          fontFamily: getFontFamily(),
-                        }}
-                      >
-                        {feature.title.text}
-                      </h3>
-                      {feature.description && (
-                        <p className="text-sm mt-1" style={{fontFamily: getFontFamily()}}>
-                          {feature.description.text}
-                        </p>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="bg-gray-50 p-8 rounded-lg">
+            {/* Impact Section - Only show if impact data exists */}
+            {((language === "all" && ((service.en.impact && service.en.impact.length > 0) || (service.ur.impact && service.ur.impact.length > 0))) || (language !== "all" && service[language].impact && service[language].impact.length > 0)) && (
+              <div className="mt-12">
                 <h2
                   className={`text-2xl font-bold mb-6 ${getTextAlign()}`}
                   style={{
@@ -382,115 +292,169 @@ export default function ServiceDetail() {
                     fontFamily: getFontFamily(),
                   }}
                 >
-                  {language === "all" ? `${service.en.overviewTitle.text} / ${service.ur.overviewTitle.text}` : service[language].overviewTitle.text}
+                  {language === "all" ? `${service.en.impactTitle.text} / ${service.ur.impactTitle.text}` : service[language].impactTitle.text}
                 </h2>
-                <p
-                  className={`text-lg leading-relaxed ${getTextAlign()}`}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+                  {(language === "all" ? [...(service.en.impact || []), ...(service.ur.impact || [])] : service[language].impact || []).map((item, index) => {
+                    const ImpactIcon = Icons[item.iconName as keyof typeof Icons];
+                    return (
+                      <div
+                        key={index}
+                        className="text-center p-6 bg-white rounded-lg shadow-md transform hover:scale-105 transition-transform"
+                        style={{
+                          fontFamily: getFontFamily(),
+                        }}
+                      >
+                        {ImpactIcon && <ImpactIcon className="text-4xl mx-auto mb-4" style={{color: theme.colors.primary}} />}
+                        <h3 className="text-3xl font-bold" style={{color: theme.colors.primary}}>
+                          <CountUpNumber end={item.value} suffix={item.suffix} />
+                        </h3>
+                        <p className="mt-2" style={{color: theme.colors.text.secondary, fontFamily: getFontFamily()}}>
+                          {item.label.text}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Key Features Section - Only show if key features data exists */}
+            {((language === "all" && ((service.en.keyFeatures && service.en.keyFeatures.length > 0) || (service.ur.keyFeatures && service.ur.keyFeatures.length > 0))) || (language !== "all" && service[language].keyFeatures && service[language].keyFeatures.length > 0)) && (
+              <div className="mb-12">
+                <h2
+                  className={`text-2xl font-bold mb-6 ${getTextAlign()}`}
                   style={{
-                    color: theme.colors.text.secondary,
+                    color: theme.colors.text.primary,
                     fontFamily: getFontFamily(),
                   }}
                 >
-                  {language === "all" ? `${service.en.fullDescription.text} / ${service.ur.fullDescription.text}` : service[language].fullDescription.text}
-                </p>
+                  {language === "all" ? `${service.en.keyFeaturesTitle.text} / ${service.ur.keyFeaturesTitle.text}` : service[language].keyFeaturesTitle.text}
+                </h2>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(language === "all" ? [...(service.en.keyFeatures || []), ...(service.ur.keyFeatures || [])] : service[language].keyFeatures || []).map((feature) => (
+                    <li key={feature.id} className={`flex items-center ${getFlexDirection()} ${getTextAlign()}`} style={{color: theme.colors.text.secondary}}>
+                      <span className="w-2 h-2 rounded-full mx-3" style={{backgroundColor: theme.colors.primary}}></span>
+                      <div>
+                        <h3
+                          className="font-semibold"
+                          style={{
+                            color: theme.colors.text.primary,
+                            fontFamily: getFontFamily(),
+                          }}
+                        >
+                          {feature.title.text}
+                        </h3>
+                        {feature.description && (
+                          <p className="text-sm mt-1" style={{fontFamily: getFontFamily()}}>
+                            {feature.description.text}
+                          </p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
+            )}
+
+            <div className="bg-gray-50 p-8 rounded-lg">
+              <h2
+                className={`text-2xl font-bold mb-6 ${getTextAlign()}`}
+                style={{
+                  color: theme.colors.text.primary,
+                  fontFamily: getFontFamily(),
+                }}
+              >
+                {language === "all" ? `${service.en.overviewTitle.text} / ${service.ur.overviewTitle.text}` : service[language].overviewTitle.text}
+              </h2>
+              <p
+                className={`text-lg leading-relaxed ${getTextAlign()}`}
+                style={{
+                  color: theme.colors.text.secondary,
+                  fontFamily: getFontFamily(),
+                }}
+              >
+                {language === "all" ? `${service.en.fullDescription.text} / ${service.ur.fullDescription.text}` : service[language].fullDescription.text}
+              </p>
             </div>
+          </div>
 
-            {/* Add Social Share Component */}
-            <div className="mt-8">
-              <SocialShare
-                title={service.socialShare?.title?.text || (language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text)}
-                description={service.socialShare?.description?.text || (language === "all" ? `${service.en.shortDescription.text} / ${service.ur.shortDescription.text}` : service[language].shortDescription.text)}
-                url={typeof window !== "undefined" ? window.location.href : ""}
-                image={service.heroImage}
-                language={language === "all" ? "en" : language}
-                hashtags={service.socialShare?.hashtags || []}
-                twitterHandle={service.socialShare?.twitterHandle || ""}
-                ogType={service.socialShare?.ogType || "article"}
-              />
-            </div>
+          {/* Add Social Share Component */}
+          <div className="mt-8">
+            <SocialShare
+              title={service.socialShare?.title?.text || (language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text)}
+              description={service.socialShare?.description?.text || (language === "all" ? `${service.en.shortDescription.text} / ${service.ur.shortDescription.text}` : service[language].shortDescription.text)}
+              url={typeof window !== "undefined" ? window.location.href : ""}
+              image={service.heroImage}
+              language={language === "all" ? "en" : language}
+              hashtags={service.socialShare?.hashtags || []}
+              twitterHandle={service.socialShare?.twitterHandle || ""}
+              ogType={service.socialShare?.ogType || "article"}
+            />
+          </div>
 
-            {/* Navigation Section */}
-            <div
-              className="max-w-7xl mx-auto border-t border-gray-200"
-              style={{
-                padding: isMobile ? '1rem' : '2rem 1rem',
-                paddingTop: isMobile ? '1.5rem' : '2rem'
-              }}
-            >
-              <div className={`flex ${isMobile ? 'flex-col gap-4' : 'flex-row'} justify-between items-stretch ${isMobile ? '' : 'items-center'}`}>
-                {navigation.prev ? (
-                  <Link
-                    href={`/services/${navigation.prev.slug}`}
-                    className="group flex items-center rounded-lg transition-colors duration-300"
-                    style={{
-                      backgroundColor: theme.colors.background.secondary,
-                      color: theme.colors.text.primary,
-                      fontFamily: getFontFamily(),
-                      padding: isMobile ? '0.75rem' : '1rem',
-                      gap: isMobile ? '0.5rem' : '0.75rem',
-                      width: isMobile ? '100%' : 'auto'
-                    }}
-                  >
-                    <FaArrowLeft
-                      className="group-hover:-translate-x-1 transition-transform duration-300 flex-shrink-0"
-                      style={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
-                    />
-                    <div className={isMobile ? 'min-w-0 flex-1' : ''}>
-                      <div
-                        className="opacity-75"
-                        style={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
-                      >
-                        Previous Service
-                      </div>
-                      <div
-                        className={`font-medium ${isMobile ? 'truncate' : ''}`}
-                        style={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
-                      >
-                        {language === "all" ? `${navigation.prev.en.title.text} / ${navigation.prev.ur.title.text}` : navigation.prev[language].title.text}
-                      </div>
+          {/* Navigation Section */}
+          <div
+            className="max-w-7xl mx-auto border-t border-gray-200"
+            style={{
+              padding: isMobile ? "1rem" : "2rem 1rem",
+              paddingTop: isMobile ? "1.5rem" : "2rem",
+            }}
+          >
+            <div className={`flex ${isMobile ? "flex-col gap-4" : "flex-row"} justify-between items-stretch ${isMobile ? "" : "items-center"}`}>
+              {navigation.prev ? (
+                <Link
+                  href={`/services/${navigation.prev.slug}`}
+                  className="group flex items-center rounded-lg transition-colors duration-300"
+                  style={{
+                    backgroundColor: theme.colors.background.secondary,
+                    color: theme.colors.text.primary,
+                    fontFamily: getFontFamily(),
+                    padding: isMobile ? "0.75rem" : "1rem",
+                    gap: isMobile ? "0.5rem" : "0.75rem",
+                    width: isMobile ? "100%" : "auto",
+                  }}
+                >
+                  <FaArrowLeft className="group-hover:-translate-x-1 transition-transform duration-300 flex-shrink-0" style={{fontSize: isMobile ? "0.875rem" : "1rem"}} />
+                  <div className={isMobile ? "min-w-0 flex-1" : ""}>
+                    <div className="opacity-75" style={{fontSize: isMobile ? "0.75rem" : "0.875rem"}}>
+                      Previous Service
                     </div>
-                  </Link>
-                ) : (
-                  <div style={{ width: isMobile ? '100%' : 'auto' }} />
-                )}
-
-                {navigation.next ? (
-                  <Link
-                    href={`/services/${navigation.next.slug}`}
-                    className="group flex items-center rounded-lg transition-colors duration-300"
-                    style={{
-                      backgroundColor: theme.colors.background.secondary,
-                      color: theme.colors.text.primary,
-                      fontFamily: getFontFamily(),
-                      padding: isMobile ? '0.75rem' : '1rem',
-                      gap: isMobile ? '0.5rem' : '0.75rem',
-                      width: isMobile ? '100%' : 'auto'
-                    }}
-                  >
-                    <div className={`${isMobile ? 'min-w-0 flex-1 text-right' : 'text-left'}`}>
-                      <div
-                        className="opacity-75"
-                        style={{ fontSize: isMobile ? '0.75rem' : '0.875rem' }}
-                      >
-                        Next Service
-                      </div>
-                      <div
-                        className={`font-medium ${isMobile ? 'truncate' : ''}`}
-                        style={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
-                      >
-                        {language === "all" ? `${navigation.next.en.title.text} / ${navigation.next.ur.title.text}` : navigation.next[language].title.text}
-                      </div>
+                    <div className={`font-medium ${isMobile ? "truncate" : ""}`} style={{fontSize: isMobile ? "0.875rem" : "1rem"}}>
+                      {language === "all" ? `${navigation.prev.en.title.text} / ${navigation.prev.ur.title.text}` : navigation.prev[language].title.text}
                     </div>
-                    <FaArrowRight
-                      className="group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0"
-                      style={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
-                    />
-                  </Link>
-                ) : (
-                  <div style={{ width: isMobile ? '100%' : 'auto' }} />
-                )}
-              </div>
+                  </div>
+                </Link>
+              ) : (
+                <div style={{width: isMobile ? "100%" : "auto"}} />
+              )}
+
+              {navigation.next ? (
+                <Link
+                  href={`/services/${navigation.next.slug}`}
+                  className="group flex items-center rounded-lg transition-colors duration-300"
+                  style={{
+                    backgroundColor: theme.colors.background.secondary,
+                    color: theme.colors.text.primary,
+                    fontFamily: getFontFamily(),
+                    padding: isMobile ? "0.75rem" : "1rem",
+                    gap: isMobile ? "0.5rem" : "0.75rem",
+                    width: isMobile ? "100%" : "auto",
+                  }}
+                >
+                  <div className={`${isMobile ? "min-w-0 flex-1 text-right" : "text-left"}`}>
+                    <div className="opacity-75" style={{fontSize: isMobile ? "0.75rem" : "0.875rem"}}>
+                      Next Service
+                    </div>
+                    <div className={`font-medium ${isMobile ? "truncate" : ""}`} style={{fontSize: isMobile ? "0.875rem" : "1rem"}}>
+                      {language === "all" ? `${navigation.next.en.title.text} / ${navigation.next.ur.title.text}` : navigation.next[language].title.text}
+                    </div>
+                  </div>
+                  <FaArrowRight className="group-hover:translate-x-1 transition-transform duration-300 flex-shrink-0" style={{fontSize: isMobile ? "0.875rem" : "1rem"}} />
+                </Link>
+              ) : (
+                <div style={{width: isMobile ? "100%" : "auto"}} />
+              )}
             </div>
           </div>
         </div>
