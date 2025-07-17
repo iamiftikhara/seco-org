@@ -598,34 +598,76 @@ export default function ServicesAdmin() {
   };
 
   const handleMiniModalLanguageSwitch = (lang: "en" | "ur") => {
+    // Save current values before switching language
+    if (modalState.keyFeatureModalOpen && modalState.editingKeyFeature) {
+      const currentLang = uiState.miniModalLanguage;
+      const currentValues = {
+        title: modalState.editingKeyFeature.title?.text || "",
+        description: modalState.editingKeyFeature.description?.text || "",
+        id: modalState.editingKeyFeature.id
+      };
+
+      // Store current values in a temporary storage
+      const tempStorage = (modalState.editingKeyFeature as any).tempStorage || {};
+      tempStorage[currentLang] = currentValues;
+
+      // Get values for the new language from temp storage or empty
+      const newLangValues = tempStorage[lang] || {
+        title: "",
+        description: "",
+        id: currentValues.id
+      };
+
+      updateModalState({
+        editingKeyFeature: {
+          ...modalState.editingKeyFeature,
+          title: {text: newLangValues.title},
+          description: {text: newLangValues.description},
+          tempStorage: tempStorage
+        } as any
+      });
+    }
+
+    // Handle Impact modal
+    if (modalState.impactModalOpen && modalState.editingImpact) {
+      const currentLang = uiState.miniModalLanguage;
+      const currentValues = {
+        label: modalState.editingImpact.label?.text || "",
+        value: modalState.editingImpact.value || "",
+        iconName: modalState.editingImpact.iconName || "",
+        prefix: (modalState.editingImpact as any).prefix || "",
+        suffix: (modalState.editingImpact as any).suffix || "",
+        id: modalState.editingImpact.id
+      };
+
+      // Store current values in a temporary storage
+      const tempStorage = (modalState.editingImpact as any).tempStorage || {};
+      tempStorage[currentLang] = currentValues;
+
+      // Get values for the new language from temp storage or empty
+      const newLangValues = tempStorage[lang] || {
+        label: "",
+        value: currentValues.value, // Keep value and other non-language specific fields
+        iconName: currentValues.iconName,
+        prefix: currentValues.prefix,
+        suffix: currentValues.suffix,
+        id: currentValues.id
+      };
+
+      updateModalState({
+        editingImpact: {
+          ...modalState.editingImpact,
+          label: {text: newLangValues.label},
+          value: newLangValues.value,
+          iconName: newLangValues.iconName,
+          prefix: newLangValues.prefix,
+          suffix: newLangValues.suffix,
+          tempStorage: tempStorage
+        } as any
+      });
+    }
+
     updateUIState({miniModalLanguage: lang});
-
-    if (modalState.editingKeyFeature && formState.selectedService && modalState.editingKeyFeature.id) {
-      const features = formState.selectedService[lang].keyFeatures || [];
-      const kf = features.find((f) => f.id === modalState.editingKeyFeature?.id);
-      updateModalState({
-        editingKeyFeature: kf || {
-          id: modalState.editingKeyFeature.id,
-          title: {text: ""},
-          description: {text: ""},
-        },
-      });
-    }
-
-    if (modalState.editingImpact && formState.selectedService && modalState.editingImpact.id) {
-      const impactArr = formState.selectedService[lang].impact || [];
-      const imp = impactArr.find((i) => i.id === modalState.editingImpact?.id);
-      updateModalState({
-        editingImpact: imp || {
-          id: modalState.editingImpact.id,
-          label: {text: ""},
-          value: "",
-          iconName: "",
-          prefix: "",
-          suffix: "",
-        },
-      });
-    }
   };
 
   const openKeyFeatureModal = () => {
@@ -1531,9 +1573,32 @@ export default function ServicesAdmin() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  // Set the editing key feature with the current item's data
+                                  // Initialize temp storage with both language values
+                                  const tempStorage: any = {};
+
+                                  // Get data from both languages if available
+                                  const enKeyFeature = formState.selectedService?.en?.keyFeatures?.find((item: any) => item.id === kf.id);
+                                  const urKeyFeature = formState.selectedService?.ur?.keyFeatures?.find((item: any) => item.id === kf.id);
+
+                                  if (enKeyFeature) {
+                                    tempStorage.en = {
+                                      title: enKeyFeature.title?.text || "",
+                                      description: enKeyFeature.description?.text || "",
+                                      id: enKeyFeature.id
+                                    };
+                                  }
+
+                                  if (urKeyFeature) {
+                                    tempStorage.ur = {
+                                      title: urKeyFeature.title?.text || "",
+                                      description: urKeyFeature.description?.text || "",
+                                      id: urKeyFeature.id
+                                    };
+                                  }
+
+                                  // Set the editing key feature with the current item's data and temp storage
                                   updateModalState({
-                                    editingKeyFeature: {...kf, description: kf.description ? kf.description : {text: ""}},
+                                    editingKeyFeature: {...kf, description: kf.description ? kf.description : {text: ""}, tempStorage} as any,
                                     editingImpact: null,
                                     editingImpactIndex: null,
                                   });
@@ -1698,9 +1763,38 @@ export default function ServicesAdmin() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    // Set the editing impact with the current item's data
+                                    // Initialize temp storage with both language values
+                                    const tempStorage: any = {};
+
+                                    // Get data from both languages if available
+                                    const enImpact = formState.selectedService?.en?.impact?.find((item: any) => item.id === imp.id);
+                                    const urImpact = formState.selectedService?.ur?.impact?.find((item: any) => item.id === imp.id);
+
+                                    if (enImpact) {
+                                      tempStorage.en = {
+                                        label: enImpact.label?.text || "",
+                                        value: enImpact.value || "",
+                                        iconName: enImpact.iconName || "",
+                                        prefix: enImpact.prefix || "",
+                                        suffix: enImpact.suffix || "",
+                                        id: enImpact.id
+                                      };
+                                    }
+
+                                    if (urImpact) {
+                                      tempStorage.ur = {
+                                        label: urImpact.label?.text || "",
+                                        value: urImpact.value || "",
+                                        iconName: urImpact.iconName || "",
+                                        prefix: urImpact.prefix || "",
+                                        suffix: urImpact.suffix || "",
+                                        id: urImpact.id
+                                      };
+                                    }
+
+                                    // Set the editing impact with the current item's data and temp storage
                                     updateModalState({
-                                      editingImpact: {...imp},
+                                      editingImpact: {...imp, tempStorage} as any,
                                       editingImpactIndex: idx,
                                       editingKeyFeature: null,
                                     });

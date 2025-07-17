@@ -261,6 +261,108 @@ export default function ProgramsAdmin() {
 
   // Mini modal language switch handler
   const handleMiniModalLanguageSwitch = (lang: "en" | "ur") => {
+    // Save current values before switching language
+    if (modalState.impactModalOpen && modalState.editingImpact) {
+      const currentLang = uiState.miniModalLanguage;
+      const currentValues = {
+        label: modalState.editingImpact.label?.text || "",
+        value: modalState.editingImpact.value || "",
+        iconName: modalState.editingImpact.iconName || "",
+        prefix: (modalState.editingImpact as any).prefix || "",
+        suffix: (modalState.editingImpact as any).suffix || "",
+        id: modalState.editingImpact.id
+      };
+
+      // Store current values in a temporary storage (using the editing object as storage)
+      const tempStorage = (modalState.editingImpact as any).tempStorage || {};
+      tempStorage[currentLang] = currentValues;
+
+      // Get values for the new language from temp storage or empty
+      const newLangValues = tempStorage[lang] || {
+        label: "",
+        value: currentValues.value, // Keep value and other non-language specific fields
+        iconName: currentValues.iconName,
+        prefix: currentValues.prefix,
+        suffix: currentValues.suffix,
+        id: currentValues.id
+      };
+
+      updateModalState({
+        editingImpact: {
+          ...modalState.editingImpact,
+          label: {text: newLangValues.label},
+          value: newLangValues.value,
+          iconName: newLangValues.iconName,
+          prefix: newLangValues.prefix,
+          suffix: newLangValues.suffix,
+          tempStorage: tempStorage
+        } as any
+      });
+    }
+
+    // Handle IconStats modal
+    if (modalState.iconStatsModalOpen && modalState.editingIconStats) {
+      const currentLang = uiState.miniModalLanguage;
+      const currentValues = {
+        label: modalState.editingIconStats.label?.text || "",
+        value: modalState.editingIconStats.value || "",
+        iconName: modalState.editingIconStats.iconName || "",
+        id: modalState.editingIconStats.id
+      };
+
+      // Store current values in a temporary storage
+      const tempStorage = (modalState.editingIconStats as any).tempStorage || {};
+      tempStorage[currentLang] = currentValues;
+
+      // Get values for the new language from temp storage or empty
+      const newLangValues = tempStorage[lang] || {
+        label: "",
+        value: currentValues.value, // Keep value and other non-language specific fields
+        iconName: currentValues.iconName,
+        id: currentValues.id
+      };
+
+      updateModalState({
+        editingIconStats: {
+          ...modalState.editingIconStats,
+          label: {text: newLangValues.label},
+          value: newLangValues.value,
+          iconName: newLangValues.iconName,
+          tempStorage: tempStorage
+        } as any
+      });
+    }
+
+    // Handle Partners modal
+    if (modalState.partnersModalOpen && modalState.editingPartners) {
+      const currentLang = uiState.miniModalLanguage;
+      const currentValues = {
+        name: modalState.editingPartners.name?.text || "",
+        logo: modalState.editingPartners.logo || "",
+        id: modalState.editingPartners.id
+      };
+
+      // Store current values in a temporary storage
+      const tempStorage = (modalState.editingPartners as any).tempStorage || {};
+      tempStorage[currentLang] = currentValues;
+
+      // Get values for the new language from temp storage or empty
+      const newLangValues = tempStorage[lang] || {
+        name: "",
+        logo: currentValues.logo, // Keep logo and other non-language specific fields
+        id: currentValues.id
+      };
+
+      updateModalState({
+        editingPartners: {
+          ...modalState.editingPartners,
+          name: {text: newLangValues.name},
+          logo: newLangValues.logo,
+          tempStorage: tempStorage
+        } as any
+      });
+    }
+
     updateUIState({miniModalLanguage: lang});
   };
 
@@ -1821,9 +1923,38 @@ export default function ProgramsAdmin() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    // Set the editing impact with the current item's data
+                                    // Initialize temp storage with both language values
+                                    const tempStorage: any = {};
+
+                                    // Get data from both languages if available
+                                    const enImpact = ((formData as any)?.en?.impact || []).find((item: any) => item.id === imp.id);
+                                    const urImpact = ((formData as any)?.ur?.impact || []).find((item: any) => item.id === imp.id);
+
+                                    if (enImpact) {
+                                      tempStorage.en = {
+                                        label: enImpact.label?.text || "",
+                                        value: enImpact.value || "",
+                                        iconName: enImpact.iconName || "",
+                                        prefix: enImpact.prefix || "",
+                                        suffix: enImpact.suffix || "",
+                                        id: enImpact.id
+                                      };
+                                    }
+
+                                    if (urImpact) {
+                                      tempStorage.ur = {
+                                        label: urImpact.label?.text || "",
+                                        value: urImpact.value || "",
+                                        iconName: urImpact.iconName || "",
+                                        prefix: urImpact.prefix || "",
+                                        suffix: urImpact.suffix || "",
+                                        id: urImpact.id
+                                      };
+                                    }
+
+                                    // Set the editing impact with the current item's data and temp storage
                                     updateModalState({
-                                      editingImpact: {...imp},
+                                      editingImpact: {...imp, tempStorage},
                                       editingImpactIndex: idx,
                                     });
                                     // Set mini modal language to current main modal language
@@ -1958,9 +2089,34 @@ export default function ProgramsAdmin() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    // Set the editing icon stats with the current item's data
+                                    // Initialize temp storage with both language values
+                                    const tempStorage: any = {};
+
+                                    // Get data from both languages if available
+                                    const enIconStats = ((formData as any)?.en?.iconStats || []).find((item: any) => item.id === stat.id);
+                                    const urIconStats = ((formData as any)?.ur?.iconStats || []).find((item: any) => item.id === stat.id);
+
+                                    if (enIconStats) {
+                                      tempStorage.en = {
+                                        label: enIconStats.label?.text || "",
+                                        value: enIconStats.value || "",
+                                        iconName: enIconStats.iconName || "",
+                                        id: enIconStats.id
+                                      };
+                                    }
+
+                                    if (urIconStats) {
+                                      tempStorage.ur = {
+                                        label: urIconStats.label?.text || "",
+                                        value: urIconStats.value || "",
+                                        iconName: urIconStats.iconName || "",
+                                        id: urIconStats.id
+                                      };
+                                    }
+
+                                    // Set the editing icon stats with the current item's data and temp storage
                                     updateModalState({
-                                      editingIconStats: {...stat},
+                                      editingIconStats: {...stat, tempStorage},
                                       editingIconStatsIndex: idx,
                                     });
                                     // Set mini modal language to current main modal language
@@ -2088,9 +2244,32 @@ export default function ProgramsAdmin() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    // Set the editing partner with the current item's data
+                                    // Initialize temp storage with both language values
+                                    const tempStorage: any = {};
+
+                                    // Get data from both languages if available
+                                    const enPartner = ((formData as any)?.en?.partners || []).find((item: any) => item.id === partner.id);
+                                    const urPartner = ((formData as any)?.ur?.partners || []).find((item: any) => item.id === partner.id);
+
+                                    if (enPartner) {
+                                      tempStorage.en = {
+                                        name: enPartner.name?.text || "",
+                                        logo: enPartner.logo || "",
+                                        id: enPartner.id
+                                      };
+                                    }
+
+                                    if (urPartner) {
+                                      tempStorage.ur = {
+                                        name: urPartner.name?.text || "",
+                                        logo: urPartner.logo || "",
+                                        id: urPartner.id
+                                      };
+                                    }
+
+                                    // Set the editing partner with the current item's data and temp storage
                                     updateModalState({
-                                      editingPartners: {...partner},
+                                      editingPartners: {...partner, tempStorage},
                                       editingPartnersIndex: idx,
                                     });
                                     // Set mini modal language to current main modal language
