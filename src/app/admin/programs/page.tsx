@@ -2430,7 +2430,7 @@ export default function ProgramsAdmin() {
                     const originalLang = currentLang === "en" ? "ur" : "en"; // The language that has the data
 
                     // Find the original impact data from the language that has it
-                    const originalImpact = (formData[originalLang as 'en' | 'ur'] as any)?.impact?.find((item: any) => item.id === modalState.editingImpact?.id);
+                    const originalImpact = formData ? (formData[originalLang as 'en' | 'ur'] as any)?.impact?.find((item: any) => item.id === modalState.editingImpact?.id) : null;
 
                     if (originalImpact) {
                       // Copy the original data to current language (copy the label text from original)
@@ -2554,7 +2554,7 @@ export default function ProgramsAdmin() {
                     const originalLang = currentLang === "en" ? "ur" : "en"; // The language that has the data
 
                     // Find the original icon stats data from the language that has it
-                    const originalIconStats = (formData[originalLang as 'en' | 'ur'] as any)?.iconStats?.find((item: any) => item.id === modalState.editingIconStats?.id);
+                    const originalIconStats = formData ? (formData[originalLang as 'en' | 'ur'] as any)?.iconStats?.find((item: any) => item.id === modalState.editingIconStats?.id) : null;
 
                     if (originalIconStats) {
                       // Copy the original data to current language (copy the label text from original)
@@ -2660,7 +2660,7 @@ export default function ProgramsAdmin() {
                     const originalLang = currentLang === "en" ? "ur" : "en"; // The language that has the data
 
                     // Find the original partner data from the language that has it
-                    const originalPartner = (formData[originalLang as 'en' | 'ur'] as any)?.partners?.find((item: any) => item.id === modalState.editingPartners?.id);
+                    const originalPartner = formData ? (formData[originalLang as 'en' | 'ur'] as any)?.partners?.find((item: any) => item.id === modalState.editingPartners?.id) : null;
 
                     if (originalPartner) {
                       // Copy the original data to current language (copy the name text from original)
