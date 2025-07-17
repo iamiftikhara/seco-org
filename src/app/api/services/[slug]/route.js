@@ -23,7 +23,6 @@ export async function GET(request, { params }) {
     const service = servicesData.servicesList.find(s => s.slug === slug);
 
     if (!service) {
-      console.log('Service not found with slug:', slug);
       return NextResponse.json(
         { success: false, message: 'Service not found' },
         { status: 404 }

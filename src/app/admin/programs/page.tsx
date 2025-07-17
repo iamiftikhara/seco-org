@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {useState, useEffect, useCallback} from "react";
@@ -6,12 +7,19 @@ import Image from "next/image";
 import {FaPlus, FaEdit, FaTrash, FaImage, FaTimes, FaHome} from "react-icons/fa";
 import {FiEdit2, FiSave, FiX, FiImage, FiType, FiPlus, FiTrash2, FiEye} from "react-icons/fi";
 import {theme} from "@/config/theme";
-import {ProgramDetail} from "@/types/programs";
+import {ProgramDetail, ImpactMetric, IconStat, Partner} from "@/types/programs";
 import ImageSelector from "@/app/admin/components/ImageSelector";
 import IconSelector from "@/app/admin/components/IconSelector";
 import DashboardLoader from "../components/DashboardLoader";
 import Loader from "../components/Loader";
 import {showAlert, showConfirmDialog} from "@/utils/alert";
+
+// Additional type definitions for admin functionality
+interface ValidationState {
+  missingFields: string[];
+  missingEnglish: string[];
+  missingUrdu: string[];
+}
 
 interface ProgramPageData {
   title: {
@@ -35,9 +43,9 @@ interface ModalState {
   impactModalOpen: boolean;
   iconStatsModalOpen: boolean;
   partnersModalOpen: boolean;
-  editingImpact: any | null;
-  editingIconStats: any | null;
-  editingPartners: any | null;
+  editingImpact: ImpactMetric | null;
+  editingIconStats: IconStat | null;
+  editingPartners: Partner | null;
   editingImpactIndex: number | null;
   editingIconStatsIndex: number | null;
   editingPartnersIndex: number | null;
@@ -65,7 +73,7 @@ export default function ProgramsAdmin() {
   const [showProgramModal, setShowProgramModal] = useState(false);
   const [editingProgram, setEditingProgram] = useState<ProgramDetail | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<any>(null);
+  const [formData, setFormData] = useState<ProgramDetail | null>(null);
   const [isEditingProgramPage, setIsEditingProgramPage] = useState(false);
   const [originalProgramPage, setOriginalProgramPage] = useState<ProgramPageData | null>(null);
 
@@ -208,8 +216,9 @@ export default function ProgramsAdmin() {
       // If iconName already starts with "Fa", use it directly
       if (mappedIconName.startsWith("Fa")) {
         // Import all FA icons dynamically
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const FaIcons = require("react-icons/fa");
-        const IconComponent = FaIcons[mappedIconName];
+        const IconComponent = FaIcons[mappedIconName as keyof typeof FaIcons];
         if (IconComponent) return IconComponent;
       }
 
@@ -230,7 +239,7 @@ export default function ProgramsAdmin() {
       .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
   };
 
-  const handleErrorResponse = (error: any) => {
+  const handleErrorResponse = (error: Error & { status?: number }) => {
     if (error.status === 403) {
       router.push("/admin/login");
       return;
@@ -261,7 +270,7 @@ export default function ProgramsAdmin() {
   };
 
   // Validation functions
-  const validateProgram = (program: any, currentLang: "en" | "ur") => {
+  const validateProgram = (program: ProgramDetail, currentLang: "en" | "ur") => {
     const requiredFields = [
       // Program Image (required)
       {key: "featuredImage", value: program.featuredImage},
@@ -290,23 +299,23 @@ export default function ProgramsAdmin() {
     return [...requiredFields, ...oppositeFields].filter((f) => !f.value).map((f) => f.key);
   };
 
-  const checkLanguageConsistency = (program: any, currentLang: "en" | "ur") => {
+  const checkLanguageConsistency = (program: ProgramDetail, currentLang: "en" | "ur") => {
     const oppositeLang = currentLang === "en" ? "ur" : "en";
 
     // Check for missing impact in the opposite language
     const impactArr = program[currentLang]?.impact || [];
     const impactOpposite = program[oppositeLang]?.impact || [];
-    const missingImpactIds = impactArr.filter((f: any) => !impactOpposite.some((of: any) => of.id === f.id));
+    const missingImpactIds = impactArr.filter((f: ImpactMetric) => !impactOpposite.some((of: ImpactMetric) => of.id === f.id));
 
     // Check for missing icon stats in the opposite language
     const iconStatsArr = program[currentLang]?.iconStats || [];
     const iconStatsOpposite = program[oppositeLang]?.iconStats || [];
-    const missingIconStatsIds = iconStatsArr.filter((f: any) => !iconStatsOpposite.some((of: any) => of.id === f.id));
+    const missingIconStatsIds = iconStatsArr.filter((f: IconStat) => !iconStatsOpposite.some((of: IconStat) => of.id === f.id));
 
     // Check for missing partners in the opposite language
     const partnersArr = program[currentLang]?.partners || [];
     const partnersOpposite = program[oppositeLang]?.partners || [];
-    const missingPartnersIds = partnersArr.filter((f: any) => !partnersOpposite.some((of: any) => of.id === f.id));
+    const missingPartnersIds = partnersArr.filter((f: Partner) => !partnersOpposite.some((of: Partner) => of.id === f.id));
 
     return {
       missingImpact: missingImpactIds.length > 0,
@@ -354,8 +363,8 @@ export default function ProgramsAdmin() {
           image: "/images/programs-hero.jpg",
         }
       );
-    } catch (err: any) {
-      handleErrorResponse(err);
+    } catch (err: unknown) {
+      handleErrorResponse(err as Error & { status?: number });
     } finally {
       setLoading(false);
     }
@@ -424,7 +433,7 @@ export default function ProgramsAdmin() {
             icon: "error",
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         showAlert({
           title: "Error",
           text: "Failed to delete program",
@@ -437,12 +446,13 @@ export default function ProgramsAdmin() {
   };
 
   const createEmptyProgram = () => ({
+    id: "",
     slug: "",
     featuredImage: "",
     isActive: true,
     showOnHomepage: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     socialShare: {
       title: {text: ""},
       description: {text: ""},
@@ -499,21 +509,21 @@ export default function ProgramsAdmin() {
     setShowPageModal(true);
   };
 
-  const handleProgramPageChange = (field: string, value: any) => {
-    setProgramPage((prev: any) => ({
+  const handleProgramPageChange = (field: string, value: string) => {
+    setProgramPage((prev: ProgramPageData | null) => ({
       ...prev,
       [field]: value,
-    }));
+    } as ProgramPageData));
   };
 
   const handleProgramPageLangChange = (field: string, lang: "en" | "ur", value: string) => {
-    setProgramPage((prev: any) => ({
+    setProgramPage((prev: ProgramPageData | null) => ({
       ...prev,
       [field]: {
         ...prev[field],
         [lang]: {text: value},
       },
-    }));
+    } as ProgramPageData));
   };
 
   const handleProgramPageSave = async () => {

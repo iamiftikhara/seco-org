@@ -93,28 +93,17 @@ export default function ServiceDetail() {
       setLoading(true);
       setError(null);
       try {
-        console.log("Fetching service data for slug:", params.slug);
 
         // Fetch individual service and all services for navigation in parallel
         const [serviceResponse, allServicesResponse] = await Promise.all([fetch(`/api/services/${params.slug}`), fetch("/api/services")]);
 
-        console.log("Service response status:", serviceResponse.status);
-        console.log("All services response status:", allServicesResponse.status);
 
-        if (!serviceResponse.ok) {
-          throw new Error(`HTTP error! status: ${serviceResponse.status}`);
-        }
+       
 
         const serviceResult = await serviceResponse.json();
-        console.log("Service API result:", serviceResult);
 
         if (!serviceResult.success) {
-          // Check if it's an empty state
-          if (serviceResult.isEmpty) {
-            setError(serviceResult.message || "Service not found or not available.");
-            return;
-          }
-          throw new Error(serviceResult.error || "Failed to fetch service");
+          throw new Error(serviceResult.error || "Service not found.");
         }
 
         if (!serviceResult.data) {
@@ -210,18 +199,47 @@ export default function ServiceDetail() {
       }
     : null;
 
+  if (error) {
+    return (
+      <>
+        <Navbar />
+        <DynamicError
+          title={language === "ur" ? "خرابی ہوئی" : "Something Went Wrong"}
+          message={error}
+          onRetry={() => window.location.reload()}
+          showBackButton={true}
+          backUrl="/services"
+          backLabel={language === "ur" ? "خدمات کی فہرست میں واپس" : "Back to Services"}
+          language={language === "ur" ? "ur" : "en"}
+          sectionName={language === "ur" ? "خدمات" : "Services"}
+        />
+        <Footer />
+      </>
+    );
+  }
+
+  if (!service) {
+    return (
+      <>
+        <Navbar />
+        <DynamicError
+          title={language === "ur" ? "سروس نہیں ملی" : "Service Not Found"}
+          message={language === "ur" ? "آپ جو سروس تلاش کر رہے ہیں وہ موجود نہیں یا ہٹا دیا گیا ہے۔" : "The service you're looking for doesn't exist or has been removed."}
+          showBackButton={true}
+          backUrl="/services"
+          backLabel={language === "ur" ? "خدمات کی فہرست میں واپس" : "Back to Services"}
+          language={language === "ur" ? "ur" : "en"}
+          sectionName={language === "ur" ? "خدمات" : "Services"}
+        />
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       {structuredData && <Script id="structured-data" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{__html: JSON.stringify(structuredData)}} />}
       <Navbar />
-      {error ? (
-        <DynamicError title={error.includes("No services are currently available") ? (language === "ur" ? "خدمات جلد آ رہی ہیں" : "Services Coming Soon") : language === "ur" ? "خدمت نہیں ملی" : "Service Not Found"} message={error} onRetry={() => window.location.reload()} showBackButton={true} backUrl="/services" backLabel={language === "ur" ? "خدمات کی فہرست میں واپس" : "Back to Services"} language={language === "ur" ? "ur" : "en"} sectionName={language === "ur" ? "خدمات" : "Services"} />
-      ) : !service ? (
-        <div className="min-h-screen flex flex-col items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-xl text-gray-600">Loading service...</p>
-        </div>
-      ) : (
         <div className="min-h-screen" style={{backgroundColor: theme.colors.background.primary}}>
           <div className="relative overflow-hidden" style={{height: isMobile ? "calc(100vh - 40rem)" : "calc(100vh - 15rem)"}}>
             <Image src={service.heroImage} alt={language === "all" ? `${service.en.title.text} / ${service.ur.title.text}` : service[language].title.text} fill className={`object-cover transition-transform duration-[30s] ${isImageLoaded ? "scale-110" : "scale-100"}`} onLoadingComplete={() => setIsImageLoaded(true)} priority />
@@ -458,7 +476,6 @@ export default function ServiceDetail() {
             </div>
           </div>
         </div>
-      )}
       <Footer />
     </>
   );
