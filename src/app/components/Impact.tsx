@@ -18,6 +18,7 @@ import {
   FaLeaf,
   FaChild
 } from 'react-icons/fa';
+import { IconType } from 'react-icons';
 
 // Language configuration object using theme fonts
 const languageConfig = {
@@ -37,7 +38,7 @@ const languageConfig = {
 
 // Icon mapping function
 const getIconComponent = (iconName: string) => {
-  const iconMap: { [key: string]: any } = {
+  const iconMap: { [key: string]: IconType } = {
     FaMapMarked,
     FaProjectDiagram,
     FaCheckCircle,

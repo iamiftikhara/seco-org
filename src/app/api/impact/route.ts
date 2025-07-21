@@ -1,6 +1,12 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 
+interface ImpactStat {
+  id: string;
+  showOnHomepage: boolean;
+  order: number;
+}
+
 // GET: Fetch impact data
 async function getImpactData(request: NextRequest) {
   try {
@@ -10,7 +16,7 @@ async function getImpactData(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const homepage = searchParams.get('homepage');
 
-    let impactData = await collection.findOne({});
+    const impactData = await collection.findOne({});
 
     // If no data exists, return empty response
     if (!impactData) {
@@ -32,8 +38,8 @@ async function getImpactData(request: NextRequest) {
       // Filter only homepage stats and sort by order
       const homepageStats = impactData.stats
         ? impactData.stats
-            .filter((stat: any) => stat.showOnHomepage)
-            .sort((a: any, b: any) => a.order - b.order)
+            .filter((stat: ImpactStat) => stat.showOnHomepage)
+            .sort((a: ImpactStat, b: ImpactStat) => a.order - b.order)
         : [];
 
       return NextResponse.json({

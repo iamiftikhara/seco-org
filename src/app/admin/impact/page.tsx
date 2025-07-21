@@ -1,6 +1,7 @@
 "use client";
 
 import React, {useState, useEffect} from "react";
+import Image from "next/image";
 import {FiEdit2, FiSave, FiX, FiImage, FiType, FiTrash2, FiPlus} from "react-icons/fi";
 import {FaEdit, FaTrash} from "react-icons/fa";
 import {showAlert, showConfirmDialog} from "@/utils/alert";
@@ -9,11 +10,22 @@ import IconSelector from "../components/IconSelector";
 import {ImpactData, ImpactStat} from "@/types/impact";
 import {theme} from "@/config/theme";
 import {FaMapMarked, FaProjectDiagram, FaCheckCircle, FaUsers, FaHeart, FaHandsHelping, FaGraduationCap, FaHome, FaMedkit, FaWater, FaLeaf, FaChild} from "react-icons/fa";
+import { IconType } from 'react-icons';
 
 interface UIState {
   language: "en" | "ur";
   miniModalLanguage: "en" | "ur";
   hasChanges: boolean;
+}
+
+interface TempStatValues {
+  label: string;
+  value: string;
+  suffix: string;
+  iconName: string;
+  order: number;
+  showOnHomepage: boolean;
+  id: string;
 }
 
 interface ModalState {
@@ -24,7 +36,7 @@ interface ModalState {
 
 // Icon mapping function
 const getIconComponent = (iconName: string) => {
-  const iconMap: {[key: string]: any} = {
+  const iconMap: {[key: string]: IconType} = {
     FaMapMarked,
     FaProjectDiagram,
     FaCheckCircle,
@@ -217,7 +229,7 @@ export default function AdminImpact() {
     setImpactData((prev) => {
       if (!prev) return prev;
 
-      const currentField = prev[field] as any;
+      const currentField = (prev[field] as unknown as Record<string, unknown>) || {};
       return {
         ...prev,
         [field]: {
@@ -230,7 +242,7 @@ export default function AdminImpact() {
     updateUIState({hasChanges: true});
   };
 
-  const handleFieldChange = (field: keyof ImpactData, value: any) => {
+  const handleFieldChange = (field: keyof ImpactData, value: unknown) => {
     if (!impactData) return;
 
     setImpactData((prev) => {
@@ -277,7 +289,7 @@ export default function AdminImpact() {
       };
 
       // Store current values in a temporary storage
-      const tempStorage = (modalState.editingStat as any).tempStorage || {};
+      const tempStorage = (modalState.editingStat as unknown as Record<string, Record<string, TempStatValues>>).tempStorage || {};
       tempStorage[currentLang] = currentValues;
 
       // Get values for the new language from temp storage or empty
@@ -304,7 +316,7 @@ export default function AdminImpact() {
           order: newLangValues.order,
           showOnHomepage: newLangValues.showOnHomepage,
           tempStorage: tempStorage,
-        } as any,
+        } as ImpactStat,
       });
     }
 
@@ -392,7 +404,19 @@ export default function AdminImpact() {
                   <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                     Background Image
                   </label>
-                  <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">{impactData.backgroundImage ? <img src={impactData.backgroundImage} alt="Impact page background" className="w-full h-full object-cover" /> : <FiImage className="w-8 h-8 text-gray-400" />}</div>
+                  <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                    {impactData.backgroundImage ? (
+                      <Image
+                        src={impactData.backgroundImage}
+                        alt="Impact page background"
+                        width={300}
+                        height={128}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <FiImage className="w-8 h-8 text-gray-400" />
+                    )}
+                  </div>
                 </div>
               </div>
             ) : (
@@ -794,7 +818,7 @@ export default function AdminImpact() {
                               <button
                                 onClick={() => {
                                   // Initialize temp storage with both language values
-                                  const tempStorage: any = {};
+                                  const tempStorage: Record<string, TempStatValues> = {};
                                   tempStorage.en = {
                                     label: stat.label.en?.text || "",
                                     value: stat.value,
@@ -815,7 +839,7 @@ export default function AdminImpact() {
                                   };
 
                                   updateModalState({
-                                    editingStat: {...stat, tempStorage} as any,
+                                    editingStat: {...stat, tempStorage} as ImpactStat,
                                     editingStatIndex: index,
                                     statModalOpen: true,
                                   });
