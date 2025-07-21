@@ -163,7 +163,7 @@ export default function Impact() {
   return (
     <section className="relative">
       {/* Background Image with Overlay */}
-      <div className={`${isMobile ? 'h-[50vh]' : 'h-[60vh]'} relative`}>
+      <div className={`${isMobile ? 'h-[70vh]' : 'h-[60vh]'} relative`}>
         <div
           className={`absolute inset-0 bg-cover bg-center ${isMobile ? 'bg-scroll' : 'bg-fixed'}`}
           style={{
@@ -214,10 +214,10 @@ export default function Impact() {
       </div>
 
       {/* Plain background section */}
-      <div className={`bg-gray-50 ${isMobile ? 'h-[15vh]' : 'h-[20vh]'}`}></div>
+      <div className={`bg-gray-50 ${isMobile ? 'h-[0vh]' : 'h-[20vh]'}`}></div>
 
       {/* Stats Grid - Overlapping both sections */}
-      <div className={`absolute left-0 right-0 ${isMobile ? 'top-[15vh]' : 'top-[48vh]'}`}>
+      <div className={`absolute left-0 right-0 ${isMobile ? 'top-[23vh]' : 'top-[48vh]'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`grid ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 lg:grid-cols-4 gap-6'}`}>
             {impactData.stats
