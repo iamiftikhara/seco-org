@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiHome, FiFileText, FiSettings, FiUsers, FiImage, FiMessageSquare, FiCalendar, FiChevronDown, FiTarget, FiTrendingUp } from "react-icons/fi";
+import { FiHome, FiFileText, FiSettings, FiUsers, FiImage, FiMessageSquare, FiCalendar, FiChevronDown, FiTarget } from "react-icons/fi";
 import { theme } from "@/config/theme";
 import { useState } from "react";
 
@@ -16,6 +16,7 @@ const menuItems = [
       { href: "/admin/content/header", label: "Header Section" },
       { href: "/admin/content/hero", label: "Hero Section" },
       { href: "/admin/content/testimonials", label: "Testimonials" },
+      { href: "/admin/impact", label: "Impact" },
       { href: "/admin/content/contact", label: "Contact Section" },
       { href: "/admin/content/footer", label: "Footer" },
     ],
@@ -25,7 +26,6 @@ const menuItems = [
   { href: "/admin/events", label: "Events", icon: FiCalendar },
   { href: "/admin/services", label: "Services", icon: FiFileText },
   { href: "/admin/programs", label: "Programs", icon: FiTarget },
-  { href: "/admin/impact", label: "Impact", icon: FiTrendingUp },
   { href: "/admin/gallery", label: "Gallery", icon: FiImage },
   { href: "/admin/settings", label: "Settings", icon: FiSettings },
 ];

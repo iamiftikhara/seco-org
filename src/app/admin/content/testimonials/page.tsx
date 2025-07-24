@@ -43,7 +43,7 @@ export default function TestimonialsSection() {
   const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
 
-  const handleErrorResponse = async (response: Response, identifier: string = "default") => {
+  const handleErrorResponse = useCallback(async (response: Response, identifier: string = "default") => {
     setIsLoading(false);
     if (response.status === 401) {
       router.push("/admin/login");
@@ -69,7 +69,7 @@ export default function TestimonialsSection() {
       text: response.statusText || "An error occurred",
       icon: "error",
     });
-  };
+  }, [router]);
 
   const fetchTestimonialsData = useCallback(async () => {
     try {

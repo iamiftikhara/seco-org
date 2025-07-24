@@ -54,7 +54,7 @@ export default function HeroSection() {
   const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
 
-  const handleErrorResponse = async (response: Response, identifier: string = 'default') => {
+  const handleErrorResponse = useCallback(async (response: Response, identifier: string = 'default') => {
     setIsLoading(false);
     if (response.status === 401) {
       router.push('/admin/login');
@@ -80,7 +80,7 @@ export default function HeroSection() {
       text: response.statusText || 'An error occurred',
       icon: 'error',
     });
-  };
+  }, [router]);
 
   const fetchHeroData = useCallback(async () => {
     try {
