@@ -13,6 +13,8 @@ import IconSelector from "@/app/admin/components/IconSelector";
 import DashboardLoader from "../components/DashboardLoader";
 import Loader from "../components/Loader";
 import {showAlert, showConfirmDialog} from "@/utils/alert";
+import { handle403Response } from "../errors/error403";
+import AdminError from "@/app/admin/errors/error";
 
 // Additional type definitions for admin functionality
 
@@ -61,7 +63,7 @@ export default function ProgramsAdmin() {
   const [programs, setPrograms] = useState<ProgramDetail[]>([]);
   const [programPage, setProgramPage] = useState<ProgramPageData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState<"en" | "ur">("en");
   const [showPageModal, setShowPageModal] = useState(false);
   const [editingPageData, setEditingPageData] = useState<ProgramPageData | null>(null);
@@ -234,13 +236,33 @@ export default function ProgramsAdmin() {
       .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
   };
 
-  const handleErrorResponse = (error: Error & { status?: number }) => {
-    if (error.status === 403) {
+  const handleErrorResponse = useCallback(async (response: Response, identifier: string = "default") => {
+    setLoading(false);
+    if (response.status === 401) {
       router.push("/admin/login");
       return;
+    } else if (response.status === 403) {
+      const shouldRedirect = await handle403Response();
+      if (shouldRedirect) {
+        window.location.href = "/admin/login";
+      }
+      return;
     }
-    setError(error.message || "An error occurred");
-  };
+    if (identifier === "get") {
+      if (response.status === 500 || response.status === 400 || response.status === 404) {
+        console.log("error, 400, 500. 404");
+        const errorMessage = response.statusText || "An error occurred";
+        setError(new Error(errorMessage));
+        return;
+      }
+    }
+
+    showAlert({
+      title: "Error",
+      text: response.statusText || "An error occurred",
+      icon: "error",
+    });
+  }, [router]);
 
   // Helper functions for state updates
   const updateValidationState = (updates: Partial<typeof validationState>) => {
@@ -423,49 +445,42 @@ export default function ProgramsAdmin() {
 
   const fetchPrograms = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       const response = await fetch("/api/admin/programs", {
         credentials: "include",
       });
 
       if (!response.ok) {
-        if (response.status === 403) {
-          router.push("/admin/login");
-          return;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        handleErrorResponse(response, "get");
+        return;
       }
 
       const result = await response.json();
 
-      if (!result.success) {
-        throw new Error(result.error || "Failed to fetch programs");
+      if (result.success) {
+        // Handle the data structure correctly
+        const data = result.data;
+        setPrograms(data.programsList || []);
+        setProgramPage(
+          data.programPage || {
+            title: {
+              en: {text: "Our Programs"},
+              ur: {text: "ہمارے پروگرامز"},
+            },
+            description: {
+              en: {text: "Discover our comprehensive programs designed to make a positive impact."},
+              ur: {text: "ہمارے جامع پروگرامز دریافت کریں جو مثبت اثرات کے لیے ڈیزائن کیے گئے ہیں۔"},
+            },
+            image: "/images/programs-hero.jpg",
+          }
+        );
+        setLoading(false);
+      } else {
+        handleErrorResponse(response, "get");
       }
-
-      // Handle the data structure correctly
-      const data = result.data;
-      setPrograms(data.programsList || []);
-      setProgramPage(
-        data.programPage || {
-          title: {
-            en: {text: "Our Programs"},
-            ur: {text: "ہمارے پروگرامز"},
-          },
-          description: {
-            en: {text: "Discover our comprehensive programs designed to make a positive impact."},
-            ur: {text: "ہمارے جامع پروگرامز دریافت کریں جو مثبت اثرات کے لیے ڈیزائن کیے گئے ہیں۔"},
-          },
-          image: "/images/programs-hero.jpg",
-        }
-      );
-    } catch (err: unknown) {
-      handleErrorResponse(err as Error & { status?: number });
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      handleErrorResponse(error as Response, "get");
     }
-  }, [router]);
+  }, [handleErrorResponse]);
 
   useEffect(() => {
     fetchPrograms();
@@ -1060,18 +1075,7 @@ export default function ProgramsAdmin() {
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md mx-auto p-8">
-          <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Error Loading Programs</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button onClick={fetchPrograms} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
+    return <AdminError error={error} reset={fetchPrograms} />;
   }
 
   return (

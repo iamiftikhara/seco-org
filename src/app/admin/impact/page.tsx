@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import Image from "next/image";
 import {FiEdit2, FiSave, FiX, FiImage, FiType, FiTrash2, FiPlus} from "react-icons/fi";
 import {FaEdit, FaTrash} from "react-icons/fa";
@@ -11,6 +11,10 @@ import {ImpactData, ImpactStat} from "@/types/impact";
 import {theme} from "@/config/theme";
 import {FaMapMarked, FaProjectDiagram, FaCheckCircle, FaUsers, FaHeart, FaHandsHelping, FaGraduationCap, FaHome, FaMedkit, FaWater, FaLeaf, FaChild} from "react-icons/fa";
 import { IconType } from 'react-icons';
+import { useRouter } from "next/navigation";
+import { handle403Response } from "../errors/error403";
+import AdminError from "@/app/admin/errors/error";
+import DashboardLoader from "../components/DashboardLoader";
 
 interface UIState {
   language: "en" | "ur";
@@ -55,9 +59,11 @@ const getIconComponent = (iconName: string) => {
 };
 
 export default function AdminImpact() {
+  const router = useRouter();
   const [impactData, setImpactData] = useState<ImpactData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   const [uiState, setUIState] = useState<UIState>({
     language: "en",
@@ -81,6 +87,34 @@ export default function AdminImpact() {
   const updateModalState = (updates: Partial<ModalState>) => {
     setModalState((prev) => ({...prev, ...updates}));
   };
+
+  const handleErrorResponse = useCallback(async (response: Response, identifier: string = "default") => {
+    setLoading(false);
+    if (response.status === 401) {
+      router.push("/admin/login");
+      return;
+    } else if (response.status === 403) {
+      const shouldRedirect = await handle403Response();
+      if (shouldRedirect) {
+        window.location.href = "/admin/login";
+      }
+      return;
+    }
+    if (identifier === "get") {
+      if (response.status === 500 || response.status === 400 || response.status === 404) {
+        console.log("error, 400, 500. 404");
+        const errorMessage = response.statusText || "An error occurred";
+        setError(new Error(errorMessage));
+        return;
+      }
+    }
+
+    showAlert({
+      title: "Error",
+      text: response.statusText || "An error occurred",
+      icon: "error",
+    });
+  }, [router]);
 
   // Labels for UI text in both languages
   const labels = {
@@ -115,56 +149,43 @@ export default function AdminImpact() {
     fetchImpactData();
   }, []);
 
-  const fetchImpactData = async () => {
+  const fetchImpactData = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await fetch("/api/admin/impact");
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          if (result.data) {
-            setImpactData(result.data);
-          } else {
-            // No data exists, create a default structure for admin
-            const defaultData: ImpactData = {
-              id: "1",
-              title: {
-                en: {text: ""},
-                ur: {text: ""},
-              },
-              backgroundImage: "",
-              showOnHomepage: true,
-              stats: [],
-              updatedAt: new Date(),
-              createdAt: new Date(),
-            };
-            setImpactData(defaultData);
-          }
+
+      if (!response.ok) {
+        handleErrorResponse(response, "get");
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        if (data.data) {
+          setImpactData(data.data);
         } else {
-          showAlert({
-            title: "Error",
-            text: "Error fetching impact data",
-            icon: "error",
-          });
+          // No data exists, create a default structure for admin
+          const defaultData: ImpactData = {
+            id: "1",
+            title: {
+              en: {text: ""},
+              ur: {text: ""},
+            },
+            backgroundImage: "",
+            showOnHomepage: true,
+            stats: [],
+            updatedAt: new Date(),
+            createdAt: new Date(),
+          };
+          setImpactData(defaultData);
         }
+        setLoading(false);
       } else {
-        showAlert({
-          title: "Error",
-          text: "Error fetching impact data",
-          icon: "error",
-        });
+        handleErrorResponse(response, "get");
       }
     } catch (error) {
-      console.error("Error fetching impact data:", error);
-      showAlert({
-        title: "Error",
-        text: "Error fetching impact data",
-        icon: "error",
-      });
-    } finally {
-      setLoading(false);
+      handleErrorResponse(error as Response, "get");
     }
-  };
+  }, [handleErrorResponse]);
 
   const handleSave = async () => {
     if (!impactData) return;
@@ -324,14 +345,11 @@ export default function AdminImpact() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.colors.background.secondary }}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4 mx-auto"></div>
-          <p className="text-xl text-gray-600">Loading impact data...</p>
-        </div>
-      </div>
-    );
+    return <DashboardLoader />;
+  }
+
+  if (error) {
+    return <AdminError error={error} reset={fetchImpactData} />;
   }
 
   if (!impactData) {

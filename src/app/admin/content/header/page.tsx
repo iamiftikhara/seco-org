@@ -26,7 +26,7 @@ export default function NavbarAdmin() {
     success: false,
   });
 
-  const handleErrorResponse = async (response: Response, identifier: string = "default") => {
+  const handleErrorResponse = useCallback(async (response: Response, identifier: string = "default") => {
     setIsLoading(false);
     if (response.status === 401) {
       router.push("/admin/login");
@@ -52,11 +52,17 @@ export default function NavbarAdmin() {
       text: response.statusText || "An error occurred",
       icon: "error",
     });
-  };
+  }, [router]);
 
   const fetchNavbarData = useCallback(async () => {
     try {
       const response = await fetch("/api/admin/navbar");
+
+      if (!response.ok) {
+        handleErrorResponse(response, "get");
+        return;
+      }
+
       const data = await response.json();
       if (data.success) {
         setFormData(data.data);
