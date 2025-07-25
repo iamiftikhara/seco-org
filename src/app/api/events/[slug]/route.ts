@@ -1,35 +1,40 @@
 import { NextResponse } from 'next/server';
-import { events } from '@/data/events';
+import { getCollection } from '@/lib/mongodb';
 
 export async function GET(
   request: Request,
   context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await context.params; // ✅ Await the params
-    const { searchParams } = new URL(request.url);
+    const { slug } = await context.params;
 
-    // Find the event with matching slug
-    const event = events.eventsList.find(event =>
-      event.slug === slug ||
-      event.slug === `${slug}-en` ||
-      event.slug === `${slug}-ur`
-    );
+    const collection = await getCollection('events');
+    const eventsData = await collection.findOne({});
 
-    if (!event) {
+    if (!eventsData || !eventsData.eventsList) {
       return NextResponse.json(
-        { success: false, message: 'Event not found' },
+        { success: false, error: 'Events data not found' },
         { status: 404 }
       );
     }
 
-    // Get navigation data
-    const languageEvents = events.eventsList.filter(e => e.language === event.language);
-    const currentIndex = languageEvents.findIndex(e => e.slug === event.slug);
+    // Find the event with matching slug
+    const event = eventsData.eventsList.find((event: any) => event.slug === slug);
+
+    if (!event) {
+      return NextResponse.json(
+        { success: false, error: 'Event not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get navigation data - find active events only
+    const activeEvents = eventsData.eventsList.filter((e: any) => e.isActive === true);
+    const currentIndex = activeEvents.findIndex((e: any) => e.slug === event.slug);
 
     const navigationData = {
-      prev: currentIndex > 0 ? languageEvents[currentIndex - 1] : null,
-      next: currentIndex < languageEvents.length - 1 ? languageEvents[currentIndex + 1] : null
+      prev: currentIndex > 0 ? activeEvents[currentIndex - 1] : null,
+      next: currentIndex < activeEvents.length - 1 ? activeEvents[currentIndex + 1] : null
     };
 
     return NextResponse.json({
@@ -42,7 +47,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching event:', error);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, error: 'Failed to fetch event data' },
       { status: 500 }
     );
   }

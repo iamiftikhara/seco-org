@@ -20,7 +20,7 @@ import * as testimonials from '@/data/testimonials';
 //   hero, impact, partners, programs, projects,
 //   services, testimonials
 // };
-const dataModules = {impact};
+const dataModules = {events};
 
 async function handler() {
   try {

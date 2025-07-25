@@ -1,67 +1,60 @@
-type LanguageText = {
+export interface TextWithLanguage {
   text: string;
-  language: "en" | "ur";
-};
+  language?: 'en' | 'ur';
+}
 
-type PageContent = {
-  title: string;
-  description: string;
-};
-
-type EventsPageType = {
-  en: PageContent;
-  ur: PageContent;
-  hero: {
-    image: string;
-    alt: string;
-  };
-};
-
-type HomePageType = {
-  en: {
-    title: string;
-    viewAll: string;
-    switchLanguage: string;
-  };
-  ur: {
-    title: string;
-    viewAll: string;
-    switchLanguage: string;
-  };
-};
-
-
-type SocialShare = {
-  title: LanguageText;
-  description: LanguageText;
+export interface SocialShare {
+  title: { text: string };
+  description: { text: string };
   hashtags: string[];
   twitterHandle: string;
   ogType: string;
-};
+}
 
-export type EventItem = {
+export interface EventsPageContent {
+  image: string;
+  title: {
+    en: { text: string };
+    ur: { text: string };
+  };
+  description: {
+    en: { text: string };
+    ur: { text: string };
+  };
+}
+
+export interface EventDetail {
   id: string;
-  title: LanguageText;
   slug: string;
-  shortDescription: LanguageText;
-  fullDescription: LanguageText;
-  content: LanguageText;
   featuredImage: string;
   date: string;
-  time?: LanguageText;
   status: "upcoming" | "past";
-  location: LanguageText;
-  outcome?: LanguageText;
-  language: "en" | "ur";
   showOnHome: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   socialShare: SocialShare;
-};
+  en: {
+    title: { text: string };
+    shortDescription: { text: string };
+    fullDescription: { text: string };
+    content: { text: string };
+    location: { text: string };
+    time?: { text: string };
+    outcome?: { text: string };
+  };
+  ur: {
+    title: { text: string };
+    shortDescription: { text: string };
+    fullDescription: { text: string };
+    content: { text: string };
+    location: { text: string };
+    time?: { text: string };
+    outcome?: { text: string };
+  };
+}
 
-export type Event = {
-  eventsPage: EventsPageType;
-  homePage: HomePageType;
-  eventsList: EventItem[];
-};
+export interface Events {
+  eventsPage: EventsPageContent;
+  eventsList: EventDetail[];
+}

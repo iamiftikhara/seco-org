@@ -38,28 +38,31 @@ export async function generateMetadata(
       };
     }
 
+    // Use English as default for metadata
+    const eventData = event.en || event.ur;
+
     return {
-      title: `${event.title.text} | SECO Events`,
-      description: event.shortDescription.text,
+      title: `${eventData.title.text} | SECO Events`,
+      description: eventData.shortDescription.text,
       openGraph: {
         type: 'website',
         siteName: 'SECO',
-        title: event.title.text,
-        description: event.shortDescription.text,
+        title: eventData.title.text,
+        description: eventData.shortDescription.text,
         url: `/events/${event.slug}`,
         images: [
           {
             url: event.featuredImage,
             width: 1200,
             height: 630,
-            alt: event.title.text,
+            alt: eventData.title.text,
           },
         ],
       },
       twitter: {
         card: 'summary_large_image',
-        title: event.title.text,
-        description: event.shortDescription.text,
+        title: eventData.title.text,
+        description: eventData.shortDescription.text,
         creator: event.socialShare?.twitterHandle || '@SECO',
         images: [event.featuredImage],
       },

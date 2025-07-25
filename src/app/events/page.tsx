@@ -7,7 +7,7 @@ import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
 import { theme } from '@/config/theme';
 import LoadingSpinner from '@/app/components/LoadingSpinner';
-import { Event } from '@/types/events';
+import { Events, EventDetail } from '@/types/events';
 
 const blinkingKeyframes = `
   @keyframes blink {
@@ -18,7 +18,7 @@ const blinkingKeyframes = `
 `;
 
 export default function AllEvents() {
-  const [eventsList, setEventsList] = useState<Event | null>(null);
+  const [eventsData, setEventsData] = useState<Events | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'ur'>('en');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'upcoming' | 'past'>('all');
@@ -28,13 +28,13 @@ export default function AllEvents() {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/events?language=${selectedLanguage}&status=${selectedStatus}`);
+        const response = await fetch(`/api/events?status=${selectedStatus}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data: { success: boolean; data: Event } = await response.json();
+        const data: { success: boolean; data: Events } = await response.json();
         if (data.success) {
-          setEventsList(data.data);
+          setEventsData(data.data);
         } else {
           throw new Error('API returned unsuccessful response');
         }
@@ -45,9 +45,9 @@ export default function AllEvents() {
       }
     };
     fetchEvents();
-  }, [selectedLanguage, selectedStatus]);
+  }, [selectedStatus]);
 
-  if (loading || !eventsList) {
+  if (loading || !eventsData) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
         <div className="flex flex-col items-center">
@@ -66,10 +66,10 @@ export default function AllEvents() {
         {/* Hero Section */}
         <div className="relative h-[calc(100vh-20rem)] overflow-hidden">
           <Image
-            src={eventsList.eventsPage.hero.image}
-            alt={eventsList.eventsPage.hero.alt}
+            src={eventsData.eventsPage.image}
+            alt="Events"
             fill
-            className={`object-cover transition-transform duration-[30s] ${isImageLoaded ? "scale-110" : "scale-100"}`} onLoadingComplete={() => setIsImageLoaded(true)} 
+            className={`object-cover transition-transform duration-[30s] ${isImageLoaded ? "scale-110" : "scale-100"}`} onLoadingComplete={() => setIsImageLoaded(true)}
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -77,18 +77,18 @@ export default function AllEvents() {
 
         {/* Title Section */}
         <div className="max-w-7xl mx-auto px-4 py-12 text-center">
-          <h1 className="text-4xl font-bold" 
-                style={{ 
+          <h1 className="text-4xl font-bold"
+                style={{
                   color: theme.colors.text.primary,
                   fontFamily: selectedLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
                 }}>
-            {eventsList.eventsPage[selectedLanguage].title}
+            {eventsData.eventsPage.title[selectedLanguage].text}
           </h1>
           <div className="w-20 h-1 mx-auto mb-6" style={{ backgroundColor: theme.colors.secondary }}></div>
           <p className="text-xl max-w-3xl mx-auto" style={{ color: theme.colors.text.secondary,
             fontFamily: selectedLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
            }}>
-            {eventsList.eventsPage[selectedLanguage].description}
+            {eventsData.eventsPage.description[selectedLanguage].text}
           </p>
         </div>
 
@@ -147,7 +147,9 @@ export default function AllEvents() {
         {/* Events Grid */}
         <div className="max-w-7xl mx-auto px-4 pb-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {eventsList?.eventsList.map((event) => (
+            {eventsData?.eventsList.map((event) => {
+              const eventData = event[selectedLanguage as keyof typeof event] as any;
+              return (
               <Link href={`/events/${event.slug}`} key={event.id}>
                 <div className="group relative overflow-hidden rounded-lg shadow-md h-[300px]">
                   {/* Event Status and Location Indicators */}
@@ -174,14 +176,14 @@ export default function AllEvents() {
                         </span>
                       )}
                     </div>
-                    {event.location && (
-                      <span className="px-2 py-1 rounded-full text-xs font-medium" 
-                        style={{ 
+                    {eventData?.location && (
+                      <span className="px-2 py-1 rounded-full text-xs font-medium"
+                        style={{
                           backgroundColor: theme.colors.primary,
                           color: theme.colors.text.light,
                           fontFamily: selectedLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
                         }}>
-                        {event.location.text}
+                        {eventData.location.text}
                       </span>
                     )}
                   </div>
@@ -189,7 +191,7 @@ export default function AllEvents() {
                   <div className="relative h-full">
                     <Image
                       src={event.featuredImage}
-                      alt={event.title.text}
+                      alt={eventData?.title?.text || 'Event'}
                       fill
                       className={`object-cover group-hover:scale-110 transition-transform duration-300 ${
                         event.status === 'past' ? 'grayscale' : ''
@@ -211,29 +213,30 @@ export default function AllEvents() {
                           year: 'numeric'
                         })}
                       </span>
-                      {event.status === 'upcoming' && event.time && (
+                      {event.status === 'upcoming' && eventData?.time && (
                         <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
-                          style={{ 
+                          style={{
                             backgroundColor: theme.colors.secondary,
                             color: theme.colors.primary,
                             fontFamily: selectedLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary
                           }}>
-                          {event.time.text}
+                          {eventData.time.text}
                         </span>
                       )}
                     </div>
                     <h3 className="text-lg font-semibold mb-1" dir={selectedLanguage === 'ur' ? 'rtl' : 'ltr'}
                       style={{ fontFamily: selectedLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary }}>
-                      {event.title.text}
+                      {eventData?.title?.text}
                     </h3>
                     <p className="text-gray-200 text-sm line-clamp-2" dir={selectedLanguage === 'ur' ? 'rtl' : 'ltr'}
                       style={{ fontFamily: selectedLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary }}>
-                      {event.shortDescription.text}
+                      {eventData?.shortDescription?.text}
                     </p>
                   </div>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

@@ -1,23 +1,36 @@
 import { NextResponse } from 'next/server';
-import { events } from '@/data/events';
+import { getCollection } from '@/lib/mongodb';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!) : undefined;
-    const language = searchParams.get('language') || 'all';
     const status = searchParams.get('status') || 'all';
-    
-    let eventsList = events.eventsList;
+    const showOnHome = searchParams.get('showOnHome');
+
+    const collection = await getCollection('events');
+    const eventsData = await collection.findOne({});
+
+    if (!eventsData) {
+      return NextResponse.json(
+        { success: false, error: 'Events data not found' },
+        { status: 404 }
+      );
+    }
+
+    let eventsList = eventsData.eventsList || [];
 
     // Apply filters
-    if (language !== 'all') {
-      eventsList = eventsList.filter(event => event.language === language);
+    if (status !== 'all') {
+      eventsList = eventsList.filter((event: any) => event.status === status);
     }
 
-    if (status !== 'all') {
-      eventsList = eventsList.filter(event => event.status === status);
+    if (showOnHome === 'true') {
+      eventsList = eventsList.filter((event: any) => event.showOnHome === true);
     }
+
+    // Filter only active events
+    eventsList = eventsList.filter((event: any) => event.isActive === true);
 
     if (limit) {
       eventsList = eventsList.slice(0, limit);
@@ -27,13 +40,13 @@ export async function GET(request: Request) {
       success: true,
       data: {
         eventsList,
-        eventsPage: events.eventsPage
+        eventsPage: eventsData.eventsPage
       }
     });
   } catch (error) {
     console.error('Error fetching events:', error);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, error: 'Failed to fetch events data' },
       { status: 500 }
     );
   }

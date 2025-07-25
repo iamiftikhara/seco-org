@@ -14,14 +14,32 @@ import styles from "../styles/EventContent.module.css";
 import SocialShare from "@/app/components/SocialShare";
 import Script from 'next/script';
 
-import type { EventItem } from '@/types/events';
+import type { EventDetail } from '@/types/events';
 
 export default function EventDetailClient() {
   const params = useParams();
-  const [event, setEvent] = useState<EventItem | null>(null);
+  const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedLanguage] = useState<"en" | "ur">("en");
-  const [navigation, setNavigation] = useState<{prev: EventItem | null; next: EventItem | null}>({prev: null, next: null});
+  const [selectedLanguage, setSelectedLanguage] = useState<"en" | "ur">("en");
+  const [navigation, setNavigation] = useState<{prev: EventDetail | null; next: EventDetail | null}>({prev: null, next: null});
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Universal variables for font family and direction
+  const currentFontFamily = selectedLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary;
+  const currentDirection = selectedLanguage === 'ur' ? 'rtl' : 'ltr';
+  const isRTL = selectedLanguage === 'ur';
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -74,21 +92,23 @@ export default function EventDetailClient() {
   //   }) || [];
 
 
+  const eventData = event[selectedLanguage as keyof typeof event] as any;
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Event",
     url: `/events/${event.slug}`,
-    name: event.title.text,
-    description: event.shortDescription.text,
+    name: eventData?.title?.text || event.en?.title?.text,
+    description: eventData?.shortDescription?.text || event.en?.shortDescription?.text,
     image: event.featuredImage,
     startDate: event.date,
     endDate: event.date,
     location: {
       "@type": "Place",
-      name: event.location?.text || "SECO",
+      name: eventData?.location?.text || event.en?.location?.text || "SECO",
       address: {
         "@type": "PostalAddress",
-        addressLocality: event.location?.text || "Quetta, Balochistan, PK",
+        addressLocality: eventData?.location?.text || event.en?.location?.text || "Quetta, Balochistan, PK",
         addressRegion: "Balochistan",
         addressCountry: "PK"
       }
@@ -120,58 +140,92 @@ export default function EventDetailClient() {
       <Navbar />
       <div className="min-h-screen" style={{backgroundColor: theme.colors.background.primary}}>
         {/* Hero Section */}
-        <div className="relative h-[calc(100vh-20rem)] w-full overflow-hidden">
-          <Image src={event.featuredImage} alt={event.title.text} fill className={`object-cover w-full ${event.status === "past" ? "grayscale" : ""}`} priority sizes="100vw" quality={100} />
+        <div className={`relative w-full overflow-hidden ${isMobile ? 'h-[50vh]' : 'h-[calc(100vh-20rem)]'}`}>
+          <Image src={event.featuredImage} alt={eventData?.title?.text || 'Event'} fill className={`object-cover w-full ${event.status === "past" ? "grayscale" : ""}`} priority sizes="100vw" quality={100} />
           <div className="absolute inset-0" style={{backgroundColor: theme.colors.background.overlay}}></div>
 
           {/* Status Badge */}
-          <div className={`absolute top-20 ${selectedLanguage === "ur" ? "left-4" : "right-4"} z-10 flex items-center gap-1.5 rounded-full`}>
+          <div className={`absolute ${isMobile ? 'top-4' : 'top-20'} ${isRTL ? "left-4" : "right-4"} z-10 flex items-center gap-1.5 rounded-full`}>
             {event.status === "upcoming" && (
               <>
                 <span
-                  className="px-2 py-1 rounded-full text-xs font-medium"
+                  className={`px-2 py-1 rounded-full font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}
                   style={{
                     backgroundColor: theme.colors.status.upcoming + "33",
                     color: theme.colors.status.upcoming,
-                    fontFamily: event.title.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                    fontFamily: currentFontFamily,
                   }}
                 >
-                  {event.title.language === "en" ? "Upcoming" : "آنے والا"}
+                  {selectedLanguage === "en" ? "Upcoming" : "آنے والا"}
                 </span>
                 <span className="w-2 h-2 rounded-full animate-[blink_1.5s_ease-in-out_infinite]" style={{backgroundColor: theme.colors.status.upcomingBlink}}></span>
               </>
             )}
             {event.status === "past" && (
               <span
-                className="px-2 py-1 rounded-full text-xs font-medium"
+                className={`px-2 py-1 rounded-full font-medium ${isMobile ? 'text-xs' : 'text-sm'}`}
                 style={{
                   backgroundColor: theme.colors.status.past + "33",
                   color: theme.colors.status.past,
-                  fontFamily: event.title.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                  fontFamily: currentFontFamily,
                 }}
               >
-                {event.title.language === "en" ? "Past" : "گزشتہ"}
+                {selectedLanguage === "en" ? "Past" : "گزشتہ"}
               </span>
             )}
           </div>
         </div>
 
+        {/* Language Toggle */}
+        <div className={`max-w-7xl mx-auto px-4 ${isMobile ? 'pt-4' : 'pt-8'}`}>
+          <div className="flex justify-center mb-6">
+            <div className={`flex gap-2 p-1 rounded-lg ${isMobile ? 'w-full max-w-xs' : ''}`} style={{ backgroundColor: theme.colors.background.secondary }}>
+              <button
+                onClick={() => setSelectedLanguage('en')}
+                className={`${isMobile ? 'flex-1 px-3 py-2 text-sm' : 'px-4 py-2'} rounded-md transition-colors duration-200 ${
+                  selectedLanguage === 'en' ? 'text-white' : ''
+                }`}
+                style={{
+                  backgroundColor: selectedLanguage === 'en' ? theme.colors.primary : 'transparent',
+                  color: selectedLanguage === 'en' ? 'white' : theme.colors.text.primary,
+                  fontFamily: theme.fonts.en.primary
+                }}
+              >
+                English
+              </button>
+              <button
+                onClick={() => setSelectedLanguage('ur')}
+                className={`${isMobile ? 'flex-1 px-3 py-2 text-sm' : 'px-4 py-2'} rounded-md transition-colors duration-200 ${
+                  selectedLanguage === 'ur' ? 'text-white' : ''
+                }`}
+                style={{
+                  backgroundColor: selectedLanguage === 'ur' ? theme.colors.primary : 'transparent',
+                  color: selectedLanguage === 'ur' ? 'white' : theme.colors.text.primary,
+                  fontFamily: theme.fonts.ur.primary
+                }}
+              >
+                اردو
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Content Section */}
-        <div className="max-w-7xl mx-auto px-4 py-12" style={{direction: event.title.language === "ur" ? "rtl" : "ltr"}}>
+        <div className={`max-w-7xl mx-auto px-4 ${isMobile ? 'py-6' : 'py-12'}`} style={{direction: currentDirection}}>
           {/* Title with Status Badge */}
-          <div className="flex items-center gap-4 mb-4">
+          <div className={`${isMobile ? 'flex-col items-start gap-2' : 'flex items-center gap-4'} mb-4`}>
             <h1
-              className={`text-4xl font-bold ${event.title.language === "ur" ? "order-2" : "order-1"}`}
+              className={`${isMobile ? 'text-2xl' : 'text-4xl'} font-bold ${isMobile ? 'mb-2' : ''} ${isRTL && !isMobile ? "order-2" : "order-1"}`}
               style={{
                 color: theme.colors.text.primary,
-                fontFamily: event.title.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
-                textAlign: event.title.language === "ur" ? "right" : "left",
+                fontFamily: currentFontFamily,
+                textAlign: isRTL ? "right" : "left",
               }}
             >
-              {event.title.text}
+              {eventData?.title?.text}
             </h1>
 
-            <div className={`flex items-center gap-1.5 ${selectedLanguage === "ur" ? "order-1" : "order-2"}`}>
+            <div className={`flex items-center gap-1.5 ${isRTL && !isMobile ? "order-1" : "order-2"}`}>
               {event.status === "upcoming" && (
                 <>
                   <span
@@ -179,10 +233,10 @@ export default function EventDetailClient() {
                     style={{
                       backgroundColor: theme.colors.status.upcoming,
                       color: theme.colors.text.light,
-                      fontFamily: event.title.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                      fontFamily: currentFontFamily,
                     }}
                   >
-                    {event.title.language === "en" ? "Upcoming" : "آنے والا"}
+                    {selectedLanguage === "en" ? "Upcoming" : "آنے والا"}
                   </span>
                   <span className="w-2 h-2 rounded-full animate-[blink_1.5s_ease-in-out_infinite]" style={{backgroundColor: theme.colors.status.upcomingBlink}}></span>
                 </>
@@ -193,137 +247,191 @@ export default function EventDetailClient() {
                   style={{
                     backgroundColor: theme.colors.status.past + "33",
                     color: theme.colors.status.past,
-                    fontFamily: event.title.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                    fontFamily: currentFontFamily,
                   }}
                 >
-                  {event.title.language === "en" ? "Past" : "گزشتہ"}
+                  {selectedLanguage === "en" ? "Past" : "گزشتہ"}
                 </span>
               )}
             </div>
           </div>
           {/* Description */}
           <p
-            className="text-lg mb-6"
+            className={`${isMobile ? 'text-base' : 'text-lg'} mb-6`}
             style={{
               color: theme.colors.text.secondary,
-              fontFamily: event.shortDescription.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
-              textAlign: event.shortDescription.language === "ur" ? "right" : "left",
+              fontFamily: currentFontFamily,
+              textAlign: isRTL ? "right" : "left",
             }}
           >
-            {event.shortDescription.text}
+            {eventData?.shortDescription?.text}
           </p>
 
           {/* Date, Time, and Location */}
-          <div className={`flex flex-wrap items-center gap-4 mb-8 ${selectedLanguage === "ur" ? "flex-row-reverse" : ""}`}>
+          <div className={`flex flex-wrap items-center ${isMobile ? 'gap-2 mb-6' : 'gap-4 mb-8'}`}>
             <span
-              className="px-4 py-2 rounded-full font-medium"
+              className={`${isMobile ? 'px-3 py-1.5 text-sm' : 'px-4 py-2'} rounded-full font-medium`}
               style={{
                 backgroundColor: theme.colors.secondary,
                 color: theme.colors.primary,
-                fontFamily: event.title.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                fontFamily: currentFontFamily,
               }}
             >
-              {new Date(event.date).toLocaleDateString(event.title.language === "en" ? "en-US" : "ur-PK", {
+              {new Date(event.date).toLocaleDateString(selectedLanguage === "en" ? "en-US" : "ur-PK", {
                 day: "numeric",
-                month: "long",
+                month: isMobile ? "short" : "long",
                 year: "numeric",
               })}
             </span>
-            {event.status === "upcoming" && event.time && (
+            {event.status === "upcoming" && eventData?.time && (
               <span
-                className="px-4 py-2 rounded-full font-medium"
+                className={`${isMobile ? 'px-3 py-1.5 text-sm' : 'px-4 py-2'} rounded-full font-medium`}
                 style={{
                   backgroundColor: theme.colors.status.upcoming,
                   color: theme.colors.text.light,
-                  fontFamily: event.time.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                  fontFamily: currentFontFamily,
                 }}
               >
-                {event.time.text}
+                {eventData.time.text}
               </span>
             )}
-            {event.location && (
+            {eventData?.location && (
               <span
-                className="px-4 py-2 rounded-full font-medium"
+                className={`${isMobile ? 'px-3 py-1.5 text-sm' : 'px-4 py-2'} rounded-full font-medium`}
                 style={{
                   backgroundColor: theme.colors.primary,
                   color: theme.colors.text.light,
-                  fontFamily: event.location.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                  fontFamily: currentFontFamily,
                 }}
               >
-                {event.location.text}
+                {eventData.location.text}
               </span>
             )}
           </div>
 
           {/* Content */}
           <div
-            className={`prose max-w-none ${styles["events-content-parent"]}`}
+            className={`prose max-w-none ${styles["events-content-parent"]} ${isMobile ? 'prose-sm' : ''}`}
             style={{
               color: theme.colors.text.secondary,
-              fontFamily: event.content.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
-              textAlign: event.content.language === "ur" ? "right" : "left",
+              fontFamily: currentFontFamily,
+              textAlign: isRTL ? "right" : "left",
             }}
             dangerouslySetInnerHTML={{
               __html: `<div style="
-                --heading-font: ${event.content.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary};
+                --heading-font: ${currentFontFamily};
                 --heading-color: ${theme.colors.text.primary};
-                --text-font: ${event.content.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary};
+                --text-font: ${currentFontFamily};
                 --text-color: ${theme.colors.text.secondary};
-              ">${event.content.text}</div>`,
+              ">${eventData?.content?.text || eventData?.fullDescription?.text || ''}</div>`,
             }}
           />
 
+          {/* Outcome Section (for past events) */}
+          {event.status === "past" && eventData?.outcome && (
+            <div className={`${isMobile ? 'mt-6 p-4' : 'mt-8 p-6'} rounded-lg`} style={{ backgroundColor: theme.colors.background.secondary }}>
+              <h3
+                className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold mb-4`}
+                style={{
+                  color: theme.colors.text.primary,
+                  fontFamily: currentFontFamily,
+                  textAlign: isRTL ? "right" : "left"
+                }}
+              >
+                {selectedLanguage === "en" ? "Event Outcome" : "پروگرام کا نتیجہ"}
+              </h3>
+              <p
+                className={isMobile ? 'text-sm' : ''}
+                style={{
+                  color: theme.colors.text.secondary,
+                  fontFamily: currentFontFamily,
+                  textAlign: isRTL ? "right" : "left"
+                }}
+              >
+                {eventData.outcome.text}
+              </p>
+            </div>
+          )}
+
           {/* Add Social Share Component */}
           <div className="mt-8">
-            <SocialShare 
-              title={event.socialShare.title.text} 
-              description={event.socialShare.description.text} 
-              url={typeof window !== "undefined" ? window.location.href : ""} 
-              image={event.featuredImage} 
-              language={event.language} 
-              hashtags={event.socialShare.hashtags} 
-              twitterHandle={event.socialShare.twitterHandle} 
-              ogType={event.socialShare.ogType} 
+            <SocialShare
+              title={event.socialShare.title.text}
+              description={event.socialShare.description.text}
+              url={typeof window !== "undefined" ? window.location.href : ""}
+              image={event.featuredImage}
+              language={selectedLanguage}
+              hashtags={event.socialShare.hashtags}
+              twitterHandle={event.socialShare.twitterHandle}
+              ogType={event.socialShare.ogType}
             />
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between items-center border-t border-gray-200 pt-8 mt-12">
+          <div className={`${isMobile ? 'space-y-3' : 'flex justify-between items-center'} border-t border-gray-200 ${isMobile ? 'pt-6 mt-8' : 'pt-8 mt-12'}`}>
             {navigation.prev ? (
               <Link
                 href={`/events/${navigation.prev.slug}`}
-                className={`group flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-300 ${navigation.prev.title.language === "ur" ? "" : ""}`}
+                className={`group flex items-center ${isMobile ? 'justify-between px-4 py-3 w-full' : 'gap-2 px-4 py-2'} rounded-lg transition-colors duration-300`}
                 style={{
                   backgroundColor: theme.colors.background.secondary,
                   color: theme.colors.text.primary,
-                  fontFamily: navigation.prev.title.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                  fontFamily: currentFontFamily,
                 }}
               >
-                <FaArrowLeft className={`${navigation.prev.title.language === "ur" ? "rotate-180" : ""} group-hover:-translate-x-1 transition-transform duration-300`} />
-                <div className={navigation.prev.title.language === "ur" ? "text-right" : ""}>
-                  <div className="text-sm opacity-75">{navigation.prev.title.language === "en" ? "Previous Event" : "پچھلا پروگرام"}</div>
-                  <div className="font-medium">{navigation.prev.title.text}</div>
-                </div>
+                {isMobile ? (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <FaArrowLeft className={`${isRTL ? "rotate-180" : ""} group-hover:-translate-x-1 transition-transform duration-300 text-lg`} style={{ color: theme.colors.primary }} />
+                      <div className={isRTL ? "text-right" : ""}>
+                        <div className="text-xs opacity-75">{selectedLanguage === "en" ? "Previous Event" : "پچھلا پروگرام"}</div>
+                        <div className="font-medium text-sm">{(navigation.prev[selectedLanguage as 'en' | 'ur'] as any)?.title?.text}</div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <FaArrowLeft className={`${isRTL ? "rotate-180" : ""} group-hover:-translate-x-1 transition-transform duration-300`} />
+                    <div className={isRTL ? "text-right" : ""}>
+                      <div className="text-sm opacity-75">{selectedLanguage === "en" ? "Previous Event" : "پچھلا پروگرام"}</div>
+                      <div className="font-medium">{(navigation.prev[selectedLanguage as 'en' | 'ur'] as any)?.title?.text}</div>
+                    </div>
+                  </>
+                )}
               </Link>
             ) : (
-              <div />
+              !isMobile && <div />
             )}
 
             {navigation.next && (
               <Link
                 href={`/events/${navigation.next.slug}`}
-                className={`group flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-300 ${navigation.next.title.language === "ur" ? "" : ""}`}
+                className={`group flex items-center ${isMobile ? 'justify-between px-4 py-3 w-full' : 'gap-2 px-4 py-2'} rounded-lg transition-colors duration-300`}
                 style={{
                   backgroundColor: theme.colors.background.secondary,
                   color: theme.colors.text.primary,
-                  fontFamily: navigation.next.title.language === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                  fontFamily: currentFontFamily,
                 }}
               >
-                <div className={navigation.next.title.language === "ur" ? "text-right" : ""}>
-                  <div className="text-sm opacity-75">{navigation.next.title.language === "en" ? "Next Event" : "اگلا پروگرام"}</div>
-                  <div className="font-medium">{navigation.next.title.text}</div>
-                </div>
-                <FaArrowRight className={`${navigation.next.title.language === "ur" ? "rotate-180" : ""} group-hover:translate-x-1 transition-transform duration-300`} />
+                {isMobile ? (
+                  <>
+                    <div className="flex items-center gap-3 flex-1 me-2">
+                      <div className={`${isRTL ? "text-left" : "text-right"} flex-1`}>
+                        <div className="text-xs opacity-75">{selectedLanguage === "en" ? "Next Event" : "اگلا پروگرام"}</div>
+                        <div className="font-medium text-sm">{(navigation.next[selectedLanguage as 'en' | 'ur'] as any)?.title?.text}</div>
+                      </div>
+                    </div>
+                    <FaArrowRight className={`${isRTL ? "rotate-180" : ""} group-hover:translate-x-1 transition-transform duration-300 text-lg`} style={{ color: theme.colors.primary }} />
+                  </>
+                ) : (
+                  <>
+                    <div className={isRTL ? "text-right" : ""}>
+                      <div className="text-sm opacity-75">{selectedLanguage === "en" ? "Next Event" : "اگلا پروگرام"}</div>
+                      <div className="font-medium">{(navigation.next[selectedLanguage as 'en' | 'ur'] as any)?.title?.text}</div>
+                    </div>
+                    <FaArrowRight className={`${isRTL ? "rotate-180" : ""} group-hover:translate-x-1 transition-transform duration-300`} />
+                  </>
+                )}
               </Link>
             )}
           </div>
