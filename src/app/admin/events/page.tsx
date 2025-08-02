@@ -281,6 +281,7 @@ export default function EventsAdmin() {
       text: "Are you sure you want to delete this event? This action cannot be undone.",
       confirmButtonText: "Delete",
       cancelButtonText: "Cancel",
+      showCancelButton: true,
     });
 
     if (!confirmed) return;
@@ -593,7 +594,7 @@ export default function EventsAdmin() {
   const handleEventPageLangChange = (field: string, lang: "en" | "ur", value: string) => {
     setEventPage((prev: EventPageData | null) => {
       if (!prev) return prev;
-      const currentField = prev[field as keyof EventPageData] as any;
+      const currentField = prev[field as keyof EventPageData] as { en: { text: string }; ur: { text: string } };
       return {
         ...prev,
         [field]: {
@@ -1160,7 +1161,7 @@ export default function EventsAdmin() {
                       </label>
                       <input
                         type="text"
-                        value={formData[uiState.modalLanguage].title.text}
+                        value={formData[uiState.modalLanguage].title?.text || ""}
                         onChange={(e) => handleTitleChange(e.target.value, uiState.modalLanguage)}
                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-opacity-50"
                         style={{
@@ -1190,7 +1191,7 @@ export default function EventsAdmin() {
                                   ...formData,
                                   [targetLang]: {
                                     ...formData[targetLang],
-                                    title: { text: formData[sourceLang].title.text }
+                                    title: { text: formData[sourceLang].title?.text || "" }
                                   }
                                 });
                               }}
@@ -1238,7 +1239,7 @@ export default function EventsAdmin() {
                       {uiState.modalLanguage === "en" ? "Short Description" : "مختصر تفصیل"} *
                     </label>
                     <textarea
-                      value={formData[uiState.modalLanguage].shortDescription.text}
+                      value={formData[uiState.modalLanguage].shortDescription?.text || ""}
                       onChange={(e) => setFormData({
                         ...formData,
                         [uiState.modalLanguage]: {
@@ -1275,7 +1276,7 @@ export default function EventsAdmin() {
                                 ...formData,
                                 [targetLang]: {
                                   ...formData[targetLang],
-                                  shortDescription: { text: formData[sourceLang].shortDescription.text }
+                                  shortDescription: { text: formData[sourceLang].shortDescription?.text || "" }
                                 }
                               });
                             }}
@@ -1351,7 +1352,7 @@ export default function EventsAdmin() {
                       </label>
                       <input
                         type="text"
-                        value={formData[uiState.modalLanguage].location.text}
+                        value={formData[uiState.modalLanguage].location?.text || ""}
                         onChange={(e) => setFormData({
                           ...formData,
                           [uiState.modalLanguage]: {
@@ -1387,7 +1388,7 @@ export default function EventsAdmin() {
                                   ...formData,
                                   [targetLang]: {
                                     ...formData[targetLang],
-                                    location: { text: formData[sourceLang].location.text }
+                                    location: { text: formData[sourceLang].location?.text || "" }
                                   }
                                 });
                               }}
@@ -1441,7 +1442,7 @@ export default function EventsAdmin() {
                       {uiState.modalLanguage === "en" ? "Full Description" : "مکمل تفصیل"}
                     </label>
                     <textarea
-                      value={formData[uiState.modalLanguage].fullDescription.text}
+                      value={formData[uiState.modalLanguage].fullDescription?.text || ""}
                       onChange={(e) => setFormData({
                         ...formData,
                         [uiState.modalLanguage]: {
@@ -1465,7 +1466,7 @@ export default function EventsAdmin() {
 
                   <div>
                     <RichTextEditor
-                      value={formData[uiState.modalLanguage].content.text}
+                      value={formData[uiState.modalLanguage].content?.text || ""}
                       onChange={(value) => setFormData({
                         ...formData,
                         [uiState.modalLanguage]: {
