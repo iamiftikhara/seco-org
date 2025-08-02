@@ -148,7 +148,11 @@ export default function AllEvents() {
         <div className="max-w-7xl mx-auto px-4 pb-16">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {eventsData?.eventsList.map((event) => {
-              const eventData = event[selectedLanguage as keyof typeof event] as any;
+              const eventData = event[selectedLanguage as keyof typeof event] as {
+                title: { text: string };
+                shortDescription: { text: string };
+                location: { text: string };
+              };
               return (
               <Link href={`/events/${event.slug}`} key={event.id}>
                 <div className="group relative overflow-hidden rounded-lg shadow-md h-[300px]">

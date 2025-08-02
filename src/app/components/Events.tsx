@@ -37,7 +37,7 @@ const blinkingKeyframes = `
 export default function Events() {
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const [homeEvents, setHomeEvents] = useState<EventDetail[]>([]);
-  const [eventsPageData, setEventsPageData] = useState<any>(null);
+  const [eventsPageData, setEventsPageData] = useState<{ eventsPage: { image: string; title: { en: { text: string }; ur: { text: string } }; description: { en: { text: string }; ur: { text: string } } } } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

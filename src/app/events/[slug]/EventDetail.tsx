@@ -92,7 +92,15 @@ export default function EventDetailClient() {
   //   }) || [];
 
 
-  const eventData = event[selectedLanguage as keyof typeof event] as any;
+  const eventData = event[selectedLanguage as keyof typeof event] as {
+    title: { text: string };
+    shortDescription: { text: string };
+    fullDescription: { text: string };
+    content: { text: string };
+    location: { text: string };
+    time?: { text: string };
+    outcome?: { text: string };
+  };
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -385,7 +393,7 @@ export default function EventDetailClient() {
                       <FaArrowLeft className={`${isRTL ? "rotate-180" : ""} group-hover:-translate-x-1 transition-transform duration-300 text-lg`} style={{ color: theme.colors.primary }} />
                       <div className={isRTL ? "text-right" : ""}>
                         <div className="text-xs opacity-75">{selectedLanguage === "en" ? "Previous Event" : "پچھلا پروگرام"}</div>
-                        <div className="font-medium text-sm">{(navigation.prev[selectedLanguage as 'en' | 'ur'] as any)?.title?.text}</div>
+                        <div className="font-medium text-sm">{navigation.prev[selectedLanguage as 'en' | 'ur']?.title?.text}</div>
                       </div>
                     </div>
                   </>
@@ -394,7 +402,7 @@ export default function EventDetailClient() {
                     <FaArrowLeft className={`${isRTL ? "rotate-180" : ""} group-hover:-translate-x-1 transition-transform duration-300`} />
                     <div className={isRTL ? "text-right" : ""}>
                       <div className="text-sm opacity-75">{selectedLanguage === "en" ? "Previous Event" : "پچھلا پروگرام"}</div>
-                      <div className="font-medium">{(navigation.prev[selectedLanguage as 'en' | 'ur'] as any)?.title?.text}</div>
+                      <div className="font-medium">{navigation.prev[selectedLanguage as 'en' | 'ur']?.title?.text}</div>
                     </div>
                   </>
                 )}
@@ -418,7 +426,7 @@ export default function EventDetailClient() {
                     <div className="flex items-center gap-3 flex-1 me-2">
                       <div className={`${isRTL ? "text-left" : "text-right"} flex-1`}>
                         <div className="text-xs opacity-75">{selectedLanguage === "en" ? "Next Event" : "اگلا پروگرام"}</div>
-                        <div className="font-medium text-sm">{(navigation.next[selectedLanguage as 'en' | 'ur'] as any)?.title?.text}</div>
+                        <div className="font-medium text-sm">{navigation.next[selectedLanguage as 'en' | 'ur']?.title?.text}</div>
                       </div>
                     </div>
                     <FaArrowRight className={`${isRTL ? "rotate-180" : ""} group-hover:translate-x-1 transition-transform duration-300 text-lg`} style={{ color: theme.colors.primary }} />
@@ -427,7 +435,7 @@ export default function EventDetailClient() {
                   <>
                     <div className={isRTL ? "text-right" : ""}>
                       <div className="text-sm opacity-75">{selectedLanguage === "en" ? "Next Event" : "اگلا پروگرام"}</div>
-                      <div className="font-medium">{(navigation.next[selectedLanguage as 'en' | 'ur'] as any)?.title?.text}</div>
+                      <div className="font-medium">{navigation.next[selectedLanguage as 'en' | 'ur']?.title?.text}</div>
                     </div>
                     <FaArrowRight className={`${isRTL ? "rotate-180" : ""} group-hover:translate-x-1 transition-transform duration-300`} />
                   </>

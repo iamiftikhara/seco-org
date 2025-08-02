@@ -40,9 +40,9 @@ interface ModalState {
   impactModalOpen: boolean;
   iconStatsModalOpen: boolean;
   partnersModalOpen: boolean;
-  editingImpact: any | null;
-  editingIconStats: any | null;
-  editingPartners: any | null;
+  editingImpact: { id: string; en: { text: string }; ur: { text: string } } | null;
+  editingIconStats: { id: string; en: { text: string }; ur: { text: string }; icon: string; value: string } | null;
+  editingPartners: { id: string; en: { text: string }; ur: { text: string } } | null;
   editingImpactIndex: number | null;
   editingIconStatsIndex: number | null;
   editingPartnersIndex: number | null;
@@ -305,7 +305,7 @@ export default function EventsAdmin() {
         });
         await fetchEvents();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showAlert({
         title: "Error",
         text: "Failed to delete event",
@@ -346,7 +346,7 @@ export default function EventsAdmin() {
         setOriginalEventPage(null);
         await fetchEvents(); // Refresh the data
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleErrorResponse(err);
     } finally {
       setIsSubmitting(false);
@@ -391,7 +391,7 @@ export default function EventsAdmin() {
     setFormData(updatedFormData);
   };
 
-  const copyToOtherLanguage = (sourceData: any, targetLang: "en" | "ur") => {
+  const copyToOtherLanguage = (sourceData: EventDetail, targetLang: "en" | "ur") => {
     if (!formData) return;
 
     const sourceLang = targetLang === "en" ? "ur" : "en";
@@ -399,11 +399,11 @@ export default function EventsAdmin() {
       ...formData,
       [targetLang]: {
         ...formData[targetLang],
-        title: { text: sourceData.title?.text || formData[sourceLang].title.text },
-        shortDescription: { text: sourceData.shortDescription?.text || formData[sourceLang].shortDescription.text },
-        fullDescription: { text: sourceData.fullDescription?.text || formData[sourceLang].fullDescription.text },
-        content: { text: sourceData.content?.text || formData[sourceLang].content.text },
-        location: { text: sourceData.location?.text || formData[sourceLang].location.text },
+        title: { text: sourceData.title?.text || formData[sourceLang].title?.text || "" },
+        shortDescription: { text: sourceData.shortDescription?.text || formData[sourceLang].shortDescription?.text || "" },
+        fullDescription: { text: sourceData.fullDescription?.text || formData[sourceLang].fullDescription?.text || "" },
+        content: { text: sourceData.content?.text || formData[sourceLang].content?.text || "" },
+        location: { text: sourceData.location?.text || formData[sourceLang].location?.text || "" },
         time: { text: sourceData.time?.text || formData[sourceLang].time?.text || "" },
         outcome: { text: sourceData.outcome?.text || formData[sourceLang].outcome?.text || "" },
       }
@@ -433,6 +433,14 @@ export default function EventsAdmin() {
       {key: "socialShare.twitterHandle", value: event.socialShare?.twitterHandle},
       {key: "socialShare.ogType", value: event.socialShare?.ogType},
     ];
+
+    // Add outcome fields only for past events
+    if (event.status === "past") {
+      requiredFields.push(
+        {key: "en.outcome", value: event.en?.outcome?.text},
+        {key: "ur.outcome", value: event.ur?.outcome?.text}
+      );
+    }
 
     return requiredFields.filter((f) => !f.value).map((f) => f.key);
   };
@@ -548,7 +556,7 @@ export default function EventsAdmin() {
           icon: "error",
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       showAlert({
         title: "Error",
         text: "Failed to save event",
@@ -573,10 +581,13 @@ export default function EventsAdmin() {
   };
 
   const handleEventPageChange = (field: string, value: string) => {
-    setEventPage((prev: EventPageData | null) => ({
-      ...prev,
-      [field]: value,
-    } as EventPageData));
+    setEventPage((prev: EventPageData | null) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
   };
 
   const handleEventPageLangChange = (field: string, lang: "en" | "ur", value: string) => {
@@ -1481,39 +1492,94 @@ export default function EventsAdmin() {
                     />
                   </div>
 
-                  {formData.status === "past" && (
-                    <div>
-                      <RichTextEditor
-                        value={formData[uiState.modalLanguage].outcome?.text || ""}
-                        onChange={(value) => setFormData({
-                          ...formData,
-                          [uiState.modalLanguage]: {
-                            ...formData[uiState.modalLanguage],
-                            outcome: {text: value}
-                          }
-                        })}
-                        label={uiState.modalLanguage === "en" ? "Event Outcome" : "ایونٹ کا نتیجہ"}
-                        placeholder={uiState.modalLanguage === "en" ? "Enter event outcome..." : "ایونٹ کا نتیجہ درج کریں..."}
-                        height="250px"
-                        fontFamily={uiState.modalLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary}
-                        textAlign={uiState.modalLanguage === "ur" ? "right" : "left"}
-                        direction={uiState.modalLanguage === "ur" ? "rtl" : "ltr"}
-                        showPreview={true}
-                        allowHtml={true}
-                        toolbar={{
-                          formatting: true,
-                          lists: true,
-                          links: false,
-                          images: false,
-                          alignment: true,
-                          html: false,
-                        }}
-                      />
-                    </div>
-                  )}
+
 
 
                 </div>
+
+                {/* Event Outcome - Only for Past Events */}
+                {formData.status === "past" && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2 mb-4">
+                     
+                      <h3
+                        className="text-lg font-semibold"
+                        style={{
+                          color: theme.colors.text.primary,
+                          fontFamily: uiState.modalLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                          textAlign: uiState.modalLanguage === "ur" ? "right" : "left"
+                        }}
+                      >
+                        {uiState.modalLanguage === "en" ? "Event Outcome" : "ایونٹ کا نتیجہ"}
+                      </h3>
+                    </div>
+
+                    <div>
+                      <label
+                        className="block text-sm font-medium mb-2"
+                        style={{
+                          color: theme.colors.text.primary,
+                          fontFamily: uiState.modalLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                          textAlign: uiState.modalLanguage === "ur" ? "right" : "left"
+                        }}
+                      >
+                        {uiState.modalLanguage === "en" ? "Event Outcome" : "ایونٹ کا نتیجہ"} <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        value={formData[uiState.modalLanguage].outcome?.text || ""}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          [uiState.modalLanguage]: {
+                            ...formData[uiState.modalLanguage],
+                            outcome: {text: e.target.value}
+                          }
+                        })}
+                        placeholder={uiState.modalLanguage === "en" ? "Enter event outcome..." : "ایونٹ کا نتیجہ درج کریں..."}
+                        rows={4}
+                        className="w-full p-3 border rounded-lg resize-none focus:ring-2 focus:ring-opacity-50 transition-colors"
+                        style={{
+                          borderColor: validationState.missingFields.includes(`${uiState.modalLanguage}.outcome`) ? theme.colors.status.error : theme.colors.border.default,
+                          backgroundColor: theme.colors.background.primary,
+                          color: theme.colors.text.primary,
+                          fontFamily: uiState.modalLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                          textAlign: uiState.modalLanguage === "ur" ? "right" : "left",
+                          direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr",
+                          focusRingColor: theme.colors.primary
+                        }}
+                        required
+                      />
+                      {validationState.missingFields.includes(`${uiState.modalLanguage}.outcome`) && (
+                        <p className="text-red-500 text-sm mt-1">This field is required</p>
+                      )}
+                      {validationState.missingOppositeLang.includes(`${uiState.modalLanguage === "en" ? "ur" : "en"}.outcome`) && (
+                        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-yellow-800 text-sm">
+                            {uiState.modalLanguage === "en" ? "Urdu translation missing" : "English translation missing"}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const sourceLang = uiState.modalLanguage;
+                                const targetLang = uiState.modalLanguage === "en" ? "ur" : "en";
+                                const sourceData = formData[sourceLang];
+
+                                setFormData({
+                                  ...formData,
+                                  [targetLang]: {
+                                    ...formData[targetLang],
+                                    outcome: { text: sourceData.outcome?.text || "" }
+                                  }
+                                });
+                              }}
+                              className="ml-2 text-blue-600 hover:text-blue-800 underline"
+                            >
+                              Auto-copy from {uiState.modalLanguage === "en" ? "English" : "Urdu"}
+                            </button>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Social Share Settings */}
                 <div className="space-y-6">

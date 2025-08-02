@@ -399,3 +399,15 @@ body {
 
 }
 
+
+/* 480 */
+@media only screen and (max-width: 480px) {
+  h2 {
+    font-size: 1.1rem;
+}
+
+  button, a {
+      font-size: 0.7rem;
+      padding-block: 0.3rem;
+  }
+}

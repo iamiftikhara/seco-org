@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
+import { EventDetail } from '@/types/events';
 
 export async function GET(
   request: Request,
@@ -19,7 +20,7 @@ export async function GET(
     }
 
     // Find the event with matching slug
-    const event = eventsData.eventsList.find((event: any) => event.slug === slug);
+    const event = eventsData.eventsList.find((event: EventDetail) => event.slug === slug);
 
     if (!event) {
       return NextResponse.json(
@@ -29,8 +30,8 @@ export async function GET(
     }
 
     // Get navigation data - find active events only
-    const activeEvents = eventsData.eventsList.filter((e: any) => e.isActive === true);
-    const currentIndex = activeEvents.findIndex((e: any) => e.slug === event.slug);
+    const activeEvents = eventsData.eventsList.filter((e: EventDetail) => e.isActive === true);
+    const currentIndex = activeEvents.findIndex((e: EventDetail) => e.slug === event.slug);
 
     const navigationData = {
       prev: currentIndex > 0 ? activeEvents[currentIndex - 1] : null,

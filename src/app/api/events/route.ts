@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
+import { EventDetail } from '@/types/events';
 
 export async function GET(request: Request) {
   try {
@@ -22,15 +23,15 @@ export async function GET(request: Request) {
 
     // Apply filters
     if (status !== 'all') {
-      eventsList = eventsList.filter((event: any) => event.status === status);
+      eventsList = eventsList.filter((event: EventDetail) => event.status === status);
     }
 
     if (showOnHome === 'true') {
-      eventsList = eventsList.filter((event: any) => event.showOnHome === true);
+      eventsList = eventsList.filter((event: EventDetail) => event.showOnHome === true);
     }
 
     // Filter only active events
-    eventsList = eventsList.filter((event: any) => event.isActive === true);
+    eventsList = eventsList.filter((event: EventDetail) => event.isActive === true);
 
     if (limit) {
       eventsList = eventsList.slice(0, limit);
