@@ -221,7 +221,7 @@ export default function EventsAdmin() {
 
   // Error state
   if (error) {
-    return <AdminError error={error} onRetry={fetchEvents} />;
+    return <AdminError error={error} reset={fetchEvents} />;
   }
 
   const createEmptyEvent = (): EventDetail => ({
@@ -348,7 +348,7 @@ export default function EventsAdmin() {
         await fetchEvents(); // Refresh the data
       }
     } catch (err: unknown) {
-      handleErrorResponse(err);
+      handleErrorResponse(err as Response, "get");
     } finally {
       setIsSubmitting(false);
     }
@@ -392,7 +392,7 @@ export default function EventsAdmin() {
     setFormData(updatedFormData);
   };
 
-  const copyToOtherLanguage = (sourceData: EventDetail, targetLang: "en" | "ur") => {
+  const copyToOtherLanguage = (sourceData: EventDetail["en"] | EventDetail["ur"], targetLang: "en" | "ur") => {
     if (!formData) return;
 
     const sourceLang = targetLang === "en" ? "ur" : "en";
@@ -438,8 +438,8 @@ export default function EventsAdmin() {
     // Add outcome fields only for past events
     if (event.status === "past") {
       requiredFields.push(
-        {key: "en.outcome", value: event.en?.outcome?.text},
-        {key: "ur.outcome", value: event.ur?.outcome?.text}
+        {key: "en.outcome", value: event.en?.outcome?.text || ""},
+        {key: "ur.outcome", value: event.ur?.outcome?.text || ""}
       );
     }
 
@@ -1545,7 +1545,6 @@ export default function EventsAdmin() {
                           fontFamily: uiState.modalLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
                           textAlign: uiState.modalLanguage === "ur" ? "right" : "left",
                           direction: uiState.modalLanguage === "ur" ? "rtl" : "ltr",
-                          focusRingColor: theme.colors.primary
                         }}
                         required
                       />
