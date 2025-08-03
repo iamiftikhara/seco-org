@@ -152,6 +152,7 @@ export default function AllEvents() {
                 title: { text: string };
                 shortDescription: { text: string };
                 location: { text: string };
+                time?: { text: string };
               };
               return (
               <Link href={`/events/${event.slug}`} key={event.id}>
