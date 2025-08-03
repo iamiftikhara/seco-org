@@ -1,6 +1,6 @@
-import {Event} from "@/types/events";
+import {Events} from "@/types/events";
 
-export const events: Event = {
+export const events: Events = {
   eventsPage: {
     en: {
       title: "All Events",
