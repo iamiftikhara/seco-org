@@ -1,46 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { theme } from '@/config/theme';
-import { galleryData } from '@/data/gallery';
+import type { GalleryConfig } from '@/types/gallery';
 
 export default function Gallery() {
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  
-  // Add handleFileUpload function
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
+  const [gallery, setGallery] = useState<GalleryConfig | null>(null);
 
+  const fetchGallery = useCallback(async () => {
     try {
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append('files', file);
-      });
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Upload failed');
+      const res = await fetch('/api/gallery?homepage=true');
+      const json = await res.json();
+      if (json.success) {
+        setGallery(json.data as GalleryConfig);
+      } else {
+        console.error('Failed to fetch gallery:', json.error);
       }
-
-      const data = await response.json();
-      // Handle successful upload
-      console.log('Upload successful:', data);
-    } catch (error) {
-      // Handle upload error
-      console.error('Upload error:', error);
+    } catch (err) {
+      console.error('Error fetching gallery:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchGallery();
+  }, [fetchGallery]);
 
   // Get all images that should be shown on home page
-  const homeImages = galleryData.sections.flatMap(section => 
+  const homeImages = (gallery?.sections || []).flatMap(section => 
     section.images.filter(img => img.showOnHome)
   );
 

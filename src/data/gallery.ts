@@ -1,34 +1,23 @@
-export interface GalleryImage {
-  src: string;
-  tags: string[];
-  alt: string;
-  category: string;
-  showOnHome?: boolean;
-}
-
-export interface GallerySection {
-  title: string;
-  images: GalleryImage[];
-}
-
-export interface GalleryConfig {
-  hero: {
-    image: string;
-    title: string;
-    description: string;
-  };
-  sections: GallerySection[];
-}
+import type { GalleryConfig } from '@/types/gallery';
 
 export const galleryData: GalleryConfig = {
   hero: {
     image: '/images/gallery-hero.jpeg',
-    title: 'Our Gallery',
-    description: 'Explore our collection of memorable moments and impactful initiatives'
+    title: {
+      en: 'Our Gallery',
+      ur: 'ہماری گیلری'
+    },
+    description: {
+      en: 'Explore our collection of memorable moments and impactful initiatives',
+      ur: 'یادگار لمحات اور اثر انگیز اقدامات کے ہمارے مجموعے کو دریافت کریں'
+    }
   },
   sections: [
     {
-      title: "Community Events",
+      title: {
+        en: "Community Events",
+        ur: "کمیونٹی ایونٹس"
+      },
       images: [
         {
           src: '/images/gallery1.jpeg',
@@ -45,79 +34,82 @@ export const galleryData: GalleryConfig = {
           showOnHome: true
         },
         {
-            src: '/images/gallery3.jpeg',
-            tags: ['community', 'events'],
-            alt: 'Community gathering',
-            category: 'events',
-            showOnHome: true
-          },
-          {
-            src: '/images/gallery4.jpg',
-            tags: ['community', 'celebration'],
-            alt: 'Community celebration',
-            category: 'events',
-            showOnHome: true
-          },
-          {
-            src: '/images/gallery5.jpg',
-            tags: ['community', 'events'],
-            alt: 'Community gathering',
-            category: 'events',
-            showOnHome: true
-          },
-          {
-            src: '/images/gallery6.jpeg',
-            tags: ['community', 'celebration'],
-            alt: 'Community celebration',
-            category: 'events',
-            showOnHome: true
-          },
-          {
-            src: '/images/gallery7.jpeg',
-            tags: ['community', 'events'],
-            alt: 'Community gathering',
-            category: 'events',
-            showOnHome: false
-          },
-          {
-            src: '/images/gallery8.jpg',
-            tags: ['community', 'celebration'],
-            alt: 'Community celebration',
-            category: 'events',
-            showOnHome: false
-          },
-          {
-            src: '/images/gallery9.jpg',
-            tags: ['community', 'events'],
-            alt: 'Community gathering',
-            category: 'events',
-            showOnHome: false
-          },
-          {
-            src: '/images/gallery10.jpg',
-            tags: ['community', 'celebration'],
-            alt: 'Community celebration',
-            category: 'events',
-            showOnHome: false
-          },
-          {
-            src: '/images/gallery11.jpeg',
-            tags: ['community', 'events'],
-            alt: 'Community gathering',
-            category: 'events',
-            showOnHome: false
-          },
-          {
-            src: '/images/gallery12.jpeg',
-            tags: ['community', 'celebration'],
-            alt: 'Community celebration',
-            category: 'events',
-            showOnHome: false
-          }
+          src: '/images/gallery3.jpeg',
+          tags: ['community', 'events'],
+          alt: 'Community gathering',
+          category: 'events',
+          showOnHome: true
+        },
+        {
+          src: '/images/gallery4.jpg',
+          tags: ['community', 'celebration'],
+          alt: 'Community celebration',
+          category: 'events',
+          showOnHome: true
+        },
+        {
+          src: '/images/gallery5.jpg',
+          tags: ['community', 'events'],
+          alt: 'Community gathering',
+          category: 'events',
+          showOnHome: true
+        },
+        {
+          src: '/images/gallery6.jpeg',
+          tags: ['community', 'celebration'],
+          alt: 'Community celebration',
+          category: 'events',
+          showOnHome: true
+        },
+        {
+          src: '/images/gallery7.jpeg',
+          tags: ['community', 'events'],
+          alt: 'Community gathering',
+          category: 'events',
+          showOnHome: false
+        },
+        {
+          src: '/images/gallery8.jpg',
+          tags: ['community', 'celebration'],
+          alt: 'Community celebration',
+          category: 'events',
+          showOnHome: false
+        },
+        {
+          src: '/images/gallery9.jpg',
+          tags: ['community', 'events'],
+          alt: 'Community gathering',
+          category: 'events',
+          showOnHome: false
+        },
+        {
+          src: '/images/gallery10.jpg',
+          tags: ['community', 'celebration'],
+          alt: 'Community celebration',
+          category: 'events',
+          showOnHome: false
+        },
+        {
+          src: '/images/gallery11.jpeg',
+          tags: ['community', 'events'],
+          alt: 'Community gathering',
+          category: 'events',
+          showOnHome: false
+        },
+        {
+          src: '/images/gallery12.jpeg',
+          tags: ['community', 'celebration'],
+          alt: 'Community celebration',
+          category: 'events',
+          showOnHome: false
+        }
       ]
     },
     {
-      title: "Educational Programs",
+      title: {
+        en: "Educational Programs",
+        ur: "تعلیمی پروگرام"
+      },
       images: [
         {
           src: '/images/gallery3.jpeg',
@@ -135,7 +127,10 @@ export const galleryData: GalleryConfig = {
       ]
     },
     {
-      title: "Support Services",
+      title: {
+        en: "Support Services",
+        ur: "سپورٹ سروسز"
+      },
       images: [
         {
           src: '/images/gallery5.jpg',
