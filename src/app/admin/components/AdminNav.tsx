@@ -15,8 +15,9 @@ const menuItems = [
     children: [
       { href: "/admin/content/header", label: "Header Section" },
       { href: "/admin/content/hero", label: "Hero Section" },
+      { href: "/admin/content/impact", label: "Impact" },
+      { href: "/admin/content/gallery", label: "Gallery" },
       { href: "/admin/content/testimonials", label: "Testimonials" },
-      { href: "/admin/impact", label: "Impact" },
       { href: "/admin/content/contact", label: "Contact Section" },
       { href: "/admin/content/footer", label: "Footer" },
     ],

@@ -5,16 +5,16 @@ import Image from "next/image";
 import {FiEdit2, FiSave, FiX, FiImage, FiType, FiTrash2, FiPlus} from "react-icons/fi";
 import {FaEdit, FaTrash} from "react-icons/fa";
 import {showAlert, showConfirmDialog} from "@/utils/alert";
-import ImageSelector from "../components/ImageSelector";
-import IconSelector from "../components/IconSelector";
+import ImageSelector from "../../components/ImageSelector";
+import IconSelector from "../../components/IconSelector";
 import {ImpactData, ImpactStat} from "@/types/impact";
 import {theme} from "@/config/theme";
 import {FaMapMarked, FaProjectDiagram, FaCheckCircle, FaUsers, FaHeart, FaHandsHelping, FaGraduationCap, FaHome, FaMedkit, FaWater, FaLeaf, FaChild} from "react-icons/fa";
 import { IconType } from 'react-icons';
 import { useRouter } from "next/navigation";
-import { handle403Response } from "../errors/error403";
+import { handle403Response } from "../../errors/error403";
 import AdminError from "@/app/admin/errors/error";
-import DashboardLoader from "../components/DashboardLoader";
+import DashboardLoader from "../../components/DashboardLoader";
 
 interface UIState {
   language: "en" | "ur";
