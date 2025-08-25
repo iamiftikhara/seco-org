@@ -5,23 +5,39 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { theme } from '@/config/theme';
 import type { GalleryConfig } from '@/types/gallery';
+import UniversalError from './UniversalError';
+
+function GallerySkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="relative h-48 bg-gray-200 rounded-lg" />
+      ))}
+    </div>
+  );
+}
 
 export default function Gallery() {
-  const [selectedTag, setSelectedTag] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [gallery, setGallery] = useState<GalleryConfig | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchGallery = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setError(null);
       const res = await fetch('/api/gallery?homepage=true');
       const json = await res.json();
-      if (json.success) {
-        setGallery(json.data as GalleryConfig);
-      } else {
-        console.error('Failed to fetch gallery:', json.error);
+      if (!json.success) {
+        throw new Error(json.error || 'Failed to fetch gallery');
       }
+      setGallery(json.data as GalleryConfig);
     } catch (err) {
-      console.error('Error fetching gallery:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load gallery');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -34,11 +50,11 @@ export default function Gallery() {
     section.images.filter(img => img.showOnHome)
   );
 
-  const allTags = ['all', ...new Set(homeImages.flatMap(img => img.tags))];
+  const allCategories = ['all', ...new Set(homeImages.map(img => img.category).filter(Boolean))] as string[];
   
-  const filteredImages = selectedTag === 'all' 
+  const filteredImages = selectedCategory === 'all' 
     ? homeImages 
-    : homeImages.filter(img => img.tags.includes(selectedTag));
+    : homeImages.filter(img => img.category === selectedCategory);
 
   const handleImageClick = (index: number) => {
     setSelectedImage(index);
@@ -58,10 +74,40 @@ export default function Gallery() {
     setSelectedImage(newIndex);
   };
 
+  if (isLoading) {
+    return (
+      <section className="py-16" style={{ backgroundColor: '#ffffff' }}>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="animate-pulse">
+              <div className="h-8 w-48 bg-gray-200 rounded mx-auto mb-6"></div>
+              <div className="h-6 w-32 bg-gray-200 rounded mx-auto mb-8"></div>
+            </div>
+          </div>
+          <GallerySkeleton />
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !gallery) {
+    return (
+      <section className="py-16" style={{ backgroundColor: '#ffffff' }}>
+        <div className="max-w-7xl mx-auto px-4">
+          <UniversalError
+            error={error || 'Failed to load gallery'}
+            onRetry={fetchGallery}
+            sectionName="Gallery"
+          />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section 
       className="py-16" 
-      style={{ backgroundColor: '#ffffff' }}  // Or any color value you prefer
+      style={{ backgroundColor: '#ffffff' }}
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center mb-12">
@@ -88,19 +134,19 @@ export default function Gallery() {
           </Link>
         </div>
 
-        {/* Tags Filter */}
+        {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {allTags.map((tag) => (
+          {allCategories.map((cat) => (
             <button
-              key={tag}
-              onClick={() => setSelectedTag(tag)}
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300`}
               style={{ 
-                backgroundColor: selectedTag === tag ? theme.colors.secondary : theme.colors.background.secondary,
-                color: selectedTag === tag ? theme.colors.primary : theme.colors.text.secondary
+                backgroundColor: selectedCategory === cat ? theme.colors.secondary : theme.colors.background.secondary,
+                color: selectedCategory === cat ? theme.colors.primary : theme.colors.text.secondary
               }}
             >
-              {tag.charAt(0).toUpperCase() + tag.slice(1)}
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
           ))}
         </div>

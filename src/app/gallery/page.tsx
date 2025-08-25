@@ -15,6 +15,7 @@ export default function GalleryPage() {
   const [gallery, setGallery] = useState<GalleryConfig | null>(null);
   const [lang, setLang] = useState<'en' | 'ur'>('en');
   const [isMobile, setIsMobile] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const fetchGallery = useCallback(async () => {
     try {
@@ -52,6 +53,14 @@ export default function GalleryPage() {
   const hero = gallery?.hero;
   const sections = gallery?.sections || [];
   const isRTL = lang === 'ur';
+
+  // Build category and tag filters from all images
+  const allImages = sections.flatMap(section => section.images);
+  const allCategories = ['all', ...Array.from(new Set(allImages.map(img => img.category).filter(Boolean)))];
+  const imageMatchesFilters = (img: { category: string; tags: string[] }) => {
+    const categoryOk = selectedCategory === 'all' || img.category === selectedCategory;
+    return categoryOk;
+  };
 
   const handleImageClick = (sectionIndex: number, imageIndex: number) => {
     setSelectedImage({ section: sectionIndex, image: imageIndex });
@@ -165,7 +174,31 @@ export default function GalleryPage() {
 
         <div className="py-8 sm:py-12 md:py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Category Filter */}
+            <div className={`mb-8 text-center`}>
+              <div className="flex flex-wrap justify-center gap-2">
+                {allCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className="px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300"
+                    style={{
+                      backgroundColor: selectedCategory === cat ? theme.colors.secondary : theme.colors.background.secondary,
+                      color: selectedCategory === cat ? theme.colors.primary : theme.colors.text.secondary
+                    }}
+                  >
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {sections.map((section, sectionIndex) => (
+              (() => {
+                const visibleImages = section.images.filter(imageMatchesFilters);
+                if (visibleImages.length === 0) return null;
+                const slicedImages = visibleImages.slice(0, expandedSections[section.title[lang]] ? undefined : 10);
+                return (
               <div key={section.title[lang]} className="mb-8 sm:mb-12 md:mb-16">
                 <div className={`text-left mb-6 sm:mb-8 ${isRTL ? 'text-right direction-rtl' : ''}`}>
                   <h2 
@@ -176,10 +209,8 @@ export default function GalleryPage() {
                   </h2>
                   <div className="w-16 sm:w-20 h-1 bg-yellow-500 mt-2 sm:mt-4"></div>
                 </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-                  {section.images
-                    .slice(0, expandedSections[section.title[lang]] ? undefined : 10)
+                  {slicedImages
                     .map((image, imageIndex) => (
                       <div 
                         key={imageIndex}
@@ -216,7 +247,7 @@ export default function GalleryPage() {
                   ))}
                 </div>
 
-                {section.images.length > 10 && (
+                {visibleImages.length > 10 && (
                   <div className="text-center mt-6 sm:mt-8">
                     <button
                       onClick={() => toggleSection(section.title[lang])}
@@ -238,6 +269,8 @@ export default function GalleryPage() {
                   </div>
                 )}
               </div>
+                );
+              })()
             ))}
           </div>
         </div>
