@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { BlogPost, BlogData, TextContent } from '@/types/blog';
+import { BlogPost, BlogData } from '@/types/blog';
 import { blogData } from '@/data/blog';
 
 interface BlogApiResponse {
   success: boolean;
   data: {
-    blogPage: {
-      pageTitle: TextContent;
-      pageDescription: TextContent;
-      heroImage: string;
-      title: TextContent;
-      description: TextContent;
-    };
+    blogPage: BlogData['blogPage'];
     blogsList: BlogPost[];
   };
 }
@@ -30,9 +24,7 @@ export async function GET(request: NextRequest) {
     let filteredPosts = [...blogData.posts] as BlogPost[];
 
     // Apply filters
-    if (language) {
-      filteredPosts = filteredPosts.filter(post => post.title.language === language);
-    }
+    // Language filter is not needed since each post contains both languages now
     
     if (category) {
       filteredPosts = filteredPosts.filter(post => 
@@ -64,13 +56,7 @@ export async function GET(request: NextRequest) {
     const response: BlogApiResponse = {
       success: true,
       data: {
-        blogPage: {
-          pageTitle: blogData.pageTitle,
-          pageDescription: blogData.pageDescription,
-          heroImage: blogData.heroImage,
-          title: blogData.title,
-          description: blogData.description
-        },
+        blogPage: blogData.blogPage,
         blogsList: filteredPosts
       }
     };

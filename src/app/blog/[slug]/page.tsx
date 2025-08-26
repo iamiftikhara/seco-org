@@ -27,20 +27,20 @@ export async function generateMetadata(
     }
 
     return {
-      title: `${post.title.text} | SECO`,
-      description: post.excerpt.text,
+      title: `${post.title.en} | SECO`,
+      description: post.excerpt.en,
       openGraph: {
         type: 'article',
         siteName: 'SECO',
-        title: post.title.text,
-        description: post.excerpt.text,
+        title: post.title.en,
+        description: post.excerpt.en,
         url: `/blog/${post.slug}`,
         images: [
           {
             url: post.image,
             width: 1200,
             height: 630,
-            alt: post.title.text
+            alt: post.title.en
           }
         ],
         authors: [post.author],
@@ -49,8 +49,8 @@ export async function generateMetadata(
       },
       twitter: {
         card: 'summary_large_image',
-        title: post.title.text,
-        description: post.excerpt.text,
+        title: post.title.en,
+        description: post.excerpt.en,
         creator: post.socialShare?.twitterHandle || '@SECO',
         images: [post.image]
       },

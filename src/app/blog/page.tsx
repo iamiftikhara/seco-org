@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { theme } from '@/config/theme';
@@ -10,6 +10,8 @@ import Footer from '@/app/components/Footer';
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ur'>('en');
+  const [isMobile, setIsMobile] = useState(false);
   
   const categories = Array.from(
     new Set(blogData.posts.map(post => post.category))
@@ -19,6 +21,18 @@ export default function BlogPage() {
     ? blogData.posts.filter(post => post.category === selectedCategory)
     : blogData.posts;
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const currentFontFamily = currentLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary;
+  const isRTL = currentLanguage === 'ur';
+
   return (
     <>
       <Navbar />
@@ -26,7 +40,7 @@ export default function BlogPage() {
         {/* Hero Section */}
         <div className="relative h-[calc(100vh-20rem)] overflow-hidden">
           <Image
-            src={blogData.heroImage}
+            src={blogData.blogPage.heroImage}
             alt="Blog Hero"
             fill
             className="object-cover"
@@ -34,9 +48,42 @@ export default function BlogPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 flex items-center justify-center">
             <div className="text-center text-white">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">{blogData.pageTitle.text}</h1>
-              <p className="text-lg md:text-xl max-w-2xl mx-auto px-4">{blogData.pageDescription.text}</p>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: currentFontFamily }}>
+                {blogData.blogPage.pageTitle[currentLanguage]}
+              </h1>
+              <p className="text-lg md:text-xl max-w-2xl mx-auto px-4" style={{ fontFamily: currentFontFamily }}>
+                {blogData.blogPage.pageDescription[currentLanguage]}
+              </p>
             </div>
+          </div>
+          {/* Language Switcher */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4 z-10">
+            <button
+              onClick={() => setCurrentLanguage('en')}
+              className={`${isMobile ? 'px-3 py-1' : 'px-4 py-2'}  rounded-full transition-all duration-300`}
+              style={{
+                backgroundColor: currentLanguage === 'en' ? theme.colors.primary : 'rgba(21, 21, 21, 0.6)',
+                color: currentLanguage === 'en' ? theme.colors.secondary : 'white',
+                backdropFilter: 'blur(4px)',
+                border: `2px solid ${currentLanguage === 'en' ? theme.colors.secondary : 'transparent'}`,
+                fontFamily: theme.fonts.en.primary,
+              }}
+            >
+              English
+            </button>
+            <button
+              onClick={() => setCurrentLanguage('ur')}
+              className={`${isMobile ? 'px-3 py-1' : 'px-4 py-2'}  rounded-full transition-all duration-300`}
+              style={{
+                backgroundColor: currentLanguage === 'ur' ? theme.colors.primary : 'rgba(21, 21, 21, 0.6)',
+                color: currentLanguage === 'ur' ? theme.colors.secondary : 'white',
+                backdropFilter: 'blur(4px)',
+                border: `2px solid ${currentLanguage === 'ur' ? theme.colors.secondary : 'transparent'}`,
+                fontFamily: theme.fonts.ur.primary,
+              }}
+            >
+              اردو
+            </button>
           </div>
         </div>
 
@@ -73,14 +120,14 @@ export default function BlogPage() {
           </div>
 
           {/* Blog Posts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" dir={isRTL ? 'rtl' : 'ltr'}>
             {filteredPosts.map((post) => (
               <Link href={`/blog/${post.slug}`} key={post.id} className="group h-full">
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md hover:-translate-y-1 h-full flex flex-col">
                   <div className="relative h-48">
                     <Image
                       src={post.image}
-                      alt={post.title.text}
+                      alt={post.title.en}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -99,11 +146,13 @@ export default function BlogPage() {
                     </div>
                     <h3 
                       className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors duration-300"
-                      style={{ color: theme.colors.text.primary }}
+                      style={{ color: theme.colors.text.primary, fontFamily: currentFontFamily }}
                     >
-                      {post.title.text}
+                      {post.title[currentLanguage]}
                     </h3>
-                    <p className="text-gray-600 line-clamp-2 flex-grow">{post.excerpt.text}</p>
+                    <p className="text-gray-600 line-clamp-2 flex-grow" style={{ fontFamily: currentFontFamily }}>
+                      {post.excerpt[currentLanguage]}
+                    </p>
                   </div>
                 </div>
               </Link>

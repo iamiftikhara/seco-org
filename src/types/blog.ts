@@ -1,30 +1,28 @@
-export interface TextContent {
-  text: string;
-  language: 'en' | 'ur';
+export interface LocalizedString {
+  en: string;
+  ur: string;
 }
 
-export interface BlogSection {
+export interface BlogContentBlock {
   type: 'content-block';
-  text: {
-    content: TextContent;
-  };
+  text: LocalizedString;
   image?: {
     src: string;
-    alt: string;
+    alt: LocalizedString;
     position: 'left' | 'right' | 'full' | 'above' | 'below';
   };
 }
 
-export interface ContentSection {
+export interface BlogQuoteBlock {
   type: 'quote';
-  content: TextContent;
+  content: LocalizedString;
 }
 
-export type Section = BlogSection | ContentSection;
+export type BlogSection = BlogContentBlock | BlogQuoteBlock;
 
 export interface SocialShare {
-  title: TextContent;
-  description: TextContent;
+  title: LocalizedString;
+  description: LocalizedString;
   hashtags: string[];
   twitterHandle: string;
   ogType: string;
@@ -32,58 +30,27 @@ export interface SocialShare {
 
 export interface BlogPost {
   id: string;
-  title: {
-    text: string;
-    language: 'en' | 'ur';
-  };
-  excerpt: {
-    text: string;
-    language: 'en' | 'ur';
-  };
-  content: Array<{
-    type: 'content-block' | 'quote';
-    text?: {
-      content: {
-        text: string;
-        language: 'en' | 'ur';
-      }
-    };
-    content?: {
-      text: string;
-      language: 'en' | 'ur';
-    };
-    image?: {
-      src: string;
-      alt: string;
-      position: 'above' | 'below' | 'left' | 'right' | 'full';
-    };
-  }>;
+  title: LocalizedString;
+  excerpt: LocalizedString;
+  content: BlogSection[];
   author: string;
   date: string;
   image: string;
   category: string;
   showOnHome: boolean;
   slug: string;
-  socialShare: {
-    title: {
-      text: string;
-      language: 'en' | 'ur';
-    };
-    description: {
-      text: string;
-      language: 'en' | 'ur';
-    };
-    hashtags: string[];
-    twitterHandle: string;
-    ogType: string;
-  };
+  socialShare: SocialShare;
+}
+
+export interface BlogPageMeta {
+  heroImage: string;
+  title: LocalizedString;
+  description: LocalizedString;
+  pageTitle: LocalizedString;
+  pageDescription: LocalizedString;
 }
 
 export interface BlogData {
-  pageTitle: TextContent;
-  pageDescription: TextContent;
-  heroImage: string;
-  title: TextContent;
-  description: TextContent;
+  blogPage: BlogPageMeta;
   posts: BlogPost[];
 }
