@@ -78,7 +78,7 @@ export default function DynamicError({
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center bg-gray-50"
+      className="min-h-screen flex items-center justify-center bg-gray-50 w-full"
       style={{ direction: getDirection() }}
     >
       <div 

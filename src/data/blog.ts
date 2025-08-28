@@ -16,8 +16,8 @@ export const blogData = {
       category: "Education",
       showOnHome: true,
       socialShare: {
-        title: { en: "Youth Education Success: Making a Difference in Our Community - SECO Pakistan", ur: "نوجوانوں کی تعلیم میں کامیابی: ہماری کمیونٹی میں تبدیلی - سیکو پاکستان" },
-        description: { en: "Discover how our youth education programs are transforming lives through mentorship and innovative learning approaches. Join us in building a brighter future!", ur: "جانیے کہ ہمارے نوجوانوں کی تعلیم کے پروگرام مینٹورشپ اور جدید تعلیمی طریقوں کے ذریعے زندگیوں میں کیسے تبدیلی لا رہے ہیں۔ بہتر مستقبل کی تعمیر میں ہمارا ساتھ دیں!" },
+        title: { text: "Youth Education Success: Making a Difference in Our Community - SECO Pakistan" },
+        description: { text: "Discover how our youth education programs are transforming lives through mentorship and innovative learning approaches. Join us in building a brighter future!" },
         hashtags: ["YouthEducation", "CommunityDevelopment", "Education", "SECOPakistan"],
         twitterHandle: "SECOPakistan",
         ogType: "article"
@@ -42,8 +42,8 @@ export const blogData = {
       category: "Sustainability",
       showOnHome: true,
       socialShare: {
-        title: { en: "Building Sustainable Communities: A Green Future Together - SECO Pakistan", ur: "پائیدار کمیونٹیز کی تعمیر: ایک سبز مستقبل ساتھ مل کر - سیکو پاکستان" },
-        description: { en: "Learn about our groundbreaking initiatives combining environmental consciousness with community development. Join our mission for sustainable neighborhoods!", ur: "ہمارے انقلابی اقدامات کے بارے میں جانیں جو ماحول دوست شعور کو کمیونٹی ڈویلپمنٹ کے ساتھ جوڑتے ہیں۔ پائیدار محلوں کے مشن میں شامل ہوں!" },
+        title: { text: "Building Sustainable Communities: A Green Future Together - SECO Pakistan" },
+        description: { text: "Learn about our groundbreaking initiatives combining environmental consciousness with community development. Join our mission for sustainable neighborhoods!" },
         hashtags: ["SustainableCommunities", "GreenFuture", "CommunityGardens", "SECOPakistan"],
         twitterHandle: "SECOPakistan",
         ogType: "article"
@@ -65,8 +65,8 @@ export const blogData = {
       category: "Education",
       showOnHome: true,
       socialShare: {
-        title: { en: "Education Success: Youth Progress Story - SECO Pakistan", ur: "تعلیمی کامیابی: ہمارے نوجوانوں کی ترقی کی داستان - سیکو پاکستان" },
-        description: { en: "Learn how our education programs are positively transforming young lives.", ur: "جانیں کہ ہمارے تعلیمی پروگرام کیسے نوجوان طلباء کی زندگیوں میں مثبت تبدیلی لا رہے ہیں۔" },
+        title: { text: "Education Success: Youth Progress Story - SECO Pakistan" },
+        description: { text: "Learn how our education programs are positively transforming young lives." },
         hashtags: ["نوجوان_تعلیم", "کمیونٹی_ترقی", "تعلیم", "سیکو_پاکستان"],
         twitterHandle: "SECOPakistan",
         ogType: "article"
@@ -87,8 +87,8 @@ export const blogData = {
       category: "Technology",
       showOnHome: true,
       socialShare: {
-        title: { en: "Digital Skills Training: Empowering Women in Technology - SECO Pakistan", ur: "ڈیجیٹل اسکلز ٹریننگ: خواتین کو ٹیکنالوجی میں بااختیار بنانا - سیکو پاکستان" },
-        description: { en: "Discover how our digital skills program is creating new opportunities for women in technology. Join us in bridging the digital divide!", ur: "جانیں کہ ہمارا ڈیجیٹل اسکلز پروگرام ٹیکنالوجی میں خواتین کے لیے نئے مواقع کیسے پیدا کر رہا ہے۔ ڈیجیٹل تقسیم کو ختم کرنے میں ہمارا ساتھ دیں!" },
+        title: { text: "Digital Skills Training: Empowering Women in Technology - SECO Pakistan" },
+        description: { text: "Discover how our digital skills program is creating new opportunities for women in technology. Join us in bridging the digital divide!" },
         hashtags: ["WomenInTech", "DigitalSkills", "WomenEmpowerment", "SECOPakistan"],
         twitterHandle: "SECOPakistan",
         ogType: "article"

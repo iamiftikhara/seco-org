@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { BlogPost, BlogData } from '@/types/blog';
-import { blogData } from '@/data/blog';
+import { getCollection } from '@/lib/mongodb';
 
 interface BlogApiResponse {
   success: boolean;
@@ -16,52 +16,62 @@ export async function GET(request: NextRequest) {
     
     // Get query parameters
     const limit = searchParams.get('limit');
-    const language = searchParams.get('language') as 'en' | 'ur' | null;
     const category = searchParams.get('category');
     const showOnHome = searchParams.get('showOnHome');
     const slug = searchParams.get('slug');
     
-    let filteredPosts = [...blogData.posts] as BlogPost[];
+    const collection = await getCollection('blogs');
+    const blogsDoc = await collection.findOne({});
+    if (!blogsDoc) {
+      return new NextResponse(null, { status: 204 });
+    }
 
-    // Apply filters
-    // Language filter is not needed since each post contains both languages now
-    
+    // Accept both possible keys in DB: 'posts' (new) or 'blogsList' (legacy)
+    let rawPosts: any[] = [];
+    if (Array.isArray(blogsDoc.posts)) rawPosts = blogsDoc.posts;
+    else if (Array.isArray(blogsDoc.blogsList)) rawPosts = blogsDoc.blogsList;
+    let blogsList: BlogPost[] = rawPosts as BlogPost[];
+
     if (category) {
-      filteredPosts = filteredPosts.filter(post => 
-        post.category.toLowerCase() === category.toLowerCase()
-      );
+      blogsList = blogsList.filter(post => post.category?.toLowerCase() === category.toLowerCase());
     }
 
     if (showOnHome === 'true') {
-      filteredPosts = filteredPosts.filter(post => post.showOnHome);
+      blogsList = blogsList.filter(post => post.showOnHome === true);
     }
 
     if (slug) {
-      filteredPosts = filteredPosts.filter(post => post.slug === slug);
+      blogsList = blogsList.filter(post => post.slug === slug);
     }
 
-    // Sort posts by date (most recent first)
-    filteredPosts.sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-
-    // Apply limit if specified and not 0
-    if (limit && parseInt(limit) > 0) {
-      filteredPosts = filteredPosts.slice(0, parseInt(limit));
+    // If requesting homepage items with a limit, randomize order so selection varies
+    if (showOnHome === 'true' && limit && parseInt(limit) > 0) {
+      // Fisher-Yates shuffle
+      const arr = [...blogsList];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      blogsList = arr.slice(0, parseInt(limit));
+    } else {
+      // Default: latest first
+      blogsList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      if (limit && parseInt(limit) > 0) {
+        blogsList = blogsList.slice(0, parseInt(limit));
+      }
     }
 
-    // Log the count of posts being returned
-    console.log(`Returning ${filteredPosts.length} blog posts`);
+    if (!blogsList.length) {
+      return new NextResponse(null, { status: 204 });
+    }
 
-    const response: BlogApiResponse = {
+    return NextResponse.json({
       success: true,
       data: {
-        blogPage: blogData.blogPage,
-        blogsList: filteredPosts
+        blogPage: blogsDoc.blogPage as BlogData['blogPage'],
+        blogsList,
       }
-    };
-
-    return NextResponse.json(response);
+    });
   } catch (error) {
     console.error('Error in blogs API:', error);
     return NextResponse.json(
@@ -70,31 +80,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-interface BlogPostResponse {
-  success: boolean;
-  message: string;
-  data: BlogPost;
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json() as BlogPost;
-    
-    // Here you would typically validate the body and save to a database
-    // For now, we'll just return a success response with the provided data
-    const response: BlogPostResponse = {
-      success: true,
-      message: 'Blog post created successfully',
-      data: body
-    };
-
-    return NextResponse.json(response);
-  } catch (error) {
-    console.error('Error in blogs API:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal Server Error' },
-      { status: 500 }
-    );
-  }
-} 

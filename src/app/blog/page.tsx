@@ -4,22 +4,60 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { theme } from '@/config/theme';
-import { blogData } from '@/data/blog';
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import LoadingSpinner from '@/app/components/LoadingSpinner';
+import DynamicError from '@/app/components/DynamicError';
 
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ur'>('en');
   const [isMobile, setIsMobile] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [blogPage, setBlogPage] = useState<{ heroImage: string; pageTitle: { en: string; ur: string }; pageDescription: { en: string; ur: string } } | null>(null);
+  const [posts, setPosts] = useState<any[]>([]);
   
   const categories = Array.from(
-    new Set(blogData.posts.map(post => post.category))
+    new Set(posts.map(post => post.category))
   );
 
   const filteredPosts = selectedCategory
-    ? blogData.posts.filter(post => post.category === selectedCategory)
-    : blogData.posts;
+    ? posts.filter(post => post.category === selectedCategory)
+    : posts;
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const res = await fetch('/api/blogs');
+        if (res.status === 204) {
+          setBlogPage(null);
+          setPosts([]);
+          setError('No blog posts found');
+          return;
+        }
+        const json = await res.json();
+        if (!json.success) {
+          if (json.isEmpty) {
+            setBlogPage(json.data?.blogPage || null);
+            setPosts([]);
+            setError('No blog posts found');
+            return;
+          }
+          throw new Error(json.error || 'Failed to fetch blogs');
+        }
+        setBlogPage(json.data.blogPage || null);
+        setPosts(Array.isArray(json.data.blogsList) ? json.data.blogsList : []);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to load blogs');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchBlogs();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -36,11 +74,29 @@ export default function BlogPage() {
   return (
     <>
       <Navbar />
+      {isLoading ? (
+        <div className="min-h-[calc(100vh-160px)] flex items-center justify-center"><LoadingSpinner /></div>
+      ) : error ? (
+        <div className="min-h-[calc(100vh-160px)] flex items-center justify-center">
+          <DynamicError
+            title={
+              posts.length === 0
+                ? (currentLanguage === 'ur' ? 'بلاگز جلد آ رہے ہیں' : 'Blogs Coming Soon')
+                : (currentLanguage === 'ur' ? 'بلاگز لوڈ نہیں ہو سکے' : 'Unable to Load Blogs')
+            }
+            message={error}
+            onRetry={() => window.location.reload()}
+            showBackButton={false}
+            language={currentLanguage}
+            sectionName={currentLanguage === 'ur' ? 'بلاگز' : 'Blogs'}
+          />
+        </div>
+      ) : (
       <main className="min-h-[calc(100vh-160px)] bg-gray-50">
         {/* Hero Section */}
         <div className="relative h-[calc(100vh-20rem)] overflow-hidden">
           <Image
-            src={blogData.blogPage.heroImage}
+            src={blogPage?.heroImage || '/images/blog-hero.jpg'}
             alt="Blog Hero"
             fill
             className="object-cover"
@@ -49,10 +105,10 @@ export default function BlogPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 flex items-center justify-center">
             <div className="text-center text-white">
               <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: currentFontFamily }}>
-                {blogData.blogPage.pageTitle[currentLanguage]}
+                {blogPage ? blogPage.pageTitle[currentLanguage] : 'Blogs'}
               </h1>
               <p className="text-lg md:text-xl max-w-2xl mx-auto px-4" style={{ fontFamily: currentFontFamily }}>
-                {blogData.blogPage.pageDescription[currentLanguage]}
+                {blogPage ? blogPage.pageDescription[currentLanguage] : ''}
               </p>
             </div>
           </div>
@@ -127,7 +183,7 @@ export default function BlogPage() {
                   <div className="relative h-48">
                     <Image
                       src={post.image}
-                      alt={post.title.en}
+                      alt={post.title[currentLanguage]}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -160,6 +216,7 @@ export default function BlogPage() {
           </div>
         </div>
       </main>
+      )}
       <Footer />
     </>
   );

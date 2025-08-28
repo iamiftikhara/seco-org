@@ -1,62 +1,95 @@
-import { Metadata, ResolvingMetadata } from 'next';
-import { generateMeta } from '@/meta/config';
-import { blogData } from '@/data/blog';
+import { Metadata } from 'next';
 
-type Props = {
-  params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
 
-export async function generateMetadata(
-  { params }: Props,
-  _parent: ResolvingMetadata
-): Promise<Metadata> {
+  const defaultMetadata: Metadata = {
+    title: 'Blog | SECO',
+    description: 'Read our latest updates and stories.',
+    openGraph: {
+      type: 'website',
+      siteName: 'SECO',
+      title: 'Blog | SECO',
+      description: 'Read our latest updates and stories.',
+      url: `/blog/${slug}`,
+      images: [
+        {
+          url: '/images/og-default.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'SECO Blog'
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Blog | SECO',
+      description: 'Read our latest updates and stories.',
+      creator: '@SECO',
+      images: ['/images/og-default.jpg']
+    }
+  };
+
   try {
-    const post = blogData.posts.find((p) => p.slug === params.slug);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/blogs?slug=${encodeURIComponent(slug)}` , {
+      cache: 'no-store'
+    });
 
-    if (!post) {
-      return generateMeta({
-        title: 'Blog Post Not Found',
-        description: 'The requested blog post could not be found.',
-        type: 'website',
-        image: '/images/og-default.jpg'
-      });
+    if (!response.ok) {
+      return {
+        ...defaultMetadata,
+        title: 'Blog Post Not Found | SECO',
+        description: 'The requested blog post could not be found.'
+      };
     }
 
+    const result = await response.json();
+    const post = Array.isArray(result?.data?.blogsList) ? result.data.blogsList[0] : null;
+
+    if (!post) {
+      return {
+        ...defaultMetadata,
+        title: 'Blog Post Not Found | SECO',
+        description: 'The requested blog post could not be found.'
+      };
+    }
+
+    const title = post.title?.en || post.title?.ur || 'Blog';
+    const desc = post.excerpt?.en || post.excerpt?.ur || '';
+
     return {
-      title: `${post.title.text} | SECO`,
-      description: post.excerpt.text,
+      title: `${title} | SECO`,
+      description: desc,
       openGraph: {
         type: (post.socialShare?.ogType || 'article') as 'website' | 'article',
         siteName: 'SECO',
-        title: post.title.text,
-        description: post.excerpt.text,
-        url: `/blog/${params.slug}`,
+        title,
+        description: desc,
+        url: `/blog/${slug}`,
         images: [
           {
-            url: post.image,
+            url: post.image || '/images/og-default.jpg',
             width: 1200,
             height: 630,
-            alt: post.title.text
+            alt: title
           }
         ]
       },
       twitter: {
         card: 'summary_large_image',
-        title: post.title.text,
-        description: post.excerpt.text,
+        title,
+        description: desc,
         creator: post.socialShare?.twitterHandle || '@SECO',
-        images: [post.image]
+        images: [post.image || '/images/og-default.jpg']
       },
       keywords: post.socialShare?.hashtags || []
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
-    return generateMeta({
-      title: 'Error',
-      description: 'An error occurred while loading the blog post.',
-      type: 'website',
-      image: '/images/og-default.jpg'
-    });
+    return {
+      ...defaultMetadata,
+      title: 'Error | SECO',
+      description: 'An error occurred while loading the blog post.'
+    };
   }
 }

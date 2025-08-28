@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import {theme} from "@/config/theme";
-import {blogData} from "@/data/blog";
+import { use } from 'react';
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
@@ -116,20 +116,23 @@ export default function BlogPost({ params }: { params: Promise<{ slug: string }>
     const fetchPost = async () => {
       try {
         const resolvedParams = await params;
-        const currentIndex = blogData.posts.findIndex((p) => p.slug === resolvedParams.slug);
-
-        if (currentIndex === -1) {
+        const res = await fetch(`/api/blogs/${resolvedParams.slug}`);
+        const json = await res.json();
+        if (!json.success) {
           setPost(null);
-          setNavigation({prev: null, next: null});
+          setNavigation({ prev: null, next: null });
           return;
         }
+        setPost(json.data as BlogPost);
 
-        const foundPost = blogData.posts[currentIndex];
-        setPost(foundPost as BlogPost);
-
+        // Fetch list for prev/next
+        const listRes = await fetch('/api/blogs');
+        const listJson = await listRes.json();
+        const list: BlogPost[] = listJson?.data?.blogsList || [];
+        const currentIndex = list.findIndex((p) => p.slug === resolvedParams.slug);
         setNavigation({
-          prev: currentIndex > 0 ? (blogData.posts[currentIndex - 1] as BlogPost) : null,
-          next: currentIndex < blogData.posts.length - 1 ? (blogData.posts[currentIndex + 1] as BlogPost) : null,
+          prev: currentIndex > 0 ? list[currentIndex - 1] : null,
+          next: currentIndex >= 0 && currentIndex < list.length - 1 ? list[currentIndex + 1] : null,
         });
       } catch (error) {
         console.error("Error fetching post:", error);

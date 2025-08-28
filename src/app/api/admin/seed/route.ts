@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCollection } from '@/lib/mongodb';
 import { withAdminAuth } from '@/lib/authMiddleware';
 import * as navbar from '@/data/navbar';
-import * as blog from '@/data/blog';
+import * as blogs from '@/data/blog';
 import * as contact from '@/data/contact';
 import * as events from '@/data/events';
 import * as footer from '@/data/footer';
@@ -20,7 +20,7 @@ import * as testimonials from '@/data/testimonials';
 //   hero, impact, partners, programs, projects,
 //   services, testimonials
 // };
-const dataModules = {gallery};
+const dataModules = {blogs};
 
 async function handler() {
   try {
