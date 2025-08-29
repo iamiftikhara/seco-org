@@ -789,7 +789,13 @@ export default function BlogsAdmin() {
                             <td className="p-2 align-top" style={{ color: theme.colors.text.primary }}>{block.type === 'content-block' ? (modalLanguage === 'en' ? 'Content Block' : 'کنٹینٹ بلاک') : (modalLanguage === 'en' ? 'Quote' : 'اقتباس')}</td>
                             <td className="p-2 align-top" style={{ color: theme.colors.text.secondary, fontFamily: modalFontFamily, direction: modalDirection, textAlign: isModalRTL ? 'right' : 'left' }}>{preview || (modalLanguage === 'en' ? 'Empty' : 'خالی')}</td>
                             <td className="p-2 align-top">
-                              {imgSrc ? <img src={imgSrc} alt="" className="w-12 h-12 object-cover rounded" /> : <span className="text-xs" style={{ color: theme.colors.text.secondary }}>-</span>}
+                              {imgSrc ? (
+                                <div className="relative w-12 h-12">
+                                  <Image src={imgSrc} alt="" fill className="object-cover rounded" />
+                                </div>
+                              ) : (
+                                <span className="text-xs" style={{ color: theme.colors.text.secondary }}>-</span>
+                              )}
                             </td>
                             <td className="p-2 align-top" style={{ color: theme.colors.text.secondary }}>{block.type === 'content-block' ? imgPos : '-'}</td>
                             <td className="p-2 align-top">
