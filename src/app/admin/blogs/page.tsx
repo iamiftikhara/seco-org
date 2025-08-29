@@ -58,6 +58,7 @@ export default function BlogsAdmin() {
   const [blockEditorLanguage, setBlockEditorLanguage] = useState<'en' | 'ur'>('en');
   const [blockEditorData, setBlockEditorData] = useState<BlogContentBlock | BlogQuoteBlock | null>(null);
   const [blockEditorErrors, setBlockEditorErrors] = useState<string[]>([]);
+  const [showBlockSwitchLangPrompt, setShowBlockSwitchLangPrompt] = useState(false);
 
   const currentFontFamily = currentLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary;
   const isRTL = currentLanguage === 'ur';
@@ -522,9 +523,26 @@ export default function BlogsAdmin() {
             <div className="bg-white rounded-lg max-w-3xl w-full max-h-[85vh] overflow-y-auto">
               <div className="p-4 border-b flex items-center justify-between">
                 <h3 className="text-lg font-semibold" style={{color: theme.colors.text.primary}}>{blockEditorIndex === -1 ? (blockEditorData.type === 'quote' ? (modalLanguage === 'en' ? 'Add Quote' : 'نیا اقتباس') : (modalLanguage === 'en' ? 'Add Content Block' : 'نیا کنٹینٹ بلاک')) : (modalLanguage === 'en' ? 'Edit Block' : 'بلاک میں ترمیم')}</h3>
-                <button onClick={() => { setShowBlockEditor(false); setBlockEditorIndex(null); setBlockEditorData(null); setBlockEditorErrors([]); }} className="p-2 rounded hover:bg-gray-100"><FiX /></button>
+                <button onClick={() => { setShowBlockEditor(false); setBlockEditorIndex(null); setBlockEditorData(null); setBlockEditorErrors([]); setShowBlockSwitchLangPrompt(false); }} className="p-2 rounded hover:bg-gray-100"><FiX /></button>
               </div>
               <div className="p-4">
+                {showBlockSwitchLangPrompt && (
+                  <div className="mb-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded flex items-center gap-3">
+                    <div className="text-sm flex-1">
+                      {blockEditorLanguage === 'en' ? 'Some required fields are missing in Urdu. Please switch to Urdu and fill them.' : 'Some required fields are missing in English. Please switch to English and fill them.'}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setBlockEditorLanguage(blockEditorLanguage === 'en' ? 'ur' : 'en'); setShowBlockSwitchLangPrompt(false); }}
+                      className="px-3 py-1 rounded bg-blue-600 text-white text-xs shadow"
+                    >
+                      Switch to {blockEditorLanguage === 'en' ? 'Urdu' : 'English'}
+                    </button>
+                    <button type="button" onClick={() => setShowBlockSwitchLangPrompt(false)} className="p-1 rounded hover:bg-yellow-200" aria-label="Close">
+                      <FiX className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
                 <div className="flex justify-center mb-4">
                   <div className="flex gap-2 p-1 rounded-lg" style={{backgroundColor: theme.colors.background.secondary}}>
                     <button onClick={() => setBlockEditorLanguage('en')} className={`px-4 py-2 rounded-md ${blockEditorLanguage === 'en' ? 'text-white' : ''}`} style={{ backgroundColor: blockEditorLanguage === 'en' ? theme.colors.primary : 'transparent', color: blockEditorLanguage === 'en' ? 'white' : theme.colors.text.primary, fontFamily: theme.fonts.en.primary }}>English</button>
@@ -577,15 +595,28 @@ export default function BlogsAdmin() {
                 <div className={`flex justify-end gap-3 pt-4 border-t mt-6`} style={{ direction: 'ltr' }}>
                   <button type="button" onClick={() => { setShowBlockEditor(false); setBlockEditorIndex(null); setBlockEditorData(null); setBlockEditorErrors([]); }} className="px-4 py-2 border rounded" style={{ borderColor: theme.colors.border.default, color: theme.colors.text.primary }}>Cancel</button>
                   <button type="button" onClick={() => {
-                    const errors: string[] = [];
+                    const errorsCurrent: string[] = [];
+                    const errorsOpposite: string[] = [];
+                    const current = blockEditorLanguage;
+                    const opposite = blockEditorLanguage === 'en' ? 'ur' : 'en';
                     if (blockEditorData && blockEditorData.type === 'content-block') {
-                      if (!(blockEditorData as BlogContentBlock).text?.en) errors.push('text.en');
-                      if (!(blockEditorData as BlogContentBlock).text?.ur) errors.push('text.ur');
+                      const data = blockEditorData as BlogContentBlock;
+                      if (!data.text?.[current]) errorsCurrent.push(`text.${current}`);
+                      if (!data.text?.[opposite]) errorsOpposite.push(`text.${opposite}`);
                     } else {
-                      if (!(blockEditorData as BlogQuoteBlock | null)?.content?.en) errors.push('content.en');
-                      if (!(blockEditorData as BlogQuoteBlock | null)?.content?.ur) errors.push('content.ur');
+                      const data = blockEditorData as BlogQuoteBlock;
+                      if (!data.content?.[current]) errorsCurrent.push(`content.${current}`);
+                      if (!data.content?.[opposite]) errorsOpposite.push(`content.${opposite}`);
                     }
-                    if (errors.length > 0) { setBlockEditorErrors(errors); return; }
+                    if (errorsOpposite.length > 0) {
+                      setBlockEditorErrors(errorsCurrent);
+                      setShowBlockSwitchLangPrompt(true);
+                      return;
+                    }
+                    if (errorsCurrent.length > 0) {
+                      setBlockEditorErrors(errorsCurrent);
+                      return;
+                    }
 
                     const blocks: BlogSection[] = Array.isArray(postForm.content) ? [...postForm.content] : [];
                     if (blockEditorIndex === -1) {
@@ -599,6 +630,7 @@ export default function BlogsAdmin() {
                     setBlockEditorIndex(null);
                     setBlockEditorData(null);
                     setBlockEditorErrors([]);
+                    setShowBlockSwitchLangPrompt(false);
                   }} className="px-4 py-2 rounded" style={{ backgroundColor: theme.colors.primary, color: theme.colors.text.light }}>Save Block</button>
                 </div>
               </div>
