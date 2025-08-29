@@ -27,10 +27,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Accept both possible keys in DB: 'posts' (new) or 'blogsList' (legacy)
-    let rawPosts: any[] = [];
-    if (Array.isArray(blogsDoc.posts)) rawPosts = blogsDoc.posts;
-    else if (Array.isArray(blogsDoc.blogsList)) rawPosts = blogsDoc.blogsList;
-    let blogsList: BlogPost[] = rawPosts as BlogPost[];
+    let blogsList: BlogPost[] = [];
+    if (Array.isArray(blogsDoc.posts)) blogsList = blogsDoc.posts as BlogPost[];
+    else if (Array.isArray(blogsDoc.blogsList)) blogsList = blogsDoc.blogsList as BlogPost[];
 
     if (category) {
       blogsList = blogsList.filter(post => post.category?.toLowerCase() === category.toLowerCase());

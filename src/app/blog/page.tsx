@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { BlogPost, BlogPageMeta } from '@/types/blog';
 import Image from 'next/image';
 import Link from 'next/link';
 import { theme } from '@/config/theme';
@@ -15,8 +16,8 @@ export default function BlogPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [blogPage, setBlogPage] = useState<{ heroImage: string; pageTitle: { en: string; ur: string }; pageDescription: { en: string; ur: string } } | null>(null);
-  const [posts, setPosts] = useState<any[]>([]);
+  const [blogPage, setBlogPage] = useState<BlogPageMeta | null>(null);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   
   const categories = Array.from(
     new Set(posts.map(post => post.category))
