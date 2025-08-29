@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { theme } from "@/config/theme";
+import type { BlogPost, BlogPageMeta, BlogSection, BlogContentBlock, BlogQuoteBlock, LocalizedString, SocialShare } from "@/types/blog";
 import DashboardLoader from "../components/DashboardLoader";
 import Loader from "../components/Loader";
 import AdminError from "../errors/error";
@@ -14,18 +15,25 @@ import { FiEdit2, FiSave, FiX, FiChevronUp, FiChevronDown, FiEdit, FiTrash2, FiC
 import { FaPlus, FaEdit, FaTrash, FaEye, FaTimes, FaQuoteRight, FaHome } from "react-icons/fa";
 import { showAlert, showConfirmDialog } from "@/utils/alert";
 
-type LocalizedString = { en: string; ur: string };
-
 interface AdminBlogPage {
-  blogPage: {
-    heroImage: string;
-    title: LocalizedString;
-    description: LocalizedString;
-    pageTitle: LocalizedString;
-    pageDescription: LocalizedString;
-  } | null;
-  posts: any[];
+  blogPage: BlogPageMeta | null;
+  posts: BlogPost[];
 }
+
+type MaybeLegacyText = { text: string };
+type MaybeLegacyLocalized = LocalizedString | MaybeLegacyText;
+type MaybeLegacySocialShare = Omit<SocialShare, 'title' | 'description'> & {
+  title: MaybeLegacyLocalized;
+  description: MaybeLegacyLocalized;
+};
+
+const isLocalizedString = (val: unknown): val is LocalizedString => {
+  return typeof val === 'object' && val !== null && 'en' in (val as Record<string, unknown>) && 'ur' in (val as Record<string, unknown>);
+};
+
+const isTextObject = (val: unknown): val is MaybeLegacyText => {
+  return typeof val === 'object' && val !== null && 'text' in (val as Record<string, unknown>);
+};
 
 export default function BlogsAdmin() {
   const router = useRouter();
@@ -37,18 +45,18 @@ export default function BlogsAdmin() {
   const [showPageEditor, setShowPageEditor] = useState(false);
   const [pageDraft, setPageDraft] = useState<AdminBlogPage['blogPage'] | null>(null);
   const [showPostModal, setShowPostModal] = useState(false);
-  const [editingPost, setEditingPost] = useState<any | null>(null);
-  const [postForm, setPostForm] = useState<any | null>(null);
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [postForm, setPostForm] = useState<BlogPost | null>(null);
   const [modalLanguage, setModalLanguage] = useState<'en' | 'ur'>('en');
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [missingOppositeLang, setMissingOppositeLang] = useState<string[]>([]);
   const [expandedBlockIndex, setExpandedBlockIndex] = useState<number | null>(null);
-  const [draftBlock, setDraftBlock] = useState<any | null>(null);
+  const [draftBlock, setDraftBlock] = useState<BlogSection | null>(null);
   const [showSwitchLangPrompt, setShowSwitchLangPrompt] = useState(false);
   const [showBlockEditor, setShowBlockEditor] = useState(false);
   const [blockEditorIndex, setBlockEditorIndex] = useState<number | -1 | null>(null);
   const [blockEditorLanguage, setBlockEditorLanguage] = useState<'en' | 'ur'>('en');
-  const [blockEditorData, setBlockEditorData] = useState<any | null>(null);
+  const [blockEditorData, setBlockEditorData] = useState<BlogContentBlock | BlogQuoteBlock | null>(null);
   const [blockEditorErrors, setBlockEditorErrors] = useState<string[]>([]);
 
   const currentFontFamily = currentLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary;
@@ -103,7 +111,7 @@ export default function BlogsAdmin() {
     }
   };
 
-  const createEmptyPost = (): any => ({
+  const createEmptyPost = (): BlogPost => ({
     id: "",
     slug: "",
     author: "",
@@ -141,18 +149,23 @@ export default function BlogsAdmin() {
     setMissingOppositeLang([]);
   };
 
-  const openEditPost = (post: any) => {
+  const openEditPost = (post: BlogPost) => {
     // Normalize socialShare to UI shape (title.en/ur, description.en/ur) from possible {text}
-    const normalized = { ...post } as any;
+    const normalized: BlogPost = { ...post };
     if (normalized.socialShare) {
-      const ss = normalized.socialShare;
-      const titleText = ss?.title?.en ?? ss?.title?.text ?? '';
-      const descText = ss?.description?.en ?? ss?.description?.text ?? '';
+      const ss = normalized.socialShare as unknown as MaybeLegacySocialShare;
+      const titleText = isLocalizedString(ss.title) ? ss.title.en : isTextObject(ss.title) ? ss.title.text : '';
+      const titleUr = isLocalizedString(ss.title) ? ss.title.ur : titleText;
+      const descText = isLocalizedString(ss.description) ? ss.description.en : isTextObject(ss.description) ? ss.description.text : '';
+      const descUr = isLocalizedString(ss.description) ? ss.description.ur : descText;
       normalized.socialShare = {
-        ...ss,
-        title: { en: titleText, ur: ss?.title?.ur ?? titleText },
-        description: { en: descText, ur: ss?.description?.ur ?? descText }
-      };
+        ...normalized.socialShare,
+        title: { en: titleText, ur: titleUr },
+        description: { en: descText, ur: descUr },
+        hashtags: normalized.socialShare.hashtags || [],
+        twitterHandle: normalized.socialShare.twitterHandle || '',
+        ogType: normalized.socialShare.ogType || 'article'
+      } as SocialShare;
     }
     setEditingPost(post);
     setPostForm(normalized);
@@ -162,7 +175,7 @@ export default function BlogsAdmin() {
     setMissingOppositeLang([]);
   };
 
-  const validatePost = (p: any, currentLang: 'en' | 'ur'): string[] => {
+  const validatePost = (p: BlogPost, currentLang: 'en' | 'ur'): string[] => {
     const missing: string[] = [];
     // Common fields
     if (!p.image) missing.push('image');
@@ -272,7 +285,7 @@ export default function BlogsAdmin() {
       return;
     }
     // Transform UI shape to API/storage shape
-    const draft = { ...postForm } as any;
+    const draft: BlogPost = { ...postForm };
     if (!draft.slug && draft.title?.en) draft.slug = generateSlug(draft.title.en);
 
     if (draft.socialShare) {
@@ -280,9 +293,9 @@ export default function BlogsAdmin() {
       const ssDesc = draft.socialShare.description?.en || draft.socialShare.description?.ur || '';
       draft.socialShare = {
         ...draft.socialShare,
-        title: { text: ssTitle },
-        description: { text: ssDesc }
-      };
+        title: { en: ssTitle, ur: draft.socialShare.title.ur || ssTitle },
+        description: { en: ssDesc, ur: draft.socialShare.description.ur || ssDesc }
+      } as SocialShare;
     }
 
     // Validate the form
@@ -388,36 +401,36 @@ export default function BlogsAdmin() {
               <form onSubmit={(e) => { e.preventDefault(); handleSavePage(); }} className="space-y-6">
                 <div>
                   <div className="mb-2 text-sm font-medium" style={{ color: theme.colors.text.secondary }}>Hero Image</div>
-                  <ImageSelector selectedPath={pageDraft?.heroImage || ''} onSelect={(url) => setPageDraft(prev => ({ ...(prev as any), heroImage: url }))} size="small" />
+                  <ImageSelector selectedPath={pageDraft?.heroImage || ''} onSelect={(url) => setPageDraft(prev => (prev ? { ...prev, heroImage: url } : prev))} size="small" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <div className="text-sm font-medium mb-1" style={{ color: theme.colors.text.secondary }}>Home Page Title (EN)</div>
-                    <input className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default }} value={pageDraft?.title.en || ''} onChange={(e) => setPageDraft(prev => ({ ...(prev as any), title: { ...(prev as any)?.title, en: e.target.value } }))} />
+                    <input className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default }} value={pageDraft?.title.en || ''} onChange={(e) => setPageDraft(prev => (prev ? { ...prev, title: { ...prev.title, en: e.target.value } } : prev))} />
                   </div>
                   <div>
                     <div className="text-sm font-medium mb-1" style={{ color: theme.colors.text.secondary }}>Home Page Title (UR)</div>
-                    <input className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right' }} value={pageDraft?.title.ur || ''} onChange={(e) => setPageDraft(prev => ({ ...(prev as any), title: { ...(prev as any)?.title, ur: e.target.value } }))} />
+                    <input className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right' }} value={pageDraft?.title.ur || ''} onChange={(e) => setPageDraft(prev => (prev ? { ...prev, title: { ...prev.title, ur: e.target.value } } : prev))} />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <div className="text-sm font-medium mb-1" style={{ color: theme.colors.text.secondary }}>Listing Page Title (EN)</div>
-                    <input className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default }} value={pageDraft?.pageTitle?.en || ''} onChange={(e) => setPageDraft(prev => ({ ...(prev as any), pageTitle: { ...(prev as any)?.pageTitle, en: e.target.value } }))} />
+                    <input className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default }} value={pageDraft?.pageTitle?.en || ''} onChange={(e) => setPageDraft(prev => (prev ? { ...prev, pageTitle: { ...prev.pageTitle, en: e.target.value } } : prev))} />
                   </div>
                   <div>
                     <div className="text-sm font-medium mb-1" style={{ color: theme.colors.text.secondary }}>Listing Page Title (UR)</div>
-                    <input className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right' }} value={pageDraft?.pageTitle?.ur || ''} onChange={(e) => setPageDraft(prev => ({ ...(prev as any), pageTitle: { ...(prev as any)?.pageTitle, ur: e.target.value } }))} />
+                    <input className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right' }} value={pageDraft?.pageTitle?.ur || ''} onChange={(e) => setPageDraft(prev => (prev ? { ...prev, pageTitle: { ...prev.pageTitle, ur: e.target.value } } : prev))} />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <div className="text-sm font-medium mb-1" style={{ color: theme.colors.text.secondary }}>Page Description (EN)</div>
-                    <textarea rows={3} className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default }} value={pageDraft?.pageDescription?.en || ''} onChange={(e) => setPageDraft(prev => ({ ...(prev as any), pageDescription: { ...(prev as any)?.pageDescription, en: e.target.value } }))} />
+                    <textarea rows={3} className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default }} value={pageDraft?.pageDescription?.en || ''} onChange={(e) => setPageDraft(prev => (prev ? { ...prev, pageDescription: { ...prev.pageDescription, en: e.target.value } } : prev))} />
                   </div>
                   <div>
                     <div className="text-sm font-medium mb-1" style={{ color: theme.colors.text.secondary }}>Page Description (UR)</div>
-                    <textarea rows={3} className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right' }} value={pageDraft?.pageDescription?.ur || ''} onChange={(e) => setPageDraft(prev => ({ ...(prev as any), pageDescription: { ...(prev as any)?.pageDescription, ur: e.target.value } }))} />
+                    <textarea rows={3} className="w-full p-3 rounded-lg border" style={{ borderColor: theme.colors.border.default, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right' }} value={pageDraft?.pageDescription?.ur || ''} onChange={(e) => setPageDraft(prev => (prev ? { ...prev, pageDescription: { ...prev.pageDescription, ur: e.target.value } } : prev))} />
                   </div>
                 </div>
                 <div className="flex justify-end">
@@ -518,21 +531,21 @@ export default function BlogsAdmin() {
                     <button onClick={() => setBlockEditorLanguage('ur')} className={`px-4 py-2 rounded-md ${blockEditorLanguage === 'ur' ? 'text-white' : ''}`} style={{ backgroundColor: blockEditorLanguage === 'ur' ? theme.colors.primary : 'transparent', color: blockEditorLanguage === 'ur' ? 'white' : theme.colors.text.primary, fontFamily: theme.fonts.ur.primary }}>اردو</button>
                   </div>
                 </div>
-                {blockEditorData.type === 'content-block' ? (
+                {blockEditorData && blockEditorData.type === 'content-block' ? (
                   <div className="space-y-4" style={{direction: blockEditorLanguage === 'ur' ? 'rtl' : 'ltr'}}>
                     <div>
                       <label className="block text-sm font-medium mb-1" style={{color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}}>{blockEditorLanguage === 'en' ? 'Block Text' : 'بلاک متن'} *</label>
-                      <textarea rows={5} value={blockEditorData.text?.[blockEditorLanguage] || ''} onChange={(e) => setBlockEditorData((prev: any) => ({...prev, text: {...(prev.text||{}), [blockEditorLanguage]: e.target.value}}))} className="w-full p-3 rounded border" style={{borderColor: theme.colors.border.default, backgroundColor: theme.colors.background.primary, color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}} />
+                      <textarea rows={5} value={(blockEditorData as BlogContentBlock).text?.[blockEditorLanguage] || ''} onChange={(e) => setBlockEditorData((prev) => prev && prev.type === 'content-block' ? ({...prev, text: {...prev.text, [blockEditorLanguage]: e.target.value}} as BlogContentBlock) : prev)} className="w-full p-3 rounded border" style={{borderColor: theme.colors.border.default, backgroundColor: theme.colors.background.primary, color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}} />
                       {blockEditorErrors.includes(`text.${blockEditorLanguage}`) && <p className="text-red-500 text-sm mt-1">Required</p>}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-1" style={{color: theme.colors.text.primary}}>{blockEditorLanguage === 'en' ? 'Block Image' : 'بلاک تصویر'}</label>
-                        <ImageSelector selectedPath={blockEditorData.image?.src || ''} onSelect={(url) => setBlockEditorData((prev: any) => ({...prev, image: {...(prev.image || {alt:{en:'',ur:''}, position:'above'}), src: url}}))} size="small" />
+                        <ImageSelector selectedPath={(blockEditorData as BlogContentBlock).image?.src || ''} onSelect={(url) => setBlockEditorData((prev) => prev && prev.type === 'content-block' ? ({...prev, image: {...(prev.image || {alt:{en:'',ur:''}, position:'above'}), src: url}} as BlogContentBlock) : prev)} size="small" />
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1" style={{color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}}>{blockEditorLanguage === 'en' ? 'Image Alt Text' : 'تصویر کے لیے متبادل متن'}</label>
-                        <input type="text" value={blockEditorData.image?.alt?.[blockEditorLanguage] || ''} onChange={(e) => setBlockEditorData((prev: any) => ({...prev, image: {...(prev.image || {alt:{en:'',ur:''}, position:'above'}), alt: {...(prev.image?.alt || {}), [blockEditorLanguage]: e.target.value}}}))} className="w-full p-3 rounded border" style={{borderColor: theme.colors.border.default, backgroundColor: theme.colors.background.primary, color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}} />
+                        <input type="text" value={(blockEditorData as BlogContentBlock).image?.alt?.[blockEditorLanguage] || ''} onChange={(e) => setBlockEditorData((prev) => prev && prev.type === 'content-block' ? ({...prev, image: {...(prev.image || {alt:{en:'',ur:''}, position:'above'}), alt: {...(prev.image?.alt || { en:'', ur:''}), [blockEditorLanguage]: e.target.value}}} as BlogContentBlock) : prev)} className="w-full p-3 rounded border" style={{borderColor: theme.colors.border.default, backgroundColor: theme.colors.background.primary, color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}} />
                       </div>
                     </div>
                     <div>
@@ -545,7 +558,7 @@ export default function BlogsAdmin() {
                           { value: 'full', labelEn: 'Full Width', labelUr: 'پوری چوڑائی' },
                         ].map((opt) => (
                           <label key={opt.value} className="inline-flex items-center gap-2 text-sm" style={{ color: theme.colors.text.primary }}>
-                            <input type="radio" name="imgpos" value={opt.value} checked={(blockEditorData.image?.position || 'above') === opt.value} onChange={(e) => setBlockEditorData((prev: any) => ({...prev, image: {...(prev.image || {alt:{en:'',ur:''}}), position: e.target.value}}))} />
+                            <input type="radio" name="imgpos" value={opt.value} checked={((blockEditorData as BlogContentBlock).image?.position || 'above') === opt.value} onChange={(e) => setBlockEditorData((prev) => prev && prev.type === 'content-block' ? ({...prev, image: {...(prev.image || {alt:{en:'',ur:''}}), position: e.target.value as NonNullable<BlogContentBlock['image']>['position']}} as BlogContentBlock) : prev)} />
                             <span style={{ fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary }}>{blockEditorLanguage === 'en' ? opt.labelEn : opt.labelUr}</span>
                           </label>
                         ))}
@@ -556,7 +569,7 @@ export default function BlogsAdmin() {
                   <div className="space-y-4" style={{direction: blockEditorLanguage === 'ur' ? 'rtl' : 'ltr'}}>
                     <div>
                       <label className="block text-sm font-medium mb-1" style={{color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}}>{blockEditorLanguage === 'en' ? 'Quote Text' : 'اقتباس کا متن'} *</label>
-                      <textarea rows={3} value={blockEditorData.content?.[blockEditorLanguage] || ''} onChange={(e) => setBlockEditorData((prev: any) => ({...prev, content: {...(prev.content||{}), [blockEditorLanguage]: e.target.value}}))} className="w-full p-3 rounded border" style={{borderColor: theme.colors.border.default, backgroundColor: theme.colors.background.primary, color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}} />
+                      <textarea rows={3} value={(blockEditorData as BlogQuoteBlock)?.content?.[blockEditorLanguage] || ''} onChange={(e) => setBlockEditorData((prev) => prev && prev.type === 'quote' ? ({...prev, content: {...prev.content, [blockEditorLanguage]: e.target.value}} as BlogQuoteBlock) : prev)} className="w-full p-3 rounded border" style={{borderColor: theme.colors.border.default, backgroundColor: theme.colors.background.primary, color: theme.colors.text.primary, fontFamily: blockEditorLanguage === 'ur' ? theme.fonts.ur.primary : theme.fonts.en.primary, textAlign: blockEditorLanguage === 'ur' ? 'right' : 'left'}} />
                       {blockEditorErrors.includes(`content.${blockEditorLanguage}`) && <p className="text-red-500 text-sm mt-1">Required</p>}
                     </div>
                   </div>
@@ -565,21 +578,21 @@ export default function BlogsAdmin() {
                   <button type="button" onClick={() => { setShowBlockEditor(false); setBlockEditorIndex(null); setBlockEditorData(null); setBlockEditorErrors([]); }} className="px-4 py-2 border rounded" style={{ borderColor: theme.colors.border.default, color: theme.colors.text.primary }}>Cancel</button>
                   <button type="button" onClick={() => {
                     const errors: string[] = [];
-                    if (blockEditorData.type === 'content-block') {
-                      if (!blockEditorData.text?.en) errors.push('text.en');
-                      if (!blockEditorData.text?.ur) errors.push('text.ur');
+                    if (blockEditorData && blockEditorData.type === 'content-block') {
+                      if (!(blockEditorData as BlogContentBlock).text?.en) errors.push('text.en');
+                      if (!(blockEditorData as BlogContentBlock).text?.ur) errors.push('text.ur');
                     } else {
-                      if (!blockEditorData.content?.en) errors.push('content.en');
-                      if (!blockEditorData.content?.ur) errors.push('content.ur');
+                      if (!(blockEditorData as BlogQuoteBlock | null)?.content?.en) errors.push('content.en');
+                      if (!(blockEditorData as BlogQuoteBlock | null)?.content?.ur) errors.push('content.ur');
                     }
                     if (errors.length > 0) { setBlockEditorErrors(errors); return; }
 
-                    const blocks = Array.isArray(postForm.content) ? [...postForm.content] : [];
+                    const blocks: BlogSection[] = Array.isArray(postForm.content) ? [...postForm.content] : [];
                     if (blockEditorIndex === -1) {
-                      blocks.push(blockEditorData);
+                      if (blockEditorData) blocks.push(blockEditorData);
                     } else {
                       const idx = typeof blockEditorIndex === 'number' ? blockEditorIndex : 0;
-                      blocks[idx] = blockEditorData;
+                      if (blockEditorData) blocks[idx] = blockEditorData;
                     }
                     setPostForm({ ...postForm, content: blocks });
                     setShowBlockEditor(false);
@@ -766,11 +779,11 @@ export default function BlogsAdmin() {
                       </tr>
                     </thead>
                     <tbody>
-                      {(Array.isArray(postForm.content) ? postForm.content : []).map((block: any, index: number) => {
+                      {(Array.isArray(postForm.content) ? postForm.content : []).map((block: BlogSection, index: number) => {
                         const text = (block.type === 'content-block' ? block.text?.[modalLanguage] : block.content?.[modalLanguage]) || '';
                         const preview = (text || '').replace(/<[^>]+>/g, '').slice(0, 80) + (text && text.length > 80 ? '…' : '');
-                        const imgSrc = block.image?.src || '';
-                        const imgPos = block.image?.position || '-';
+                        const imgSrc = block.type === 'content-block' ? ((block as BlogContentBlock).image?.src || '') : '';
+                        const imgPos = block.type === 'content-block' ? (((block as BlogContentBlock).image?.position) || '-') : '-';
                         return (
                           <tr key={index} className="border-t" style={{ borderColor: theme.colors.border.default }}>
                             <td className="p-2 align-top" style={{ color: theme.colors.text.primary }}>{block.type === 'content-block' ? (modalLanguage === 'en' ? 'Content Block' : 'کنٹینٹ بلاک') : (modalLanguage === 'en' ? 'Quote' : 'اقتباس')}</td>
