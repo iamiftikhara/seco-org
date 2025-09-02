@@ -18,6 +18,7 @@ const menuItems = [
       { href: "/admin/content/impact", label: "Impact" },
       { href: "/admin/content/gallery", label: "Gallery" },
       { href: "/admin/content/testimonials", label: "Testimonials" },
+      { href: "/admin/partners", label: "Partners", icon: FiUsers },
       { href: "/admin/content/contact", label: "Contact Section" },
       { href: "/admin/content/footer", label: "Footer" },
     ],
