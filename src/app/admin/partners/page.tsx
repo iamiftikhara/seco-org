@@ -10,6 +10,12 @@ import { theme } from '@/config/theme';
 import { FiEdit2, FiSave, FiX, FiPlus, FiTrash2, FiImage, FiType } from 'react-icons/fi';
 import { showConfirmDialog } from '@/utils/alert';
 
+// Local types for partner page data
+type Language = 'en' | 'ur';
+type LocalizedValue = { text: string } | string;
+interface MultiLingualField { en: LocalizedValue; ur: LocalizedValue }
+interface PartnerPageData { title: MultiLingualField; description: MultiLingualField; image: string }
+
 export default function PartnersAdmin() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,13 +34,13 @@ export default function PartnersAdmin() {
   });
   
   // Partner page settings state
-  const [partnerPage, setPartnerPage] = useState<any>(null);
+  const [partnerPage, setPartnerPage] = useState<PartnerPageData | null>(null);
   const [isEditingPartnerPage, setIsEditingPartnerPage] = useState(false);
-  const [originalPartnerPage, setOriginalPartnerPage] = useState<any>(null);
+  const [originalPartnerPage, setOriginalPartnerPage] = useState<PartnerPageData | null>(null);
 
   // Helpers to read/write localized fields whether stored as string or {text}
-  const getLangText = (obj: any, field: 'title' | 'description', lang: 'en' | 'ur'): string => {
-    const container = obj?.[field];
+  const getLangText = (obj: PartnerPageData | null, field: 'title' | 'description', lang: Language): string => {
+    const container = obj?.[field] as MultiLingualField | undefined;
     if (!container) return '';
     const langValue = container?.[lang];
     if (typeof langValue === 'string') return langValue;
@@ -42,11 +48,11 @@ export default function PartnersAdmin() {
   };
 
   const setLangTextNormalized = (
-    prev: any,
+    prev: PartnerPageData,
     field: 'title' | 'description',
-    lang: 'en' | 'ur',
+    lang: Language,
     value: string
-  ) => {
+  ): PartnerPageData => {
     const currentEn = getLangText(prev, field, 'en');
     const currentUr = getLangText(prev, field, 'ur');
     return {
@@ -218,17 +224,20 @@ export default function PartnersAdmin() {
   };
 
   // Partner page settings handlers
-  const handlePartnerPageChange = (field: string, value: string) => {
-    setPartnerPage((prev: any) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const handlePartnerPageChange = (field: 'image', value: string) => {
+    setPartnerPage((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
   };
 
-  const handlePartnerPageLangChange = (field: string, lang: "en" | "ur", value: string) => {
-    setPartnerPage((prev: any) => {
+  const handlePartnerPageLangChange = (field: 'title' | 'description', lang: Language, value: string) => {
+    setPartnerPage((prev) => {
       if (!prev) return prev;
-      return setLangTextNormalized(prev, field as 'title' | 'description', lang, value);
+      return setLangTextNormalized(prev, field, lang, value);
     });
   };
 
