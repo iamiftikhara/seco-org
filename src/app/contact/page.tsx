@@ -1,7 +1,7 @@
 "use client";
 
-import {useState} from "react";
-import {contactData} from "@/data/contact";
+import {useEffect, useState} from "react";
+// import {contactData} from "@/data/contact";
 import {theme} from "@/config/theme";
 import Navebar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -21,8 +21,62 @@ const IconMap: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement
   FaUser: Fa.FaUser,
 };
 
+// Local types mirroring contact data shape
+type Language = "en" | "ur";
+type TranslatedText = Record<Language, string>;
+interface ContactInfoItem {
+  label: TranslatedText;
+  value: string | TranslatedText;
+  url: string;
+  icon: string;
+}
+interface ContactFormField {
+  label: TranslatedText;
+  placeholder: TranslatedText;
+}
+interface ContactForm {
+  title: TranslatedText;
+  name: ContactFormField;
+  email: ContactFormField;
+  message: ContactFormField;
+  submitButton: TranslatedText;
+  successMessage: TranslatedText;
+  errorMessage: TranslatedText;
+  loadingMessage: TranslatedText;
+}
+interface SocialPlatform {
+  label: TranslatedText;
+  url: string;
+  icon: string;
+}
+interface ContactData {
+  title: TranslatedText;
+  subtitle: TranslatedText;
+  contactInfo: Record<string, ContactInfoItem>;
+  form: ContactForm;
+  socialMedia: {
+    title: TranslatedText;
+    platforms: SocialPlatform[];
+  };
+  offices: {
+    title: TranslatedText;
+    locations: Array<{
+      title: TranslatedText;
+      address: TranslatedText;
+      incharge: {
+        name: TranslatedText;
+        designation: TranslatedText;
+      };
+      contact: { phone: string; email: string };
+      icons: { location: string; person: string; phone: string; email: string };
+    }>;
+  }
+}
+
 export default function Page() {
   const [currentLanguage, setCurrentLanguage] = useState("en");
+  const isUrdu = currentLanguage === "ur";
+  const [isMobile, setIsMobile] = useState(false);
 
   // Add helper function for text alignment
   const getTextAlignment = (lang: string) => {
@@ -42,6 +96,40 @@ export default function Page() {
     error: null as string | null,
     success: false,
   });
+
+  // Contact data from API
+  const [contactData, setContactData] = useState<ContactData | null>(null);
+  const [loadingData, setLoadingData] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadContact = async () => {
+      try {
+        setLoadingData(true);
+        setLoadError(null);
+        const res = await fetch('/api/contact', { cache: 'no-store' });
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.error || 'Failed to fetch contact data');
+        }
+        setContactData(json.data as ContactData);
+      } catch (err) {
+        setLoadError(err instanceof Error ? err.message : 'Failed to load contact data');
+      } finally {
+        setLoadingData(false);
+      }
+    };
+    loadContact();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,12 +167,47 @@ export default function Page() {
     return Icon ? <Icon className="w-7 h-7" /> : null;
   };
 
+  if (loadingData) {
+    return (
+      <>
+        <Navebar />
+        <section className="py-20" style={{backgroundColor: theme.colors.secondary}}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <div className="animate-pulse">
+                <div className="h-8 w-48 bg-gray-200 rounded mx-auto mb-6"></div>
+                <div className="h-64 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
+
+  if (loadError || !contactData) {
+    return (
+      <>
+        <Navebar />
+        <section className="py-20" style={{backgroundColor: theme.colors.secondary}}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <p className="text-red-600">{loadError || 'Failed to load contact data'}</p>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Navebar />
-      <div className={currentLanguage === "ur" ? "rtl" : "ltr"}>
+      <div >
         {/* Hero Image */}
-        <div className="relative h-[calc(100vh-20rem)]">
+        <div className={`relative ${isMobile ? 'h-[calc(100vh-40rem)]' : 'h-[calc(100vh-20rem)]'}`}>
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-sm"
             style={{
@@ -102,8 +225,8 @@ export default function Page() {
                   className="text-5xl font-bold mb-4"
                   style={{
                     color: theme.colors.primary,
-                    fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
-                    direction: currentLanguage === "ur" ? "rtl" : "ltr",
+                    fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                    direction: isUrdu ? "rtl" : "ltr",
                   }}
                 >
                   {contactData.title[currentLanguage as keyof typeof contactData.title]}
@@ -112,17 +235,17 @@ export default function Page() {
                   className="text-xl max-w-2xl mx-auto"
                   style={{
                     color: theme.colors.text.secondary,
-                    fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
-                    direction: currentLanguage === "ur" ? "rtl" : "ltr",
+                    fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                    direction: isUrdu ? "rtl" : "ltr",
                   }}
                 >
                   {contactData.subtitle[currentLanguage as keyof typeof contactData.subtitle]}
                 </p>
                 <div className="flex justify-center space-x-4 mt-4">
-                  <button onClick={() => setCurrentLanguage("en")} className={`px-6 py-2 rounded-lg transition-all duration-300 ${currentLanguage === "en" ? "bg-primary text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`} style={{backgroundColor: currentLanguage === "en" ? theme.colors.primary : undefined}}>
+                  <button onClick={() => setCurrentLanguage("en")} className={`px-6 py-2 rounded-lg transition-all duration-300 ${!isUrdu ? "bg-primary text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`} style={{backgroundColor: !isUrdu ? theme.colors.primary : undefined, fontFamily: theme.fonts.en.primary}}>
                     English
                   </button>
-                  <button onClick={() => setCurrentLanguage("ur")} className={`px-6 py-2 rounded-lg transition-all duration-300 ${currentLanguage === "ur" ? "bg-primary text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`} style={{backgroundColor: currentLanguage === "ur" ? theme.colors.primary : undefined,
+                  <button onClick={() => setCurrentLanguage("ur")} className={`px-6 py-2 rounded-lg transition-all duration-300 ${isUrdu ? "bg-primary text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`} style={{backgroundColor: isUrdu ? theme.colors.primary : undefined,
                     fontFamily: theme.fonts.ur.primary,
                   }}>
                     اردو
@@ -134,33 +257,33 @@ export default function Page() {
         </div>
 
         {/* Adjust top padding of content section */}
-        <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-32">
-          <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <div className={`bg-gradient-to-br from-blue-50 via-white to-purple-50 ${isMobile ? 'pt-16' : 'pt-32'}`}>
+          <div className={`max-w-7xl mx-auto px-4 ${isMobile ? 'py-8' : 'py-16'} sm:px-6 lg:px-8`}>
             <div className="grid lg:grid-cols-3 gap-12">
               {/* Contact Info Section */}
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 order-2 lg:order-1">
                 <div className="bg-white rounded-2xl shadow-xl p-10 h-full transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
                   {Object.entries(contactData.contactInfo).map(([key, info]) => (
                     <a
                       key={key}
                       href={info.url}
                       className="mb-10 last:mb-0 group cursor-pointer block"
-                      target={key === 'address' ? '_blank' : undefined}
+                      target= '_blank'
                       rel={key === 'address' ? 'noopener noreferrer' : undefined}
                     >
-                      <div className={`flex items-center mb-4 ${currentLanguage === "ur" ? "flex-row-reverse" : ""}`}>
-                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${currentLanguage === "ur" ? "ml-4" : "mr-4"}`} 
+                      <div className={`flex items-center mb-4 ${isUrdu ? "flex-row-reverse" : ""}`}>
+                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${isUrdu ? "ml-4" : "mr-4"}`} 
                              style={{backgroundColor: `${theme.colors.primary}15`, color: theme.colors.primary}}>
                           {getIcon(info.icon)}
                         </div>
                         <h3 className="text-2xl font-semibold transition-colors duration-300 group-hover:text-primary"
-                            style={{color: theme.colors.text.primary, textAlign: currentLanguage === "ur" ? "right" : "left",
-                                fontFamily: currentLanguage === "ur"? theme.fonts.ur.primary : theme.fonts.en.primary,
+                            style={{color: theme.colors.text.primary, textAlign: isUrdu ? "right" : "left",
+                                fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
                             }}>
                           {info.label[currentLanguage as keyof typeof info.label]}
                         </h3>
                       </div>
-                      <p className={`text-xl transition-all duration-300 ${currentLanguage === "ur" ? "pr-20 group-hover:pr-24" : "pl-20 group-hover:pl-24"}`} 
+                      <p className={`text-xl transition-all duration-300 ${isUrdu ? "pr-20 group-hover:pr-24 text-right" : "pl-20 group-hover:pl-24 text-left"}`} 
                          style={{color: theme.colors.text.secondary}}>
                         {typeof info.value === "string" ? info.value : info.value[currentLanguage as keyof typeof info.value]}
                       </p>
@@ -170,75 +293,78 @@ export default function Page() {
               </div>
 
               {/* Form Section */}
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 order-1 lg:order-2">
                 <div className="bg-white rounded-2xl shadow-xl p-8">
                   <h2 className={`text-3xl font-bold mb-8 ${getTextAlignment(currentLanguage)}`} style={{color: theme.colors.text.primary}}>
                     {contactData.form.title[currentLanguage as keyof typeof contactData.form.title]}
                   </h2>
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${currentLanguage === "ur" ? "rtl" : ""}`}>
-                      {Object.entries(contactData.form)
-                        .sort((a, b) => {
-                          if (currentLanguage === "ur") {
-                            // Swap email and name fields in Urdu
-                            if (a[0] === "email" && b[0] === "name") return -1;
-                            if (a[0] === "name" && b[0] === "email") return 1;
-                          }
-                          return 0;
-                        })
-                        .map(([key, field]) => {
-                          if (key === "submitButton" || key === "title" || key === "successMessage" || key === "errorMessage" || key === "loadingMessage") return null;
+                    <div className={`grid grid-cols-1 gap-6 ${isUrdu ? "rtl" : ""}`}>
+                      <div>
+                        <label className={`block text-sm font-medium mb-2 ${getTextAlignment(currentLanguage)}`} style={{color: theme.colors.text.primary, fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary}}>
+                          {contactData.form.name.label[currentLanguage as keyof typeof contactData.form.name.label]}
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => setFormData({...formData, name: e.target.value})}
+                          placeholder={contactData.form.name.placeholder[currentLanguage as keyof typeof contactData.form.name.placeholder]}
+                          className={`w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300 ${getTextAlignment(currentLanguage)}`}
+                          style={{
+                            borderColor: theme.colors.text.secondary,
+                            backgroundColor: "white",
+                            color: theme.colors.text.primary,
+                            direction: isUrdu ? "rtl" : "ltr",
+                            textAlign: isUrdu ? "right" : "left",
+                            fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                          }}
+                          required
+                        />
+                      </div>
 
-                          const isFullWidth = key === "message" || key === "subject";
+                      <div>
+                        <label className={`block text-sm font-medium mb-2 ${getTextAlignment(currentLanguage)}`} style={{color: theme.colors.text.primary, fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary}}>
+                          {contactData.form.email.label[currentLanguage as keyof typeof contactData.form.email.label]}
+                        </label>
+                        <input
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          placeholder={contactData.form.email.placeholder[currentLanguage as keyof typeof contactData.form.email.placeholder]}
+                          className={`w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300 ${getTextAlignment(currentLanguage)}`}
+                          style={{
+                            borderColor: theme.colors.text.secondary,
+                            backgroundColor: "white",
+                            color: theme.colors.text.primary,
+                            direction: isUrdu ? "rtl" : "ltr",
+                            textAlign: isUrdu ? "right" : "left",
+                            fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                          }}
+                          required
+                        />
+                      </div>
+                    </div>
 
-                          return (
-                            <div key={key} className={`${isFullWidth ? "md:col-span-2" : ""}`}>
-                              <label className={`block text-sm font-medium mb-2 ${getTextAlignment(currentLanguage)}`} style={{color: theme.colors.text.primary,
-                                fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
-
-                              }}>
-                                {typeof field === "object" && "label" in field ? field.label[currentLanguage as keyof typeof field.label] : ""}
-                              </label>
-                              {key === "message" ? (
-                                <textarea
-                                  value={formData[key as keyof typeof formData]}
-                                  onChange={(e) => setFormData({...formData, [key]: e.target.value})}
-placeholder={typeof field === "object" && "placeholder" in field ? field.placeholder[currentLanguage as keyof typeof field.placeholder] : ""}
-                                  rows={12}
-                                  className={`w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300 ${getTextAlignment(currentLanguage)}`}
-                                  style={{
-                                    borderColor: theme.colors.text.secondary,
-                                    backgroundColor: "white",
-                                    color: theme.colors.text.primary,
-                                    direction: currentLanguage === "ur" ? "rtl" : "ltr",
-                                    textAlign: currentLanguage === "ur" ? "right" : "left",
-                                    fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
-
-                                  }}
-                                  required
-                                />
-                              ) : (
-                                <input
-                                  type={key === "email" ? "email" : key === "phone" ? "tel" : "text"}
-                                  value={formData[key as keyof typeof formData]}
-                                  onChange={(e) => setFormData({...formData, [key]: e.target.value})}
-placeholder={typeof field === "object" && "placeholder" in field ? field.placeholder[currentLanguage as keyof typeof field.placeholder] : ""}
-                                  className={`w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300 ${getTextAlignment(currentLanguage)}`}
-                                  style={{
-                                    borderColor: theme.colors.text.secondary,
-                                    backgroundColor: "white",
-                                    color: theme.colors.text.primary,
-                                    direction: currentLanguage === "ur" ? "rtl" : "ltr",
-                                    textAlign: currentLanguage === "ur" ? "right" : "left",
-                                    fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
-
-                                  }}
-                                  required
-                                />
-                              )}
-                            </div>
-                          );
-                        })}
+                    <div>
+                      <label className={`block text-sm font-medium mb-2 ${getTextAlignment(currentLanguage)}`} style={{color: theme.colors.text.primary, fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary}}>
+                        {contactData.form.message.label[currentLanguage as keyof typeof contactData.form.message.label]}
+                      </label>
+                      <textarea
+                        value={formData.message}
+                        onChange={(e) => setFormData({...formData, message: e.target.value})}
+                        placeholder={contactData.form.message.placeholder[currentLanguage as keyof typeof contactData.form.message.placeholder]}
+                        rows={12}
+                        className={`w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300 ${getTextAlignment(currentLanguage)}`}
+                        style={{
+                          borderColor: theme.colors.text.secondary,
+                          backgroundColor: "white",
+                          color: theme.colors.text.primary,
+                          direction: isUrdu ? "rtl" : "ltr",
+                          textAlign: isUrdu ? "right" : "left",
+                          fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                        }}
+                        required
+                      />
                     </div>
 
                     {/* Status messages and submit button remain the same */}
@@ -247,7 +373,7 @@ placeholder={typeof field === "object" && "placeholder" in field ? field.placeho
                     {status.success && <div className="text-green-500 text-sm text-center">{contactData.form.successMessage[currentLanguage as keyof typeof contactData.form.successMessage]}</div>}
 
                     <button type="submit" disabled={status.loading} className="w-full py-4 px-6 rounded-xl text-white font-medium text-lg hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" style={{backgroundColor: theme.colors.primary,
-                        fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                        fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
 
                     }}>
                       {status.loading ? contactData.form.loadingMessage[currentLanguage as keyof typeof contactData.form.loadingMessage] : contactData.form.submitButton[currentLanguage as keyof typeof contactData.form.submitButton]}
@@ -260,27 +386,27 @@ placeholder={typeof field === "object" && "placeholder" in field ? field.placeho
             {/* Follow Us Section - Full Width */}
             <div className="mt-12">
               <div className="bg-white rounded-2xl shadow-xl p-10 transform transition-all duration-300 hover:shadow-2xl">
-                <h3 className={`text-2xl font-bold mb-8 ${getTextAlignment(currentLanguage)}`} style={{color: theme.colors.text.primary, fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary}}>
+                <h3 className={`text-2xl font-bold mb-8 ${getTextAlignment(currentLanguage)}`} style={{color: theme.colors.text.primary, fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary}}>
                   {contactData.socialMedia.title[currentLanguage as keyof typeof contactData.socialMedia.title]}
                 </h3>
-                <div className={`grid grid-cols-2 md:grid-cols-5 gap-8 ${currentLanguage === 'ur' ? 'rtl' : ''}`}>
+                <div className={`grid grid-cols-2 md:grid-cols-5 gap-8 `} dir={isUrdu ? "rtl" : "ltr"}>
                   {contactData.socialMedia.platforms.map((platform, index) => (
                     <a
                       key={index}
                       href={platform.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`flex items-center group ${currentLanguage === 'ur' ? 'flex-row-reverse justify-end' : 'space-x-5'}`}
+                      className={`flex items-center group ${isUrdu ? '' : 'space-x-5'}`}
                     >
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${
-                        currentLanguage === 'ur' ? 'ml-4' : ''
+                        isUrdu ? 'ml-4' : ''
                       }`}
                         style={{ backgroundColor: `${theme.colors.primary}15`, color: theme.colors.primary }}>
                         {getIcon(platform.icon)}
                       </div>
                       <span className={`text-lg font-medium transition-colors duration-300 group-hover:text-primary ${getTextAlignment(currentLanguage)}`}
                         style={{ color: theme.colors.text.primary,
-                            fontFamily: currentLanguage === "ur"? theme.fonts.ur.primary : theme.fonts.en.primary,
+                            fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
                          }}>
                         {platform.label[currentLanguage as keyof typeof platform.label]}
                       </span>
@@ -297,7 +423,7 @@ placeholder={typeof field === "object" && "placeholder" in field ? field.placeho
                 style={{
                   color: theme.colors.text.primary,
                   textAlign: currentLanguage === "ur" ? "right" : "left",
-                  fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                  fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
                 }}
               >
                 {contactData.offices.title[currentLanguage as keyof typeof contactData.offices.title]}
@@ -305,9 +431,9 @@ placeholder={typeof field === "object" && "placeholder" in field ? field.placeho
               <div
                 className={`grid md:grid-cols-2 lg:grid-cols-3 gap-8`}
                 style={{
-                  direction: currentLanguage === "ur" ? "rtl" : "ltr",
+                  direction: isUrdu ? "rtl" : "ltr",
                   display: "grid",
-                  gridAutoFlow: currentLanguage === "ur" ? "dense" : "row",
+                  gridAutoFlow: isUrdu ? "dense" : "row",
                 }}
               >
                 {[...contactData.offices.locations].reverse().map((office, index) => (
@@ -317,47 +443,47 @@ placeholder={typeof field === "object" && "placeholder" in field ? field.placeho
                       style={{
                         color: theme.colors.primary,
                         textAlign: currentLanguage === "ur" ? "right" : "left",
-                        fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                        fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
                       }}
                     >
                       {office.title[currentLanguage as keyof typeof office.title]}
                     </h3>
                     <div className="space-y-4">
-                      <p className={`flex items-start ${currentLanguage === "ur" ? "flex-row-revers" : ""}`}>
-                        <span className={`${currentLanguage === "ur" ? "ml-3" : "mr-3"} mt-1 flex-shrink-0`} style={{color: theme.colors.primary}}>
+                      <p className={`flex items-start ${isUrdu ? "flex-row-revers" : ""}`}>
+                        <span className={`${isUrdu ? "ml-3" : "mr-3"} mt-1 flex-shrink-0`} style={{color: theme.colors.primary}}>
                           {getIcon(office.icons.location)}
                         </span>
                         <span
                           className={`text-gray-600 ${getTextAlignment(currentLanguage)}`}
                           style={{
                             color: theme.colors.text.secondary,
-                            fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                            fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
                           }}
                         >
                           {office.address[currentLanguage as keyof typeof office.address]}
                         </span>
                       </p>
-                      <div className={`flex items-start ${currentLanguage === "ur" ? "flex-row-revers" : ""}`}>
-                        <span className={`${currentLanguage === "ur" ? "ml-3" : "mr-3"} mt-1 flex-shrink-0`} style={{color: theme.colors.primary}}>
+                      <div className={`flex items-start ${isUrdu ? "flex-row-revers" : ""}`}>
+                        <span className={`${isUrdu ? "ml-3" : "mr-3"} mt-1 flex-shrink-0`} style={{color: theme.colors.primary}}>
                           {getIcon(office.icons.person)}
                         </span>
                         <div className={getTextAlignment(currentLanguage)}>
-                          <p className="font-medium" style={{color: theme.colors.text.primary, fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary, fontWeight: currentLanguage === "ur" ? "bold" : "bold"}}>
+                          <p className="font-medium" style={{color: theme.colors.text.primary, fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary, fontWeight: "bold"}}>
                             {office.incharge.name[currentLanguage as keyof typeof office.incharge.name]}
                           </p>
                           <p
                             className="text-gray-600"
                             style={{
                               color: theme.colors.text.secondary,
-                              fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary,
+                              fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary,
                             }}
                           >
                             {office.incharge.designation[currentLanguage as keyof typeof office.incharge.designation]}
                           </p>
                         </div>
                       </div>
-                      <p className={`flex items-center ${currentLanguage === "ur" ? "flex-row-revers" : ""}`}>
-                        <span className={`${currentLanguage === "ur" ? "ml-3" : "mr-3"} flex-shrink-0`} style={{color: theme.colors.primary, fontFamily: currentLanguage === "ur" ? theme.fonts.ur.primary : theme.fonts.en.primary}}>
+                      <p className={`flex items-center ${isUrdu ? "flex-row-revers" : ""}`}>
+                        <span className={`${isUrdu ? "ml-3" : "mr-3"} flex-shrink-0`} style={{color: theme.colors.primary, fontFamily: isUrdu ? theme.fonts.ur.primary : theme.fonts.en.primary}}>
                           {getIcon(office.icons.phone)}
                         </span>
                         <a 
@@ -366,14 +492,14 @@ placeholder={typeof field === "object" && "placeholder" in field ? field.placeho
                           style={{
                             color: theme.colors.text.primary,
                             fontFamily: theme.fonts.en.primary,
-                            direction: currentLanguage === "ur" ? "ltr" : "ltr",
+                            direction: isUrdu ? "ltr" : "ltr",
                           }}
                         >
                           {office.contact.phone}
                         </a>
                       </p>
-                      <p className={`flex items-center ${currentLanguage === "ur" ? "flex-row-revers" : ""}`}>
-                        <span className={`${currentLanguage === "ur" ? "ml-3" : "mr-3"} flex-shrink-0`} style={{color: theme.colors.primary}}>
+                      <p className={`flex items-center ${isUrdu ? "flex-row-revers" : ""}`}>
+                        <span className={`${isUrdu ? "ml-3" : "mr-3"} flex-shrink-0`} style={{color: theme.colors.primary}}>
                           {getIcon(office.icons.email)}
                         </span>
                         <a
@@ -382,7 +508,7 @@ placeholder={typeof field === "object" && "placeholder" in field ? field.placeho
                           style={{
                             color: theme.colors.text.primary,
                             fontFamily: theme.fonts.en.primary,
-                            direction: currentLanguage === "ur" ? "ltr" : "ltr",
+                            direction: isUrdu ? "ltr" : "ltr",
                           }}
                         >
                           {office.contact.email}
