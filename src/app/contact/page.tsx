@@ -7,6 +7,7 @@ import Navebar from "../components/Navbar";
 import Footer from "../components/Footer";
 import * as Fa from "react-icons/fa";
 import * as Md from "react-icons/md";
+import type { ContactData } from "@/types/contact";
 
 // Icon mapping
 const IconMap: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement>> } = {
@@ -20,58 +21,6 @@ const IconMap: { [key: string]: React.ComponentType<React.SVGProps<SVGSVGElement
   FaLinkedin: Fa.FaLinkedin,
   FaUser: Fa.FaUser,
 };
-
-// Local types mirroring contact data shape
-type Language = "en" | "ur";
-type TranslatedText = Record<Language, string>;
-interface ContactInfoItem {
-  label: TranslatedText;
-  value: string | TranslatedText;
-  url: string;
-  icon: string;
-}
-interface ContactFormField {
-  label: TranslatedText;
-  placeholder: TranslatedText;
-}
-interface ContactForm {
-  title: TranslatedText;
-  name: ContactFormField;
-  email: ContactFormField;
-  message: ContactFormField;
-  submitButton: TranslatedText;
-  successMessage: TranslatedText;
-  errorMessage: TranslatedText;
-  loadingMessage: TranslatedText;
-}
-interface SocialPlatform {
-  label: TranslatedText;
-  url: string;
-  icon: string;
-}
-interface ContactData {
-  title: TranslatedText;
-  subtitle: TranslatedText;
-  contactInfo: Record<string, ContactInfoItem>;
-  form: ContactForm;
-  socialMedia: {
-    title: TranslatedText;
-    platforms: SocialPlatform[];
-  };
-  offices: {
-    title: TranslatedText;
-    locations: Array<{
-      title: TranslatedText;
-      address: TranslatedText;
-      incharge: {
-        name: TranslatedText;
-        designation: TranslatedText;
-      };
-      contact: { phone: string; email: string };
-      icons: { location: string; person: string; phone: string; email: string };
-    }>;
-  }
-}
 
 export default function Page() {
   const [currentLanguage, setCurrentLanguage] = useState("en");
@@ -211,7 +160,7 @@ export default function Page() {
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-sm"
             style={{
-              backgroundImage: 'url("/images/community-hero.jpeg")',
+              backgroundImage: `url("${contactData.image}")`,
               filter: "brightness(0.8)",
             }}
           />

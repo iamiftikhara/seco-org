@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiHome, FiFileText, FiSettings, FiUsers, FiImage, FiMessageSquare, FiCalendar, FiChevronDown, FiTarget } from "react-icons/fi";
+import { FiHome, FiFileText, FiSettings, FiUsers, FiImage, FiMessageSquare, FiCalendar, FiChevronDown, FiTarget, FiBookOpen, FiTool, FiPhone } from "react-icons/fi";
 import { theme } from "@/config/theme";
 import { useState } from "react";
 
@@ -11,7 +11,7 @@ const menuItems = [
   {
     href: "/admin/content",
     label: "Home Page",
-    icon: FiFileText,
+    icon: FiHome,
     children: [
       { href: "/admin/content/header", label: "Header Section" },
       { href: "/admin/content/hero", label: "Hero Section" },
@@ -19,17 +19,17 @@ const menuItems = [
       { href: "/admin/content/gallery", label: "Gallery" },
       { href: "/admin/content/testimonials", label: "Testimonials" },
       { href: "/admin/partners", label: "Partners", icon: FiUsers },
-      { href: "/admin/content/contact", label: "Contact Section" },
       { href: "/admin/content/footer", label: "Footer" },
     ],
   },
   { href: "/admin/users", label: "Users", icon: FiUsers },
   { href: "/admin/messages", label: "Messages", icon: FiMessageSquare },
   { href: "/admin/events", label: "Events", icon: FiCalendar },
-  { href: "/admin/blogs", label: "Blogs", icon: FiFileText },
-  { href: "/admin/services", label: "Services", icon: FiFileText },
+  { href: "/admin/blogs", label: "Blogs", icon: FiBookOpen },
+  { href: "/admin/services", label: "Services", icon: FiTool },
   { href: "/admin/programs", label: "Programs", icon: FiTarget },
   { href: "/admin/gallery", label: "Gallery", icon: FiImage },
+  { href: "/admin/contact", label: "Contact", icon: FiPhone },
   { href: "/admin/settings", label: "Settings", icon: FiSettings },
 ];
 
@@ -45,7 +45,7 @@ export default function AdminNav() {
     <nav className="p-4 space-y-1">
       {menuItems.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-        const Icon = item.icon;
+        const Icon = item.icon as React.ComponentType<any>;
         const hasChildren = item.children && item.children.length > 0;
         const isOpen = openDropdown === item.href;
 

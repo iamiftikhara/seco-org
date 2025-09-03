@@ -9,6 +9,7 @@ export const contactData: ContactData = {
     en: "Have questions? We'd love to hear from you.",
     ur: "کوئی سوال ہے؟ ہم آپ سے سننا پسند کریں گے۔"
   },
+  image: "/images/community-hero.jpeg",
   contactInfo: {
     phone: {
       label: {

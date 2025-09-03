@@ -49,6 +49,7 @@ interface OfficeLocation {
 export interface ContactData {
   title: TranslatedText;
   subtitle: TranslatedText;
+  image?: string;
   contactInfo: {
     phone: ContactInfo;
     whatsapp: ContactInfo;
