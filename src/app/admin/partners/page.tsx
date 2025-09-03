@@ -32,6 +32,32 @@ export default function PartnersAdmin() {
   const [isEditingPartnerPage, setIsEditingPartnerPage] = useState(false);
   const [originalPartnerPage, setOriginalPartnerPage] = useState<any>(null);
 
+  // Helpers to read/write localized fields whether stored as string or {text}
+  const getLangText = (obj: any, field: 'title' | 'description', lang: 'en' | 'ur'): string => {
+    const container = obj?.[field];
+    if (!container) return '';
+    const langValue = container?.[lang];
+    if (typeof langValue === 'string') return langValue;
+    return langValue?.text || '';
+  };
+
+  const setLangTextNormalized = (
+    prev: any,
+    field: 'title' | 'description',
+    lang: 'en' | 'ur',
+    value: string
+  ) => {
+    const currentEn = getLangText(prev, field, 'en');
+    const currentUr = getLangText(prev, field, 'ur');
+    return {
+      ...prev,
+      [field]: {
+        en: { text: lang === 'en' ? value : currentEn },
+        ur: { text: lang === 'ur' ? value : currentUr },
+      },
+    };
+  };
+
   useEffect(() => {
     fetchPartners();
   }, []);
@@ -202,14 +228,7 @@ export default function PartnersAdmin() {
   const handlePartnerPageLangChange = (field: string, lang: "en" | "ur", value: string) => {
     setPartnerPage((prev: any) => {
       if (!prev) return prev;
-      const currentField = prev[field as keyof typeof prev] as any;
-      return {
-        ...prev,
-        [field]: {
-          ...currentField,
-          [lang]: {text: value},
-        },
-      };
+      return setLangTextNormalized(prev, field as 'title' | 'description', lang, value);
     });
   };
 
@@ -357,7 +376,7 @@ export default function PartnersAdmin() {
                             Title (English)
                           </label>
                           <div className="p-3 bg-gray-50 rounded-lg">
-                            <p style={{color: theme.colors.text.primary}}>{partnerPage.title?.en?.text || "No title set"}</p>
+                            <p style={{color: theme.colors.text.primary}}>{getLangText(partnerPage, 'title', 'en') || "No title set"}</p>
                           </div>
                         </div>
                         <div>
@@ -365,7 +384,7 @@ export default function PartnersAdmin() {
                             Description (English)
                           </label>
                           <div className="p-3 bg-gray-50 rounded-lg">
-                            <p style={{color: theme.colors.text.primary}}>{partnerPage.description?.en?.text || "No description set"}</p>
+                            <p style={{color: theme.colors.text.primary}}>{getLangText(partnerPage, 'description', 'en') || "No description set"}</p>
                           </div>
                         </div>
                       </div>
@@ -383,7 +402,7 @@ export default function PartnersAdmin() {
                                 textAlign: "right",
                               }}
                             >
-                              {partnerPage.title?.ur?.text || "کوئی عنوان سیٹ نہیں"}
+                              {getLangText(partnerPage, 'title', 'ur') || "کوئی عنوان سیٹ نہیں"}
                             </p>
                           </div>
                         </div>
@@ -400,7 +419,7 @@ export default function PartnersAdmin() {
                                 textAlign: "right",
                               }}
                             >
-                              {partnerPage.description?.ur?.text || "کوئی تفصیل سیٹ نہیں"}
+                              {getLangText(partnerPage, 'description', 'ur') || "کوئی تفصیل سیٹ نہیں"}
                             </p>
                           </div>
                         </div>
@@ -443,7 +462,7 @@ export default function PartnersAdmin() {
                           </label>
                           <input
                             type="text"
-                            value={partnerPage.title?.en?.text || ""}
+                            value={getLangText(partnerPage, 'title', 'en') || ""}
                             onChange={(e) => handlePartnerPageLangChange("title", "en", e.target.value)}
                             className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                             style={{
@@ -459,7 +478,7 @@ export default function PartnersAdmin() {
                             Description (English)
                           </label>
                           <textarea
-                            value={partnerPage.description?.en?.text || ""}
+                            value={getLangText(partnerPage, 'description', 'en') || ""}
                             onChange={(e) => handlePartnerPageLangChange("description", "en", e.target.value)}
                             rows={4}
                             className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
@@ -471,13 +490,15 @@ export default function PartnersAdmin() {
                             placeholder="Enter page description in English"
                           />
                         </div>
+                      </div>
+                      <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
                             Title (Urdu)
                           </label>
                           <input
                             type="text"
-                            value={partnerPage.title?.ur?.text || ""}
+                            value={getLangText(partnerPage, 'title', 'ur') || ""}
                             onChange={(e) => handlePartnerPageLangChange("title", "ur", e.target.value)}
                             className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                             style={{
@@ -496,10 +517,10 @@ export default function PartnersAdmin() {
                             Description (Urdu)
                           </label>
                           <textarea
-                            value={partnerPage.description?.ur?.text || ""}
+                            value={getLangText(partnerPage, 'description', 'ur') || ""}
                             onChange={(e) => handlePartnerPageLangChange("description", "ur", e.target.value)}
                             rows={4}
-                            className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-opacity-50"
+                            className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50"
                             style={{
                               borderColor: theme.colors.border.default,
                               color: theme.colors.text.primary,
@@ -645,6 +666,7 @@ export default function PartnersAdmin() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
 
       {/* Edit/Add Modal */}
