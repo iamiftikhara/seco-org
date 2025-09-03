@@ -219,7 +219,7 @@ export default function Page() {
 
           {/* Floating Card Title */}
           <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-full max-w-4xl px-4 z-10">
-            <div className="bg-white rounded-3xl shadow-2xl p-10">
+            <div className={`bg-white rounded-3xl shadow-2xl ${isMobile ? 'p-5' : 'p-10'}`}>
               <div className={`text-center ${currentLanguage === "ur" ? "rtl" : "ltr"}`}>
                 <h1
                   className="text-5xl font-bold mb-4"
