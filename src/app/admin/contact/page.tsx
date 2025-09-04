@@ -101,20 +101,21 @@ export default function ContactAdmin() {
   };
 
   const setText = (prev: any, path: string[], lang: Language, newValue: string) => {
-    const draft = JSON.parse(JSON.stringify(prev)) as ContactData;
-    let cursor: any = draft;
-    for (let i = 0; i < path.length - 1; i++) {
-      cursor = cursor[path[i]];
-    }
-    const last = path[path.length - 1];
-    const current = cursor[last];
-    if (current && typeof current === 'object' && 'en' in current && typeof current.en === 'object' && 'text' in current.en) {
-      (cursor[last] as { [key in Language]: { text: string } })[lang].text = newValue;
-    } else {
-      (cursor[last] as Record<Language, string>)[lang] = newValue;
-    }
-    return draft;
-  };
+  const draft = JSON.parse(JSON.stringify(prev)) as ContactData;
+  let cursor: any = draft;
+  for (let i = 0; i < path.length - 1; i++) {
+    cursor = cursor[path[i]];
+  }
+  const last = path[path.length - 1];
+  const current = cursor[last];
+  // Handle both { en: { text: string }, ur: { text: string } } and Record<Language, string>
+  if (current && typeof current === 'object' && 'en' in current && typeof current.en === 'object' && 'text' in current.en) {
+    current[lang].text = newValue;
+  } else {
+    (cursor[last] as Record<Language, string>)[lang] = newValue;
+  }
+  return draft;
+};
 
   const saveAll = async () => {
     if (!contactData) return;
