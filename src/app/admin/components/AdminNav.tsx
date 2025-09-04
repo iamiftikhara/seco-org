@@ -45,7 +45,7 @@ export default function AdminNav() {
     <nav className="p-4 space-y-1">
       {menuItems.map((item) => {
         const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-        const Icon = item.icon as React.ComponentType<any>;
+          const Icon = item.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
         const hasChildren = item.children && item.children.length > 0;
         const isOpen = openDropdown === item.href;
 

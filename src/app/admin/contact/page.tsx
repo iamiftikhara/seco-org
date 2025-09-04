@@ -92,7 +92,7 @@ export default function ContactAdmin() {
   }, []);
 
   const getText = (value: TranslatedText, lang: Language): string => {
-    if ((value as any)?.en?.text !== undefined) {
+    if ((value as { en?: { text: string }, ur?: { text: string } })?.en?.text !== undefined) {
       const v = value as { en: { text: string }, ur: { text: string } };
       return lang === 'en' ? v.en.text : v.ur.text;
     }
@@ -101,19 +101,19 @@ export default function ContactAdmin() {
   };
 
   const setText = (prev: any, path: string[], lang: Language, newValue: string) => {
-    const draft = JSON.parse(JSON.stringify(prev));
-    let cursor: any = draft;
+    const draft = JSON.parse(JSON.stringify(prev)) as ContactData;
+    let cursor: ContactData | ContactForm | Record<string, unknown> = draft;
     for (let i = 0; i < path.length - 1; i++) {
-      cursor = cursor[path[i]];
+      cursor = (cursor as any)[path[i]];
     }
     const last = path[path.length - 1];
-    const current = cursor[last];
+    const current = (cursor as any)[last];
     if (current?.en?.text !== undefined) {
-      cursor[last][lang].text = newValue;
+      (cursor as any)[last][lang].text = newValue;
     } else {
-      cursor[last][lang] = newValue;
+      (cursor as any)[last][lang] = newValue;
     }
-    return draft as ContactData;
+    return draft;
   };
 
   const saveAll = async () => {
@@ -213,7 +213,7 @@ export default function ContactAdmin() {
                       Title (English)
                     </label>
                     <div className="w-full p-3 rounded-lg border bg-gray-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, fontFamily: theme.fonts.en.primary}}>
-                      {getText(contactData.title as any, 'en') || <span className="text-gray-400 italic">No title</span>}
+                      {getText(contactData.title as Record<Language, string>, 'en') || <span className="text-gray-400 italic">No title</span>}
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -221,7 +221,7 @@ export default function ContactAdmin() {
                       Title (Urdu)
                     </label>
                     <div className="w-full p-3 rounded-lg border bg-gray-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}}>
-                      {getText(contactData.title as any, 'ur') || <span className="text-gray-400 italic">No title</span>}
+                      {getText(contactData.title as Record<Language, string>, 'ur') || <span className="text-gray-400 italic">No title</span>}
                     </div>
                   </div>
                 </div>
@@ -231,7 +231,7 @@ export default function ContactAdmin() {
                       Description (English)
                     </label>
                     <div className="w-full p-3 rounded-lg border bg-gray-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, fontFamily: theme.fonts.en.primary}}>
-                      {getText(contactData.subtitle as any, 'en') || <span className="text-gray-400 italic">No description</span>}
+                      {getText(contactData.subtitle as Record<Language, string>, 'en') || <span className="text-gray-400 italic">No description</span>}
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -239,7 +239,7 @@ export default function ContactAdmin() {
                       Description (Urdu)
                     </label>
                     <div className="w-full p-3 rounded-lg border bg-gray-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}}>
-                      {getText(contactData.subtitle as any, 'ur') || <span className="text-gray-400 italic">No description</span>}
+                      {getText(contactData.subtitle as Record<Language, string>, 'ur') || <span className="text-gray-400 italic">No description</span>}
                     </div>
                   </div>
                 </div>
@@ -276,13 +276,13 @@ export default function ContactAdmin() {
                     <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                       Title (English)
                     </label>
-                    <input type="text" value={getText(contactData.title as any, 'en')} onChange={(e) => setContactData((prev) => prev ? setText(prev, ['title'], 'en', e.target.value) : prev)} className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: 'white', fontFamily: theme.fonts.en.primary}} required />
+                    <input type="text" value={getText(contactData.title as Record<Language, string>, 'en')} onChange={(e) => setContactData((prev) => prev ? setText(prev, ['title'], 'en', e.target.value) : prev)} className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: 'white', fontFamily: theme.fonts.en.primary}} required />
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                       Title (Urdu)
                     </label>
-                    <input type="text" value={getText(contactData.title as any, 'ur')} onChange={(e) => setContactData((prev) => prev ? setText(prev, ['title'], 'ur', e.target.value) : prev)} className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: 'white', fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} required />
+                    <input type="text" value={getText(contactData.title as Record<Language, string>, 'ur')} onChange={(e) => setContactData((prev) => prev ? setText(prev, ['title'], 'ur', e.target.value) : prev)} className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: 'white', fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} required />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -290,13 +290,13 @@ export default function ContactAdmin() {
                     <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                       Description (English)
                     </label>
-                    <input type="text" value={getText(contactData.subtitle as any, 'en')} onChange={(e) => setContactData((prev) => prev ? setText(prev, ['subtitle'], 'en', e.target.value) : prev)} className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: 'white', fontFamily: theme.fonts.en.primary}} required />
+                    <input type="text" value={getText(contactData.subtitle as Record<Language, string>, 'en')} onChange={(e) => setContactData((prev) => prev ? setText(prev, ['subtitle'], 'en', e.target.value) : prev)} className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: 'white', fontFamily: theme.fonts.en.primary}} required />
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-medium" style={{color: theme.colors.text.secondary}}>
                       Description (Urdu)
                     </label>
-                    <input type="text" value={getText(contactData.subtitle as any, 'ur')} onChange={(e) => setContactData((prev) => prev ? setText(prev, ['subtitle'], 'ur', e.target.value) : prev)} className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: 'white', fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} required />
+                    <input type="text" value={getText(contactData.subtitle as Record<Language, string>, 'ur')} onChange={(e) => setContactData((prev) => prev ? setText(prev, ['subtitle'], 'ur', e.target.value) : prev)} className="w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-opacity-50" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: 'white', fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} required />
                   </div>
                 </div>
               </div>
