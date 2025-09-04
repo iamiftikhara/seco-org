@@ -102,16 +102,16 @@ export default function ContactAdmin() {
 
   const setText = (prev: any, path: string[], lang: Language, newValue: string) => {
     const draft = JSON.parse(JSON.stringify(prev)) as ContactData;
-    let cursor: ContactData | ContactForm | Record<string, unknown> = draft;
+    let cursor: any = draft;
     for (let i = 0; i < path.length - 1; i++) {
-      cursor = (cursor as any)[path[i]];
+      cursor = cursor[path[i]];
     }
     const last = path[path.length - 1];
-    const current = (cursor as any)[last];
-    if (current?.en?.text !== undefined) {
-      (cursor as any)[last][lang].text = newValue;
+    const current = cursor[last];
+    if (current && typeof current === 'object' && 'en' in current && typeof current.en === 'object' && 'text' in current.en) {
+      (cursor[last] as { [key in Language]: { text: string } })[lang].text = newValue;
     } else {
-      (cursor as any)[last][lang] = newValue;
+      (cursor[last] as Record<Language, string>)[lang] = newValue;
     }
     return draft;
   };
@@ -370,8 +370,8 @@ export default function ContactAdmin() {
                   <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>{key}</td>
                   <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={item.label.en} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.contactInfo[key].label.en = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
                   <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={item.label.ur} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.contactInfo[key].label.ur = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} /></td>
-                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={typeof item.value === 'string' ? item.value : (item.value.en || '')} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); if (typeof draft.contactInfo[key].value === 'string') { draft.contactInfo[key].value = e.target.value } else { (draft.contactInfo[key].value as any).en = e.target.value } return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
-                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={typeof item.value === 'string' ? '' : (item.value as any).ur || ''} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); if (typeof draft.contactInfo[key].value !== 'string') { (draft.contactInfo[key].value as any).ur = e.target.value } return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} /></td>
+                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={typeof item.value === 'string' ? item.value : (item.value as Record<Language, string>).en || ''} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); if (typeof draft.contactInfo[key].value === 'string') { draft.contactInfo[key].value = e.target.value } else { (draft.contactInfo[key].value as Record<Language, string>).en = e.target.value } return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
+                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={typeof item.value === 'string' ? '' : (item.value as Record<Language, string>).ur || ''} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); if (typeof draft.contactInfo[key].value !== 'string') { (draft.contactInfo[key].value as Record<Language, string>).ur = e.target.value } return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} /></td>
                   <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={item.url} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.contactInfo[key].url = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
                   <td className="px-4 py-2">
                     <IconSelector selectedIcon={item.icon} onSelect={(icon) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.contactInfo[key].icon = icon; return draft; })} size="small" disabled={!isEditingContactInfo} />
