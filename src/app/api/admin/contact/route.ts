@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { withAdminAuth } from '@/lib/authMiddleware';
 import { getCollection } from '@/lib/mongodb';
+import type { UpdateResult } from 'mongodb';
 
 // GET: Fetch contact data
 async function getContactData() {
@@ -79,7 +80,7 @@ async function updateContactData(request: Request) {
       { upsert: true }
     );
 
-    const created = (result as any).upsertedId !== undefined;
+    const created = (result as UpdateResult).upsertedId !== undefined;
     return NextResponse.json({
       success: true,
       message: created ? 'Contact data created' : 'Contact data updated',
