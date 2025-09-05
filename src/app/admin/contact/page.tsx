@@ -100,24 +100,30 @@ export default function ContactAdmin() {
     return v2[lang] || '';
   };
 
-  const setText = (prev: any, path: string[], lang: Language, newValue: string) => {
-  const draft = JSON.parse(JSON.stringify(prev)) as ContactData;
-  let cursor: any = draft;
-  for (let i = 0; i < path.length - 1; i++) {
-    cursor = cursor[path[i]];
-  }
-  const last = path[path.length - 1];
-  const current = cursor[last];
-  // Handle both { en: { text: string }, ur: { text: string } } and Record<Language, string>
-  if (current && typeof current === 'object' && 'en' in current && typeof current.en === 'object' && 'text' in current.en) {
-    current[lang].text = newValue;
-  } else {
-    (cursor[last] as Record<Language, string>)[lang] = newValue;
-  }
-  return draft;
-};
-
-  const saveAll = async () => {
+  const setText = (prev: ContactData, path: string[], lang: Language, newValue: string) => {
+    const draft = JSON.parse(JSON.stringify(prev)) as ContactData;
+    type CursorType = {
+      [key: string]: TranslatedText | { [key: string]: TranslatedText | ContactFormField | Record<Language, string> };
+    };
+    let cursor = draft as unknown as CursorType;
+    for (let i = 0; i < path.length - 1; i++) {
+      cursor = cursor[path[i]] as CursorType;
+    }
+    const last = path[path.length - 1];
+    const current = cursor[last];
+    
+    if (current && typeof current === 'object' && 'en' in current) {
+      const typedCurrent = current as { [key in Language]: { text: string } | string };
+      if (typeof typedCurrent[lang] === 'object' && typedCurrent[lang] !== null) {
+        (typedCurrent[lang] as { text: string }).text = newValue;
+      } else {
+        typedCurrent[lang] = newValue;
+      }
+    } else {
+      (cursor[last] as Record<Language, string>)[lang] = newValue;
+    }
+    return draft;
+  };  const saveAll = async () => {
     if (!contactData) return;
     setSaving(true);
     try {
