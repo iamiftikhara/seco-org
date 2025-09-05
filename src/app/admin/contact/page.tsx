@@ -6,6 +6,7 @@ import Loader from "../components/Loader";
 import AdminError from "../errors/error";
 import { theme } from "@/config/theme";
 import { FiEdit2, FiSave, FiX, FiPlus, FiTrash2, FiImage, FiType } from "react-icons/fi";
+import { showConfirmDialog } from "@/utils/alert";
 import ImageSelector from "../components/ImageSelector";
 import IconSelector from "../components/IconSelector";
 
@@ -14,7 +15,7 @@ type Language = "en" | "ur";
 type TranslatedText = Record<Language, string> | { en: { text: string }, ur: { text: string } };
 interface ContactInfoItem {
   label: Record<Language, string>;
-  value: string | Record<Language, string>;
+  value: string;
   url: string;
   icon: string;
 }
@@ -52,7 +53,7 @@ interface ContactData {
 export default function ContactAdmin() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [contactData, setContactData] = useState<ContactData | null>(null);
 
   // Section edit flags
@@ -68,7 +69,7 @@ export default function ContactAdmin() {
 
   // Temp state for adding new contact info key
   const [newInfoKey, setNewInfoKey] = useState("");
-  const emptyContactInfo: ContactInfoItem = { label: { en: "", ur: "" }, value: { en: "", ur: "" }, url: "", icon: "" };
+  const emptyContactInfo: ContactInfoItem = { label: { en: "", ur: "" }, value: "", url: "", icon: "" };
 
   // Temp state for adding new social platform
   const emptyPlatform: SocialPlatform = { label: { en: "", ur: "" }, url: "", icon: "" };
@@ -83,7 +84,7 @@ export default function ContactAdmin() {
         if (!json.success || !json.data) throw new Error(json.error || 'Failed to load contact');
         setContactData(json.data as ContactData);
       } catch (e) {
-        setError(e instanceof Error ? e : new Error('Failed to load contact'));
+        setError(e instanceof Error ? e.message : 'Failed to load contact');
       } finally {
         setLoading(false);
       }
@@ -131,9 +132,16 @@ export default function ContactAdmin() {
         method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
         body: JSON.stringify({ contactData })
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error || `Failed to save (HTTP ${res.status})`);
+      }
       const json = await res.json();
       if (!json.success) throw new Error(json.error || 'Failed to save');
+      return true; // Return true on success
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save');
+      return false; // Return false on error
     } finally {
       setSaving(false);
     }
@@ -142,7 +150,14 @@ export default function ContactAdmin() {
   const handleSavePage = async () => { await saveAll(); setIsEditingPage(false); setOriginalPage(null); };
   const handleCancelPage = () => { if (originalPage) setContactData(originalPage); setOriginalPage(null); setIsEditingPage(false); };
 
-  const handleSaveContactInfo = async () => { await saveAll(); setIsEditingContactInfo(false); setOriginalContactInfo(null); };
+  const handleSaveContactInfo = async () => { 
+    const saved = await saveAll(); 
+    if (saved) {
+      setIsEditingContactInfo(false); 
+      setOriginalContactInfo(null);
+      setError(null);
+    }
+  };
   const handleCancelContactInfo = () => { if (!contactData) return; if (originalContactInfo) setContactData({ ...contactData, contactInfo: originalContactInfo }); setOriginalContactInfo(null); setIsEditingContactInfo(false); };
 
   const handleSaveSocial = async () => { await saveAll(); setIsEditingSocial(false); setOriginalSocial(null); };
@@ -152,7 +167,7 @@ export default function ContactAdmin() {
   const handleCancelForm = () => { if (!contactData) return; if (originalForm) setContactData({ ...contactData, form: originalForm }); setOriginalForm(null); setIsEditingForm(false); };
 
   if (loading) return <DashboardLoader />;
-  if (error) return <AdminError error={error} reset={() => window.location.reload()} />;
+  if (error) return <AdminError error={new Error(error)} reset={() => window.location.reload()} />;
   if (!contactData) return null;
 
   return (
@@ -323,73 +338,77 @@ export default function ContactAdmin() {
       <div className="bg-white rounded-xl shadow-sm p-8 mb-8" style={{backgroundColor: theme.colors.background.primary}}>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold" style={{color: theme.colors.text.primary}}>Contact Info</h2>
-          {!isEditingContactInfo ? (
-            <button type="button" onClick={() => { setOriginalContactInfo(contactData.contactInfo); setIsEditingContactInfo(true); }} className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-90" style={{backgroundColor: theme.colors.primary, color: theme.colors.text.light}}>
-              <FiEdit2 className="w-4 h-4" /> Edit
-            </button>
-          ) : (
-            <div className="flex gap-2">
-              <button type="button" onClick={handleCancelContactInfo} className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-90" style={{backgroundColor: theme.colors.status.error, color: theme.colors.text.light}}>
-                <FiX className="w-4 h-4" /> Cancel
-              </button>
-              <button type="button" onClick={handleSaveContactInfo} className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-90" style={{backgroundColor: theme.colors.secondary, color: theme.colors.text.primary}}>
-                <FiSave className="w-4 h-4" /> Save
-              </button>
-            </div>
-          )}
+          <button type="button" onClick={() => { setNewInfoKey(""); setIsEditingContactInfo(true); }} className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-90" style={{backgroundColor: theme.colors.primary, color: theme.colors.text.light}}>
+            <FiPlus className="w-4 h-4" /> Add New
+          </button>
         </div>
-
-        {isEditingContactInfo && (
-          <div className="flex items-end gap-3 mb-4">
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1" style={{color: theme.colors.text.secondary}}>New Item Key (e.g., phone)</label>
-              <input type="text" value={newInfoKey} onChange={(e) => setNewInfoKey(e.target.value)} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} />
-            </div>
-            <button type="button" disabled={!newInfoKey} onClick={() => {
-              if (!contactData) return;
-              if (!newInfoKey.trim()) return;
-              if (contactData.contactInfo[newInfoKey]) return;
-              setContactData({ ...contactData, contactInfo: { ...contactData.contactInfo, [newInfoKey]: JSON.parse(JSON.stringify(emptyContactInfo)) } });
-              setNewInfoKey("");
-            }} className="flex items-center gap-2 px-4 py-2 rounded-lg disabled:opacity-50" style={{backgroundColor: theme.colors.primary, color: theme.colors.text.light}}>
-              <FiPlus className="w-4 h-4" /> Add
-            </button>
-          </div>
-        )}
 
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y" style={{ borderColor: theme.colors.border.default }}>
             <thead>
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Key</th>
                 <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Label (EN)</th>
-                <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Label (UR)</th>
-                <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Value (EN/Str)</th>
-                <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Value (UR)</th>
-                <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>URL</th>
+                <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Value</th>
                 <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Icon</th>
-                {isEditingContactInfo && <th className="px-4 py-2 text-right text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Actions</th>}
+                <th className="px-4 py-2 text-right text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y" style={{ borderColor: theme.colors.border.default }}>
               {Object.entries(contactData.contactInfo).map(([key, item]) => (
                 <tr key={key}>
-                  <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>{key}</td>
-                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={item.label.en} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.contactInfo[key].label.en = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
-                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={item.label.ur} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.contactInfo[key].label.ur = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} /></td>
-                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={typeof item.value === 'string' ? item.value : (item.value as Record<Language, string>).en || ''} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); if (typeof draft.contactInfo[key].value === 'string') { draft.contactInfo[key].value = e.target.value } else { (draft.contactInfo[key].value as Record<Language, string>).en = e.target.value } return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
-                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={typeof item.value === 'string' ? '' : (item.value as Record<Language, string>).ur || ''} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); if (typeof draft.contactInfo[key].value !== 'string') { (draft.contactInfo[key].value as Record<Language, string>).ur = e.target.value } return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} /></td>
-                  <td className="px-4 py-2"><input disabled={!isEditingContactInfo} type="text" value={item.url} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.contactInfo[key].url = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
-                  <td className="px-4 py-2">
-                    <IconSelector selectedIcon={item.icon} onSelect={(icon) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.contactInfo[key].icon = icon; return draft; })} size="small" disabled={!isEditingContactInfo} />
+                  <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>
+                    {item.label.en}
                   </td>
-                  {isEditingContactInfo && (
-                    <td className="px-4 py-2 text-right">
-                      <button type="button" onClick={() => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); delete draft.contactInfo[key]; return draft; })} className="p-2 rounded-lg hover:bg-gray-100" style={{color: theme.colors.status.error}}>
+                  <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>
+                    {typeof item.value === 'string' ? item.value : (item.value as Record<Language, string>).en}
+                  </td>
+                  <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      {item.icon && require('react-icons/fa')[item.icon]?.({size: 20})}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOriginalContactInfo(contactData.contactInfo);
+                          setNewInfoKey(key);
+                          setIsEditingContactInfo(true);
+                        }}
+                        className="p-2 rounded-lg hover:bg-gray-100"
+                        style={{color: theme.colors.primary}}
+                      >
+                        <FiEdit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const result = await showConfirmDialog({
+                            title: "Delete Contact Info?",
+                            text: "Are you sure you want to delete this contact information?",
+                            confirmButtonText: "Delete",
+                            cancelButtonText: "Cancel",
+                            icon: "warning",
+                            showCancelButton: true,
+                          });
+                          if (result.isConfirmed) {
+                            setContactData(prev => {
+                              if (!prev) return prev;
+                              const draft = structuredClone(prev);
+                              delete draft.contactInfo[key];
+                              return draft;
+                            });
+                            saveAll();
+                          }
+                        }}
+                        className="p-2 rounded-lg hover:bg-gray-100"
+                        style={{color: theme.colors.status.error}}
+                      >
                         <FiTrash2 className="w-4 h-4" />
                       </button>
-                    </td>
-                  )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -397,65 +416,457 @@ export default function ContactAdmin() {
         </div>
       </div>
 
+      {/* Contact Info Modal */}
+      {isEditingContactInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold" style={{color: theme.colors.text.primary}}>
+                {newInfoKey ? 'Edit Contact Info' : 'Add New Contact Info'}
+              </h3>
+              <button
+                onClick={() => {
+                  setIsEditingContactInfo(false);
+                  setNewInfoKey('');
+                  if (originalContactInfo) {
+                    setContactData(prev => prev ? {...prev, contactInfo: originalContactInfo} : prev);
+                    setOriginalContactInfo(null);
+                  }
+                }}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <FiX className="w-5 h-5" style={{color: theme.colors.text.secondary}} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Key Input - Only for new items */}
+              {!originalContactInfo && (
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                    Key (e.g., phone, email)
+                  </label>
+                  <input
+                    type="text"
+                    value={newInfoKey}
+                    onChange={(e) => setNewInfoKey(e.target.value)}
+                    disabled={!!originalContactInfo}
+                    className="w-full p-3 rounded-lg border"
+                    style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}}
+                    placeholder="Enter a unique key"
+                  />
+                </div>
+              )}
+
+              {/* Label Inputs */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  Label (English)
+                </label>
+                <input
+                  type="text"
+                  value={newInfoKey ? contactData.contactInfo[newInfoKey]?.label.en || '' : ''}
+                  onChange={(e) => {
+                    if (!contactData) return;
+                    const key = newInfoKey || Date.now().toString();
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      if (!draft.contactInfo[key]) {
+                        draft.contactInfo[key] = JSON.parse(JSON.stringify(emptyContactInfo));
+                      }
+                      draft.contactInfo[key].label.en = e.target.value;
+                      return draft;
+                    });
+                    if (!newInfoKey) setNewInfoKey(key);
+                  }}
+                  className="w-full p-3 rounded-lg border"
+                  style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  Label (Urdu)
+                </label>
+                <input
+                  type="text"
+                  value={newInfoKey ? contactData.contactInfo[newInfoKey]?.label.ur || '' : ''}
+                  onChange={(e) => {
+                    if (!contactData || !newInfoKey) return;
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      draft.contactInfo[newInfoKey].label.ur = e.target.value;
+                      return draft;
+                    });
+                  }}
+                  className="w-full p-3 rounded-lg border"
+                  style={{
+                    borderColor: theme.colors.border.default,
+                    color: theme.colors.text.primary,
+                    backgroundColor: theme.colors.background.primary,
+                    fontFamily: theme.fonts.ur.primary,
+                    direction: 'rtl',
+                    textAlign: 'right'
+                  }}
+                />
+              </div>
+
+              {/* Value Input */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  Value
+                </label>
+                <input
+                  type="text"
+                  value={newInfoKey ? (typeof contactData.contactInfo[newInfoKey]?.value === 'string' ? contactData.contactInfo[newInfoKey]?.value : (contactData.contactInfo[newInfoKey]?.value as Record<Language, string>).en) || '' : ''}
+                  onChange={(e) => {
+                    if (!contactData || !newInfoKey) return;
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      draft.contactInfo[newInfoKey].value = e.target.value;
+                      return draft;
+                    });
+                  }}
+                  className="w-full p-3 rounded-lg border"
+                  style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}}
+                />
+              </div>
+
+              {/* URL Input */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  URL
+                </label>
+                <input
+                  type="text"
+                  value={newInfoKey ? contactData.contactInfo[newInfoKey]?.url || '' : ''}
+                  onChange={(e) => {
+                    if (!contactData || !newInfoKey) return;
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      draft.contactInfo[newInfoKey].url = e.target.value;
+                      return draft;
+                    });
+                  }}
+                  className="w-full p-3 rounded-lg border"
+                  style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}}
+                />
+              </div>
+
+              {/* Icon Selector */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  Icon
+                </label>
+                <IconSelector
+                  selectedIcon={newInfoKey ? contactData.contactInfo[newInfoKey]?.icon || '' : ''}
+                  onSelect={(icon) => {
+                    if (!contactData || !newInfoKey) return;
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      draft.contactInfo[newInfoKey].icon = icon;
+                      return draft;
+                    });
+                  }}
+                  size="medium"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            {error && (
+              <div className="mb-4 p-4 text-sm rounded-lg" style={{backgroundColor: `${theme.colors.status.error}15`, color: theme.colors.status.error}}>
+                {error || 'An error occurred while saving'}
+              </div>
+            )}
+            <div className="flex justify-end gap-4 pt-6 border-t" style={{borderColor: theme.colors.border.default}}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditingContactInfo(false);
+                  setNewInfoKey('');
+                  if (originalContactInfo) {
+                    setContactData(prev => prev ? {...prev, contactInfo: originalContactInfo} : prev);
+                    setOriginalContactInfo(null);
+                  }
+                  setError(null);
+                }}
+                className="px-4 py-2 rounded-lg transition-colors duration-200"
+                style={{backgroundColor: theme.colors.background.secondary, color: theme.colors.text.primary}}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!contactData || !newInfoKey) return;
+                  saveAll();
+                  setIsEditingContactInfo(false);
+                  setNewInfoKey('');
+                  setOriginalContactInfo(null);
+                }}
+                className="px-4 py-2 rounded-lg transition-colors duration-200"
+                style={{backgroundColor: theme.colors.primary, color: theme.colors.text.light}}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Social Media - Table */}
       <div className="bg-white rounded-xl shadow-sm p-8 mb-8" style={{backgroundColor: theme.colors.background.primary}}>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold" style={{color: theme.colors.text.primary}}>Social Media</h2>
-          {!isEditingSocial ? (
-            <button type="button" onClick={() => { setOriginalSocial(contactData.socialMedia); setIsEditingSocial(true); }} className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-90" style={{backgroundColor: theme.colors.primary, color: theme.colors.text.light}}>
-              <FiEdit2 className="w-4 h-4" /> Edit
-            </button>
-          ) : (
-            <div className="flex gap-2">
-              <button type="button" onClick={handleCancelSocial} className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-90" style={{backgroundColor: theme.colors.status.error, color: theme.colors.text.light}}>
-                <FiX className="w-4 h-4" /> Cancel
-              </button>
-              <button type="button" onClick={handleSaveSocial} className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-90" style={{backgroundColor: theme.colors.secondary, color: theme.colors.text.primary}}>
-                <FiSave className="w-4 h-4" /> Save
-              </button>
-            </div>
-          )}
-        </div>
-
-        {isEditingSocial && (
-          <button type="button" onClick={() => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.socialMedia.platforms.push(JSON.parse(JSON.stringify(emptyPlatform))); return draft; })} className="flex items-center gap-2 px-4 py-2 rounded-lg mb-4" style={{backgroundColor: theme.colors.primary, color: theme.colors.text.light}}>
-            <FiPlus className="w-4 h-4" /> Add Platform
+          <button type="button" onClick={() => {
+            setOriginalSocial(contactData.socialMedia);
+            setIsEditingSocial(true);
+          }} className="flex items-center gap-2 px-4 py-2 rounded-lg hover:opacity-90" style={{backgroundColor: theme.colors.primary, color: theme.colors.text.light}}>
+            <FiPlus className="w-4 h-4" /> Add New
           </button>
-        )}
+        </div>
 
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y" style={{ borderColor: theme.colors.border.default }}>
             <thead>
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Label (EN)</th>
-                <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Label (UR)</th>
                 <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>URL</th>
                 <th className="px-4 py-2 text-left text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Icon</th>
-                {isEditingSocial && <th className="px-4 py-2 text-right text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Actions</th>}
+                <th className="px-4 py-2 text-right text-xs font-medium uppercase" style={{color: theme.colors.text.secondary}}>Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y" style={{ borderColor: theme.colors.border.default }}>
               {contactData.socialMedia.platforms.map((platform, idx) => (
                 <tr key={idx}>
-                  <td className="px-4 py-2"><input disabled={!isEditingSocial} type="text" value={platform.label.en} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.socialMedia.platforms[idx].label.en = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
-                  <td className="px-4 py-2"><input disabled={!isEditingSocial} type="text" value={platform.label.ur} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.socialMedia.platforms[idx].label.ur = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary, fontFamily: theme.fonts.ur.primary, direction: 'rtl', textAlign: 'right'}} /></td>
-                  <td className="px-4 py-2"><input disabled={!isEditingSocial} type="text" value={platform.url} onChange={(e) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.socialMedia.platforms[idx].url = e.target.value; return draft; })} className="w-full p-2 rounded-lg border" style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}} /></td>
-                  <td className="px-4 py-2">
-                    <IconSelector selectedIcon={platform.icon} onSelect={(icon) => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.socialMedia.platforms[idx].icon = icon; return draft; })} size="small" disabled={!isEditingSocial} />
+                  <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>
+                    {platform.label.en}
                   </td>
-                  {isEditingSocial && (
-                    <td className="px-4 py-2 text-right">
-                      <button type="button" onClick={() => setContactData(prev => { if (!prev) return prev; const draft = structuredClone(prev); draft.socialMedia.platforms.splice(idx, 1); return draft; })} className="p-2 rounded-lg hover:bg-gray-100" style={{color: theme.colors.status.error}}>
+                  <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>
+                    {platform.url}
+                  </td>
+                  <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      {platform.icon && require('react-icons/fa')[platform.icon]?.({size: 20})}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOriginalSocial(contactData.socialMedia);
+                          setIsEditingSocial(true);
+                          // Pre-fill the form with the selected platform
+                          setContactData(prev => {
+                            if (!prev) return prev;
+                            const draft = structuredClone(prev);
+                            // Move the selected platform to the end of the array
+                            const [platform] = draft.socialMedia.platforms.splice(idx, 1);
+                            draft.socialMedia.platforms.push(platform);
+                            return draft;
+                          });
+                        }}
+                        className="p-2 rounded-lg hover:bg-gray-100"
+                        style={{color: theme.colors.primary}}
+                      >
+                        <FiEdit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const result = await showConfirmDialog({
+                            title: "Delete Social Platform?",
+                            text: "Are you sure you want to delete this social platform?",
+                            confirmButtonText: "Delete",
+                            cancelButtonText: "Cancel",
+                            icon: "warning",
+                            showCancelButton: true,
+                          });
+                          if (result.isConfirmed) {
+                            setContactData(prev => {
+                              if (!prev) return prev;
+                              const draft = structuredClone(prev);
+                              draft.socialMedia.platforms.splice(idx, 1);
+                              return draft;
+                            });
+                            saveAll();
+                          }
+                        }}
+                        className="p-2 rounded-lg hover:bg-gray-100"
+                        style={{color: theme.colors.status.error}}
+                      >
                         <FiTrash2 className="w-4 h-4" />
                       </button>
-                    </td>
-                  )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Social Media Modal */}
+      {isEditingSocial && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold" style={{color: theme.colors.text.primary}}>
+                {contactData.socialMedia.platforms.length > 0 ? 'Edit Social Platform' : 'Add New Social Platform'}
+              </h3>
+              <button
+                onClick={() => {
+                  setIsEditingSocial(false);
+                  if (originalSocial) {
+                    setContactData(prev => prev ? {...prev, socialMedia: originalSocial} : prev);
+                    setOriginalSocial(null);
+                  }
+                }}
+                className="p-2 rounded-lg hover:bg-gray-100"
+              >
+                <FiX className="w-5 h-5" style={{color: theme.colors.text.secondary}} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Label Inputs */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  Label (English)
+                </label>
+                <input
+                  type="text"
+                  value={contactData.socialMedia.platforms[contactData.socialMedia.platforms.length - 1]?.label.en || ''}
+                  onChange={(e) => {
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      if (draft.socialMedia.platforms.length === 0) {
+                        draft.socialMedia.platforms.push(JSON.parse(JSON.stringify(emptyPlatform)));
+                      }
+                      draft.socialMedia.platforms[draft.socialMedia.platforms.length - 1].label.en = e.target.value;
+                      return draft;
+                    });
+                  }}
+                  className="w-full p-3 rounded-lg border"
+                  style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  Label (Urdu)
+                </label>
+                <input
+                  type="text"
+                  value={contactData.socialMedia.platforms[contactData.socialMedia.platforms.length - 1]?.label.ur || ''}
+                  onChange={(e) => {
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      if (draft.socialMedia.platforms.length === 0) {
+                        draft.socialMedia.platforms.push(JSON.parse(JSON.stringify(emptyPlatform)));
+                      }
+                      draft.socialMedia.platforms[draft.socialMedia.platforms.length - 1].label.ur = e.target.value;
+                      return draft;
+                    });
+                  }}
+                  className="w-full p-3 rounded-lg border"
+                  style={{
+                    borderColor: theme.colors.border.default,
+                    color: theme.colors.text.primary,
+                    backgroundColor: theme.colors.background.primary,
+                    fontFamily: theme.fonts.ur.primary,
+                    direction: 'rtl',
+                    textAlign: 'right'
+                  }}
+                />
+              </div>
+
+              {/* URL Input */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  URL
+                </label>
+                <input
+                  type="text"
+                  value={contactData.socialMedia.platforms[contactData.socialMedia.platforms.length - 1]?.url || ''}
+                  onChange={(e) => {
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      if (draft.socialMedia.platforms.length === 0) {
+                        draft.socialMedia.platforms.push(JSON.parse(JSON.stringify(emptyPlatform)));
+                      }
+                      draft.socialMedia.platforms[draft.socialMedia.platforms.length - 1].url = e.target.value;
+                      return draft;
+                    });
+                  }}
+                  className="w-full p-3 rounded-lg border"
+                  style={{borderColor: theme.colors.border.default, color: theme.colors.text.primary, backgroundColor: theme.colors.background.primary}}
+                />
+              </div>
+
+              {/* Icon Selector */}
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-2" style={{color: theme.colors.text.secondary}}>
+                  Icon
+                </label>
+                <IconSelector
+                  selectedIcon={contactData.socialMedia.platforms[contactData.socialMedia.platforms.length - 1]?.icon || ''}
+                  onSelect={(icon) => {
+                    setContactData(prev => {
+                      if (!prev) return prev;
+                      const draft = structuredClone(prev);
+                      if (draft.socialMedia.platforms.length === 0) {
+                        draft.socialMedia.platforms.push(JSON.parse(JSON.stringify(emptyPlatform)));
+                      }
+                      draft.socialMedia.platforms[draft.socialMedia.platforms.length - 1].icon = icon;
+                      return draft;
+                    });
+                  }}
+                  size="medium"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-4 pt-6 border-t" style={{borderColor: theme.colors.border.default}}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditingSocial(false);
+                  if (originalSocial) {
+                    setContactData(prev => prev ? {...prev, socialMedia: originalSocial} : prev);
+                    setOriginalSocial(null);
+                  }
+                }}
+                className="px-4 py-2 rounded-lg transition-colors duration-200"
+                style={{backgroundColor: theme.colors.background.secondary, color: theme.colors.text.primary}}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  saveAll();
+                  setIsEditingSocial(false);
+                  setOriginalSocial(null);
+                }}
+                className="px-4 py-2 rounded-lg transition-colors duration-200"
+                style={{backgroundColor: theme.colors.primary, color: theme.colors.text.light}}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Form Settings */}
       <div className="bg-white rounded-xl shadow-sm p-8 mb-8" style={{backgroundColor: theme.colors.background.primary}}>

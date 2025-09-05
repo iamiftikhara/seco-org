@@ -74,9 +74,11 @@ async function updateContactData(request: Request) {
     }
 
     const collection = await getCollection('contact');
+    // Remove _id from the data before updating
+    const { _id, ...dataToUpdate } = contactData;
     const result = await collection.updateOne(
       {},
-      { $set: contactData },
+      { $set: dataToUpdate },
       { upsert: true }
     );
 
