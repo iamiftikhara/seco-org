@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import DashboardLoader from "../components/DashboardLoader";
 import Loader from "../components/Loader";
 import AdminError from "../errors/error";
@@ -9,6 +9,20 @@ import { FiEdit2, FiSave, FiX, FiPlus, FiTrash2, FiImage, FiType } from "react-i
 import { showConfirmDialog } from "@/utils/alert";
 import ImageSelector from "../components/ImageSelector";
 import IconSelector from "../components/IconSelector";
+import * as Fa from "react-icons/fa";
+
+// Icon mapping for dynamic icon rendering
+const iconMap: { [key: string]: React.ComponentType<{ size?: number }> } = {
+  FaPhone: Fa.FaPhone,
+  FaWhatsapp: Fa.FaWhatsapp,
+  FaEnvelope: Fa.FaEnvelope,
+  FaMapMarkerAlt: Fa.FaMapMarkerAlt,
+  FaFacebook: Fa.FaFacebook,
+  FaTwitter: Fa.FaTwitter,
+  FaInstagram: Fa.FaInstagram,
+  FaLinkedin: Fa.FaLinkedin,
+  FaUser: Fa.FaUser
+};
 
 // Local types matching contact data
 type Language = "en" | "ur";
@@ -364,7 +378,7 @@ export default function ContactAdmin() {
                   </td>
                   <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>
                     <div className="w-8 h-8 flex items-center justify-center">
-                      {item.icon && require('react-icons/fa')[item.icon]?.({size: 20})}
+                      {item.icon && item.icon in iconMap ? React.createElement(iconMap[item.icon], { size: 20 }) : null}
                     </div>
                   </td>
                   <td className="px-4 py-2 text-right">
@@ -652,7 +666,7 @@ export default function ContactAdmin() {
                   </td>
                   <td className="px-4 py-2" style={{color: theme.colors.text.primary}}>
                     <div className="w-8 h-8 flex items-center justify-center">
-                      {platform.icon && require('react-icons/fa')[platform.icon]?.({size: 20})}
+                      {platform.icon && platform.icon in iconMap ? React.createElement(iconMap[platform.icon], { size: 20 }) : null}
                     </div>
                   </td>
                   <td className="px-4 py-2 text-right">
